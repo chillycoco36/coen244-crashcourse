@@ -520,6 +520,8 @@ tr:hover td { background: rgba(255,255,255,0.02); }
     <a href="#fileio">File I/O</a>
     <a href="#templates">Templates</a>
     <a href="#mockfinal">Mock Final</a>
+    <a href="#cheatsheet-guide">Cheat Sheet</a>
+    <a href="#extra">Extra Practice</a>
   </div>
 </nav>
 <div id="progress"><div id="progress-bar"></div></div>
@@ -562,6 +564,9 @@ tr:hover td { background: rgba(255,255,255,0.02); }
     </table>
     <div class="highlight-box important" style="margin-top:1rem">
       <strong>The #1 exam pattern:</strong> You are given a class hierarchy, asked to implement constructors, use polymorphism with an array of base-class pointers, overload operators, and handle exceptions &mdash; all in one connected scenario. Master this pattern and you cover ~70% of the exam.
+    </div>
+    <div class="highlight-box warn" style="margin-top:1rem">
+      <strong>POST-MIDTERM TOPICS ARE MORE HEAVILY TESTED ON THE FINAL.</strong> The professor has indicated that topics covered AFTER the midterm &mdash; <strong>Operator Overloading, Exception Handling, File I/O, Templates &amp; STL</strong> &mdash; will carry more weight on the final exam. Pre-midterm topics (Classes, Composition, Inheritance, Polymorphism) are still tested, but expect a bigger chunk of marks on the post-midterm material. Don't neglect operator overloading and exception handling!
     </div>
   </div>
 </div>
@@ -1253,6 +1258,83 @@ ptrArray[<span class="nm">0</span>]-><span class="fn">setHour</span>(<span class
 ptrArray[<span class="nm">1</span>] = <span class="kw">nullptr</span>;</pre>
   </div>
 
+  <div class="theory-section" style="border: 1px solid rgba(56,189,248,0.3);">
+    <h4 style="color:var(--accent); font-size:1.15rem;">Full Example: Array of Pointers in Action</h4>
+    <p>This is the <strong>most important pattern</strong> in COEN 244. It combines composition, inheritance, and polymorphism. Understand this and you understand the exam.</p>
+
+    <p><strong>Scenario:</strong> A Zoo manages different Animals. Each animal has a name and makes a different sound.</p>
+
+<pre><span class="cm">// ===== Step 1: Base class with virtual function =====</span>
+<span class="kw">class</span> <span class="tp">Animal</span> {
+<span class="kw">public</span>:
+    <span class="fn">Animal</span>(<span class="kw">const</span> <span class="tp">string</span>&amp; n) : name(n) {}
+    <span class="kw">virtual</span> ~<span class="fn">Animal</span>() {}            <span class="cm">// virtual destructor!</span>
+    <span class="kw">virtual</span> <span class="kw">void</span> <span class="fn">speak</span>() <span class="kw">const</span> = <span class="nm">0</span>; <span class="cm">// pure virtual &mdash; abstract class</span>
+    <span class="tp">string</span> <span class="fn">getName</span>() <span class="kw">const</span> { <span class="kw">return</span> name; }
+<span class="kw">protected</span>:
+    <span class="tp">string</span> name;
+};
+
+<span class="cm">// ===== Step 2: Derived classes override speak() =====</span>
+<span class="kw">class</span> <span class="tp">Dog</span> : <span class="kw">public</span> <span class="tp">Animal</span> {
+<span class="kw">public</span>:
+    <span class="fn">Dog</span>(<span class="kw">const</span> <span class="tp">string</span>&amp; n) : <span class="fn">Animal</span>(n) {}
+    <span class="kw">void</span> <span class="fn">speak</span>() <span class="kw">const</span> { cout &lt;&lt; name &lt;&lt; <span class="st">" says: Woof!"</span> &lt;&lt; endl; }
+};
+
+<span class="kw">class</span> <span class="tp">Cat</span> : <span class="kw">public</span> <span class="tp">Animal</span> {
+<span class="kw">public</span>:
+    <span class="fn">Cat</span>(<span class="kw">const</span> <span class="tp">string</span>&amp; n) : <span class="fn">Animal</span>(n) {}
+    <span class="kw">void</span> <span class="fn">speak</span>() <span class="kw">const</span> { cout &lt;&lt; name &lt;&lt; <span class="st">" says: Meow!"</span> &lt;&lt; endl; }
+};
+
+<span class="kw">class</span> <span class="tp">Bird</span> : <span class="kw">public</span> <span class="tp">Animal</span> {
+<span class="kw">public</span>:
+    <span class="fn">Bird</span>(<span class="kw">const</span> <span class="tp">string</span>&amp; n) : <span class="fn">Animal</span>(n) {}
+    <span class="kw">void</span> <span class="fn">speak</span>() <span class="kw">const</span> { cout &lt;&lt; name &lt;&lt; <span class="st">" says: Tweet!"</span> &lt;&lt; endl; }
+};</pre>
+
+<pre><span class="cm">// ===== Step 3: Array of base-class pointers =====</span>
+<span class="kw">int</span> <span class="fn">main</span>() {
+    <span class="kw">const</span> <span class="kw">int</span> SIZE = <span class="nm">5</span>;
+    <span class="tp">Animal</span>* zoo[SIZE];  <span class="cm">// array of Animal POINTERS (not Animal objects!)</span>
+
+    <span class="cm">// Fill with different derived types &mdash; this is UPCASTING</span>
+    zoo[<span class="nm">0</span>] = <span class="kw">new</span> <span class="tp">Dog</span>(<span class="st">"Buddy"</span>);
+    zoo[<span class="nm">1</span>] = <span class="kw">new</span> <span class="tp">Cat</span>(<span class="st">"Whiskers"</span>);
+    zoo[<span class="nm">2</span>] = <span class="kw">new</span> <span class="tp">Dog</span>(<span class="st">"Rex"</span>);
+    zoo[<span class="nm">3</span>] = <span class="kw">new</span> <span class="tp">Bird</span>(<span class="st">"Tweety"</span>);
+    zoo[<span class="nm">4</span>] = <span class="kw">new</span> <span class="tp">Cat</span>(<span class="st">"Luna"</span>);
+
+    <span class="cm">// Polymorphic loop &mdash; DYNAMIC BINDING</span>
+    <span class="cm">// Each animal calls ITS OWN version of speak()</span>
+    <span class="kw">for</span> (<span class="kw">int</span> i = <span class="nm">0</span>; i &lt; SIZE; i++) {
+        zoo[i]-><span class="fn">speak</span>();  <span class="cm">// virtual + pointer = dynamic binding</span>
+    }
+
+    <span class="cm">// Cleanup &mdash; virtual destructor ensures correct cleanup</span>
+    <span class="kw">for</span> (<span class="kw">int</span> i = <span class="nm">0</span>; i &lt; SIZE; i++) {
+        <span class="kw">delete</span> zoo[i];
+    }
+    <span class="kw">return</span> <span class="nm">0</span>;
+}</pre>
+
+<pre><span class="cm">// OUTPUT:</span>
+<span class="cm">// Buddy says: Woof!</span>
+<span class="cm">// Whiskers says: Meow!</span>
+<span class="cm">// Rex says: Woof!</span>
+<span class="cm">// Tweety says: Tweet!</span>
+<span class="cm">// Luna says: Meow!</span></pre>
+
+    <div class="highlight-box">
+      <strong>Why this works:</strong> All five pointers are of type <span class="inline-code">Animal*</span>. But each points to a different derived object. When we call <span class="inline-code">zoo[i]->speak()</span>, C++ checks <strong>at runtime</strong> what the actual object is and calls the correct version. Dog calls Dog::speak, Cat calls Cat::speak, Bird calls Bird::speak. That's polymorphism through an array of pointers.
+    </div>
+
+    <div class="highlight-box warn">
+      <strong>What would happen WITHOUT virtual?</strong> If <span class="inline-code">speak()</span> was NOT declared virtual in Animal, every single call would run <span class="inline-code">Animal::speak()</span> &mdash; which doesn't even exist (it's pure virtual). The compiler would use static binding, look at the pointer type (Animal*), and try to call Animal's version. With virtual, it uses dynamic binding, looks at the object type, and calls the correct derived version.
+    </div>
+  </div>
+
   <details>
     <summary><span class="q-badge">PRACTICE</span> Engine &amp; Car Composition</summary>
     <div class="details-body">
@@ -1555,7 +1637,7 @@ sPtr-><span class="fn">print</span>();  <span class="cm">// dynamic binding &rar
   </div>
 
   <div class="theory-section" style="border:1px solid rgba(239,68,68,0.3); background:linear-gradient(135deg, rgba(239,68,68,0.06), transparent);">
-    <h4 style="color:var(--red);">EXAM ALERT &mdash; Always tested (15-20 marks)</h4>
+    <h4 style="color:var(--red);">EXAM ALERT &mdash; POST-MIDTERM &bull; Always tested (15-20+ marks)</h4>
     <p><strong>What they ask:</strong></p>
     <ul>
       <li>Implement <span class="inline-code">operator&lt;&lt;</span> (friend function) &mdash; appears in <strong>every</strong> final</li>
@@ -1664,7 +1746,7 @@ sPtr-><span class="fn">print</span>();  <span class="cm">// dynamic binding &rar
   </div>
 
   <div class="theory-section" style="border:1px solid rgba(56,189,248,0.3); background:linear-gradient(135deg, rgba(56,189,248,0.06), transparent);">
-    <h4 style="color:var(--accent);">EXAM ALERT &mdash; Usually combined with other topics</h4>
+    <h4 style="color:var(--red);">EXAM ALERT &mdash; POST-MIDTERM &bull; Expect more weight on the final</h4>
     <p>Exception handling rarely gets its own standalone question. Instead, it's <strong>woven into</strong> other questions:</p>
     <ul>
       <li><strong>2011 Final:</strong> Constructor throws exception if weight &lt; 0 &mdash; integrated with inheritance question</li>
@@ -1765,7 +1847,7 @@ sPtr-><span class="fn">print</span>();  <span class="cm">// dynamic binding &rar
   </div>
 
   <div class="theory-section" style="border:1px solid rgba(56,189,248,0.3); background:linear-gradient(135deg, rgba(56,189,248,0.06), transparent);">
-    <h4 style="color:var(--accent);">EXAM ALERT &mdash; 5-10 marks, often the last question</h4>
+    <h4 style="color:var(--red);">EXAM ALERT &mdash; POST-MIDTERM &bull; Expect more weight on the final</h4>
     <p>File I/O questions usually ask you to:</p>
     <ul>
       <li>Write object data to a sequential file (using <span class="inline-code">ofstream</span>)</li>
@@ -1854,7 +1936,7 @@ inFile.<span class="fn">close</span>();</pre>
   </div>
 
   <div class="theory-section" style="border:1px solid rgba(56,189,248,0.3); background:linear-gradient(135deg, rgba(56,189,248,0.06), transparent);">
-    <h4 style="color:var(--accent);">EXAM ALERT &mdash; Usually 5-10 marks (MCQ or output tracing)</h4>
+    <h4 style="color:var(--red);">EXAM ALERT &mdash; POST-MIDTERM &bull; Expect more weight on the final</h4>
     <p>Templates/STL questions are typically shorter and easier. Common patterns:</p>
     <ul>
       <li><strong>2004 Final Q2:</strong> Write a class template <span class="inline-code">Point&lt;T&gt;</span> with constructor, getSlope(), and <span class="inline-code">operator&lt;&lt;</span></li>
@@ -2322,6 +2404,456 @@ Last: ELEC275</pre>
 </div>
 
 </div><!-- end container -->
+
+<!-- ==================== CHEAT SHEET GUIDE ==================== -->
+<div class="part-header" id="cheatsheet-guide">
+  <div class="part-label">Bonus</div>
+  <h2>What To Put On Your Cheat Sheet</h2>
+  <p class="part-desc">You get two A4 sheets (front &amp; back = 4 pages). Here's exactly what to write on them.</p>
+</div>
+
+<div class="container">
+  <div class="theory-section" style="border:1px solid rgba(52,211,153,0.4); background: linear-gradient(135deg, rgba(52,211,153,0.08), transparent);">
+    <h4 style="color:var(--accent3); font-size:1.2rem;">Page 1 &mdash; Code Patterns (THE MOST IMPORTANT PAGE)</h4>
+    <p>Write these code templates exactly. You'll copy them directly onto your exam answers.</p>
+
+    <p><strong>1. Deep Copy Pattern (constructor &amp; copy constructor)</strong></p>
+<pre><span class="fn">MyClass</span>(<span class="kw">const</span> <span class="kw">char</span>* n) {
+    name = <span class="kw">new</span> <span class="kw">char</span>[<span class="fn">strlen</span>(n) + <span class="nm">1</span>];
+    <span class="fn">strcpy</span>(name, n);
+}
+<span class="fn">MyClass</span>(<span class="kw">const</span> <span class="tp">MyClass</span>&amp; other) {  <span class="cm">// copy constructor &mdash; same pattern</span>
+    name = <span class="kw">new</span> <span class="kw">char</span>[<span class="fn">strlen</span>(other.name) + <span class="nm">1</span>];
+    <span class="fn">strcpy</span>(name, other.name);
+}
+~<span class="fn">MyClass</span>() { <span class="kw">delete</span>[] name; }</pre>
+
+    <p><strong>2. operator= (with self-assignment check)</strong></p>
+<pre><span class="kw">const</span> <span class="tp">MyClass</span>&amp; <span class="kw">operator</span>=(<span class="kw">const</span> <span class="tp">MyClass</span>&amp; other) {
+    <span class="kw">if</span> (<span class="kw">this</span> != &amp;other) {
+        <span class="kw">delete</span>[] name;
+        name = <span class="kw">new</span> <span class="kw">char</span>[<span class="fn">strlen</span>(other.name) + <span class="nm">1</span>];
+        <span class="fn">strcpy</span>(name, other.name);
+    }
+    <span class="kw">return</span> *<span class="kw">this</span>;
+}</pre>
+
+    <p><strong>3. operator&lt;&lt; (friend function)</strong></p>
+<pre><span class="kw">friend</span> <span class="tp">ostream</span>&amp; <span class="kw">operator</span>&lt;&lt;(<span class="tp">ostream</span>&amp; out, <span class="kw">const</span> <span class="tp">MyClass</span>&amp; obj) {
+    out &lt;&lt; obj.name &lt;&lt; <span class="st">" "</span> &lt;&lt; obj.id;
+    <span class="kw">return</span> out;
+}</pre>
+
+    <p><strong>4. operator&gt;&gt; (friend function)</strong></p>
+<pre><span class="kw">friend</span> <span class="tp">istream</span>&amp; <span class="kw">operator</span>&gt;&gt;(<span class="tp">istream</span>&amp; in, <span class="tp">MyClass</span>&amp; obj) {
+    in &gt;&gt; obj.name &gt;&gt; obj.id;
+    <span class="kw">return</span> in;
+}</pre>
+
+    <p><strong>5. Polymorphic Driver Pattern</strong></p>
+<pre><span class="tp">Base</span>* arr[N];
+arr[<span class="nm">0</span>] = <span class="kw">new</span> <span class="tp">Derived1</span>(...);
+arr[<span class="nm">1</span>] = <span class="kw">new</span> <span class="tp">Derived2</span>(...);
+<span class="kw">for</span> (<span class="kw">int</span> i = <span class="nm">0</span>; i &lt; N; i++) {
+    arr[i]-><span class="fn">virtualFunc</span>();  <span class="cm">// dynamic binding</span>
+}
+<span class="kw">for</span> (<span class="kw">int</span> i = <span class="nm">0</span>; i &lt; N; i++)
+    <span class="kw">delete</span> arr[i];  <span class="cm">// virtual destructor</span></pre>
+
+    <p><strong>6. Constructor Chain (inheritance)</strong></p>
+<pre><span class="tp">Derived</span>::<span class="fn">Derived</span>(args) : <span class="fn">Base</span>(baseArgs), member(val) { }</pre>
+
+    <p><strong>7. File I/O patterns</strong></p>
+<pre><span class="cm">// Write</span>
+<span class="tp">ofstream</span> out(<span class="st">"file.txt"</span>);
+<span class="kw">if</span>(!out) { cerr &lt;&lt; <span class="st">"Error"</span>; <span class="fn">exit</span>(<span class="nm">1</span>); }
+out &lt;&lt; data &lt;&lt; endl;
+out.<span class="fn">close</span>();
+
+<span class="cm">// Read</span>
+<span class="tp">ifstream</span> in(<span class="st">"file.txt"</span>);
+<span class="kw">if</span>(!in) { cerr &lt;&lt; <span class="st">"Error"</span>; <span class="fn">exit</span>(<span class="nm">1</span>); }
+<span class="kw">while</span>(in &gt;&gt; x &gt;&gt; y) { <span class="cm">/* process */</span> }
+in.<span class="fn">close</span>();
+
+<span class="cm">// Re-read a file</span>
+in.<span class="fn">clear</span>();
+in.<span class="fn">seekg</span>(<span class="nm">0</span>);</pre>
+
+    <p><strong>8. Exception Handling</strong></p>
+<pre><span class="kw">try</span> {
+    <span class="kw">if</span> (val &lt; <span class="nm">0</span>) <span class="kw">throw</span> <span class="tp">MyException</span>(val);
+} <span class="kw">catch</span> (<span class="tp">MyException</span>&amp; e) {
+    cout &lt;&lt; e.<span class="fn">what</span>() &lt;&lt; endl;
+}</pre>
+  </div>
+
+  <div class="theory-section" style="border:1px solid rgba(129,140,248,0.4); background: linear-gradient(135deg, rgba(129,140,248,0.08), transparent);">
+    <h4 style="color:var(--accent2); font-size:1.2rem;">Page 2 &mdash; Rules &amp; Quick Reference</h4>
+
+    <p><strong>5 Predefined Functions:</strong> Default constructor, copy constructor, destructor, operator=, operator&amp;</p>
+
+    <p><strong>Construction/Destruction Order:</strong><br>
+    Construction: Base &rarr; Derived (always)<br>
+    Destruction: Derived &rarr; Base (reverse)</p>
+
+    <p><strong>Binding Rules:</strong></p>
+    <table>
+      <tr><th>Call</th><th>Binding</th></tr>
+      <tr><td>obj.func()</td><td>Static</td></tr>
+      <tr><td>ptr-&gt;nonVirtual()</td><td>Static</td></tr>
+      <tr><td>ptr-&gt;virtualFunc()</td><td><strong>DYNAMIC</strong></td></tr>
+      <tr><td>ref.virtualFunc()</td><td><strong>DYNAMIC</strong></td></tr>
+      <tr><td>ptr-&gt;Base::func()</td><td>Static (forced)</td></tr>
+    </table>
+
+    <p><strong>Operator Rules:</strong><br>
+    Must be member: <span class="inline-code">=</span> <span class="inline-code">()</span> <span class="inline-code">[]</span> <span class="inline-code">-></span><br>
+    Must be friend: <span class="inline-code">&lt;&lt;</span> <span class="inline-code">&gt;&gt;</span> (left operand is stream)<br>
+    Overloading + does NOT overload +=<br>
+    operator[] must return a <strong>reference</strong> (int&amp;)</p>
+
+    <p><strong>Abstract class</strong> = has at least one <span class="inline-code">= 0</span> pure virtual. Can't instantiate. CAN have pointers.</p>
+
+    <p><strong>Virtual destructor:</strong> ALWAYS for base classes. Without it, delete via base pointer = memory leak.</p>
+
+    <p><strong>Rule of Three:</strong> If you have <span class="inline-code">char*</span> or dynamic memory &rarr; you NEED: destructor + copy constructor + operator=</p>
+
+    <p><strong>const with pointers:</strong><br>
+    <span class="inline-code">const int* ptr</span> = pointer to const (can't change value)<br>
+    <span class="inline-code">int* const ptr</span> = const pointer (can't change where it points)<br>
+    <span class="inline-code">const int* const ptr</span> = both const</p>
+
+    <p><strong>Template syntax:</strong><br>
+    Function: <span class="inline-code">template&lt;class T&gt; T func(T a)</span><br>
+    Class: <span class="inline-code">template&lt;class T&gt; class Stack { };</span><br>
+    Outside member: <span class="inline-code">template&lt;class T&gt; Stack&lt;T&gt;::func() { }</span></p>
+
+    <p><strong>STL vector:</strong> push_back, pop_back, size, front, back, erase, begin, end, sort(v.begin(), v.end())</p>
+
+    <p><strong>File modes:</strong> ios::in, ios::out, ios::app (append), ios::binary</p>
+  </div>
+
+  <div class="theory-section" style="border:1px solid rgba(244,114,182,0.4); background: linear-gradient(135deg, rgba(244,114,182,0.08), transparent);">
+    <h4 style="color:var(--accent5); font-size:1.2rem;">Pages 3 &amp; 4 &mdash; Example Code (copy real examples)</h4>
+    <p>Use the remaining space for a <strong>worked example</strong> of a full class hierarchy. Pick one from your assignments or from this website's mock final Q2 and write out:</p>
+    <ul>
+      <li>Base class declaration with pure virtual function</li>
+      <li>One derived class with constructor calling base via initializer list</li>
+      <li>operator&lt;&lt; and operator= implementations for that class</li>
+      <li>A short driver program with polymorphic loop</li>
+      <li>An exception handling example (try/catch with custom exception)</li>
+      <li>A file I/O example (write to file, read back)</li>
+    </ul>
+    <div class="highlight-box">
+      <strong>Pro tip:</strong> On the exam, you'll essentially be writing variations of the same patterns. If you have a full worked example on your cheat sheet, you can adapt it to whatever scenario they give you. Change the class names and data members, keep the structure.
+    </div>
+  </div>
+</div>
+
+<!-- ==================== EXTRA PRACTICE ==================== -->
+<div class="part-header" id="extra">
+  <div class="part-label">Extra Practice</div>
+  <h2>Additional Examples &mdash; Study Later</h2>
+  <p class="part-desc">These weren't covered in class but are great for extra practice. All have full solutions.</p>
+</div>
+
+<div class="container">
+
+  <!-- EXTRA 1: Operator Overloading Deep Dive -->
+  <div class="mock-question">
+    <h4>Extra 1 &mdash; operator[] and operator++ (Post-Midterm Focus)</h4>
+    <div class="marks">Operator overloading practice</div>
+    <p>Given a class <span class="inline-code">IntArray</span> with <span class="inline-code">int* data</span> and <span class="inline-code">int size</span>:</p>
+<pre><span class="kw">class</span> <span class="tp">IntArray</span> {
+<span class="kw">public</span>:
+    <span class="fn">IntArray</span>(<span class="kw">int</span> s);
+    <span class="fn">IntArray</span>(<span class="kw">const</span> <span class="tp">IntArray</span>&amp; other);
+    ~<span class="fn">IntArray</span>();
+    <span class="kw">int</span>&amp; <span class="kw">operator</span>[](<span class="kw">int</span> index);            <span class="cm">// subscript</span>
+    <span class="kw">const</span> <span class="tp">IntArray</span>&amp; <span class="kw">operator</span>=(<span class="kw">const</span> <span class="tp">IntArray</span>&amp; other); <span class="cm">// assignment</span>
+    <span class="kw">bool</span> <span class="kw">operator</span>==(<span class="kw">const</span> <span class="tp">IntArray</span>&amp; other) <span class="kw">const</span>;  <span class="cm">// equality</span>
+    <span class="kw">friend</span> <span class="tp">ostream</span>&amp; <span class="kw">operator</span>&lt;&lt;(<span class="tp">ostream</span>&amp;, <span class="kw">const</span> <span class="tp">IntArray</span>&amp;);
+<span class="kw">private</span>:
+    <span class="kw">int</span>* data;
+    <span class="kw">int</span> size;
+};</pre>
+    <p>Implement: constructor, copy constructor, destructor, operator[], operator=, operator==, operator&lt;&lt;</p>
+
+    <details>
+      <summary><span style="color:var(--accent3)">Show Full Solution</span></summary>
+      <div class="details-body">
+<pre><span class="tp">IntArray</span>::<span class="fn">IntArray</span>(<span class="kw">int</span> s) : size(s) {
+    data = <span class="kw">new</span> <span class="kw">int</span>[size];
+    <span class="kw">for</span> (<span class="kw">int</span> i = <span class="nm">0</span>; i &lt; size; i++) data[i] = <span class="nm">0</span>;
+}
+
+<span class="tp">IntArray</span>::<span class="fn">IntArray</span>(<span class="kw">const</span> <span class="tp">IntArray</span>&amp; other) : size(other.size) {
+    data = <span class="kw">new</span> <span class="kw">int</span>[size];
+    <span class="kw">for</span> (<span class="kw">int</span> i = <span class="nm">0</span>; i &lt; size; i++) data[i] = other.data[i];
+}
+
+<span class="tp">IntArray</span>::~<span class="fn">IntArray</span>() { <span class="kw">delete</span>[] data; }
+
+<span class="kw">int</span>&amp; <span class="tp">IntArray</span>::<span class="kw">operator</span>[](<span class="kw">int</span> index) {
+    <span class="kw">if</span> (index &lt; <span class="nm">0</span> || index >= size) {
+        cout &lt;&lt; <span class="st">"Error: index "</span> &lt;&lt; index &lt;&lt; <span class="st">" out of range"</span> &lt;&lt; endl;
+        <span class="fn">exit</span>(<span class="nm">1</span>);
+    }
+    <span class="kw">return</span> data[index];  <span class="cm">// returns REFERENCE so arr[2] = 5 works</span>
+}
+
+<span class="kw">const</span> <span class="tp">IntArray</span>&amp; <span class="tp">IntArray</span>::<span class="kw">operator</span>=(<span class="kw">const</span> <span class="tp">IntArray</span>&amp; other) {
+    <span class="kw">if</span> (<span class="kw">this</span> != &amp;other) {
+        <span class="kw">delete</span>[] data;
+        size = other.size;
+        data = <span class="kw">new</span> <span class="kw">int</span>[size];
+        <span class="kw">for</span> (<span class="kw">int</span> i = <span class="nm">0</span>; i &lt; size; i++) data[i] = other.data[i];
+    }
+    <span class="kw">return</span> *<span class="kw">this</span>;
+}
+
+<span class="kw">bool</span> <span class="tp">IntArray</span>::<span class="kw">operator</span>==(<span class="kw">const</span> <span class="tp">IntArray</span>&amp; other) <span class="kw">const</span> {
+    <span class="kw">if</span> (size != other.size) <span class="kw">return</span> <span class="kw">false</span>;
+    <span class="kw">for</span> (<span class="kw">int</span> i = <span class="nm">0</span>; i &lt; size; i++)
+        <span class="kw">if</span> (data[i] != other.data[i]) <span class="kw">return</span> <span class="kw">false</span>;
+    <span class="kw">return</span> <span class="kw">true</span>;
+}
+
+<span class="tp">ostream</span>&amp; <span class="kw">operator</span>&lt;&lt;(<span class="tp">ostream</span>&amp; out, <span class="kw">const</span> <span class="tp">IntArray</span>&amp; arr) {
+    <span class="kw">for</span> (<span class="kw">int</span> i = <span class="nm">0</span>; i &lt; arr.size; i++)
+        out &lt;&lt; arr.data[i] &lt;&lt; <span class="st">" "</span>;
+    <span class="kw">return</span> out;
+}</pre>
+      </div>
+    </details>
+  </div>
+
+  <!-- EXTRA 2: Exception + File I/O combined -->
+  <div class="mock-question">
+    <h4>Extra 2 &mdash; File I/O with Exception Handling (Post-Midterm Focus)</h4>
+    <div class="marks">Combined practice</div>
+    <p>Write a program that:</p>
+    <ul>
+      <li>Reads student records (id, name, gpa) from <span class="inline-code">students.txt</span></li>
+      <li>Throws <span class="inline-code">FileException</span> if the file can't be opened</li>
+      <li>Throws <span class="inline-code">InvalidGPAException</span> if any GPA is &lt; 0 or &gt; 4.3</li>
+      <li>Writes only students with GPA &ge; 3.0 to <span class="inline-code">honors.txt</span></li>
+    </ul>
+
+    <details>
+      <summary><span style="color:var(--accent3)">Show Full Solution</span></summary>
+      <div class="details-body">
+<pre><span class="kw">class</span> <span class="tp">FileException</span> {
+<span class="kw">public</span>:
+    <span class="fn">FileException</span>(<span class="kw">const</span> <span class="tp">string</span>&amp; f) : filename(f) {}
+    <span class="tp">string</span> <span class="fn">what</span>() <span class="kw">const</span> { <span class="kw">return</span> <span class="st">"Cannot open: "</span> + filename; }
+<span class="kw">private</span>:
+    <span class="tp">string</span> filename;
+};
+
+<span class="kw">class</span> <span class="tp">InvalidGPAException</span> {
+<span class="kw">public</span>:
+    <span class="fn">InvalidGPAException</span>(<span class="kw">double</span> g) : gpa(g) {}
+    <span class="tp">string</span> <span class="fn">what</span>() <span class="kw">const</span> {
+        <span class="kw">return</span> <span class="st">"Invalid GPA: "</span> + <span class="fn">to_string</span>(gpa);
+    }
+<span class="kw">private</span>:
+    <span class="kw">double</span> gpa;
+};
+
+<span class="kw">void</span> <span class="fn">filterHonors</span>(<span class="kw">const</span> <span class="tp">string</span>&amp; inFile, <span class="kw">const</span> <span class="tp">string</span>&amp; outFile) {
+    <span class="tp">ifstream</span> in(inFile);
+    <span class="kw">if</span> (!in) <span class="kw">throw</span> <span class="tp">FileException</span>(inFile);
+
+    <span class="tp">ofstream</span> out(outFile);
+    <span class="kw">if</span> (!out) <span class="kw">throw</span> <span class="tp">FileException</span>(outFile);
+
+    <span class="kw">int</span> id; <span class="tp">string</span> name; <span class="kw">double</span> gpa;
+    <span class="kw">while</span> (in &gt;&gt; id &gt;&gt; name &gt;&gt; gpa) {
+        <span class="kw">if</span> (gpa &lt; <span class="nm">0.0</span> || gpa &gt; <span class="nm">4.3</span>)
+            <span class="kw">throw</span> <span class="tp">InvalidGPAException</span>(gpa);
+        <span class="kw">if</span> (gpa >= <span class="nm">3.0</span>)
+            out &lt;&lt; id &lt;&lt; <span class="st">" "</span> &lt;&lt; name &lt;&lt; <span class="st">" "</span> &lt;&lt; gpa &lt;&lt; endl;
+    }
+    in.<span class="fn">close</span>();
+    out.<span class="fn">close</span>();
+}
+
+<span class="kw">int</span> <span class="fn">main</span>() {
+    <span class="kw">try</span> {
+        <span class="fn">filterHonors</span>(<span class="st">"students.txt"</span>, <span class="st">"honors.txt"</span>);
+        cout &lt;&lt; <span class="st">"Honors list created successfully."</span> &lt;&lt; endl;
+    }
+    <span class="kw">catch</span> (<span class="tp">FileException</span>&amp; e) {
+        cout &lt;&lt; <span class="st">"File Error: "</span> &lt;&lt; e.<span class="fn">what</span>() &lt;&lt; endl;
+    }
+    <span class="kw">catch</span> (<span class="tp">InvalidGPAException</span>&amp; e) {
+        cout &lt;&lt; <span class="st">"Data Error: "</span> &lt;&lt; e.<span class="fn">what</span>() &lt;&lt; endl;
+    }
+    <span class="kw">return</span> <span class="nm">0</span>;
+}</pre>
+      </div>
+    </details>
+  </div>
+
+  <!-- EXTRA 3: Full Template class -->
+  <div class="mock-question">
+    <h4>Extra 3 &mdash; Class Template with operator&lt;&lt; (Post-Midterm Focus)</h4>
+    <div class="marks">Templates practice</div>
+    <p>Write a class template <span class="inline-code">DynamicArray&lt;T&gt;</span> that works like a simplified vector:</p>
+    <ul>
+      <li>Constructor takes initial capacity</li>
+      <li><span class="inline-code">add(const T&amp;)</span> adds an element (resize if full)</li>
+      <li><span class="inline-code">operator[]</span> for access</li>
+      <li><span class="inline-code">operator&lt;&lt;</span> to print all elements</li>
+    </ul>
+
+    <details>
+      <summary><span style="color:var(--accent3)">Show Full Solution</span></summary>
+      <div class="details-body">
+<pre><span class="kw">template</span>&lt;<span class="kw">class</span> <span class="tp">T</span>&gt;
+<span class="kw">class</span> <span class="tp">DynamicArray</span> {
+<span class="kw">public</span>:
+    <span class="fn">DynamicArray</span>(<span class="kw">int</span> cap = <span class="nm">10</span>);
+    <span class="fn">DynamicArray</span>(<span class="kw">const</span> <span class="tp">DynamicArray</span>&lt;<span class="tp">T</span>&gt;&amp; other);
+    ~<span class="fn">DynamicArray</span>();
+    <span class="kw">void</span> <span class="fn">add</span>(<span class="kw">const</span> <span class="tp">T</span>&amp; item);
+    <span class="tp">T</span>&amp; <span class="kw">operator</span>[](<span class="kw">int</span> index);
+    <span class="kw">int</span> <span class="fn">getSize</span>() <span class="kw">const</span> { <span class="kw">return</span> size; }
+
+    <span class="kw">friend</span> <span class="tp">ostream</span>&amp; <span class="kw">operator</span>&lt;&lt;(<span class="tp">ostream</span>&amp; out,
+            <span class="kw">const</span> <span class="tp">DynamicArray</span>&lt;<span class="tp">T</span>&gt;&amp; arr) {
+        <span class="kw">for</span> (<span class="kw">int</span> i = <span class="nm">0</span>; i &lt; arr.size; i++)
+            out &lt;&lt; arr.data[i] &lt;&lt; <span class="st">" "</span>;
+        <span class="kw">return</span> out;
+    }
+<span class="kw">private</span>:
+    <span class="tp">T</span>* data;
+    <span class="kw">int</span> size;
+    <span class="kw">int</span> capacity;
+};
+
+<span class="kw">template</span>&lt;<span class="kw">class</span> <span class="tp">T</span>&gt;
+<span class="tp">DynamicArray</span>&lt;<span class="tp">T</span>&gt;::<span class="fn">DynamicArray</span>(<span class="kw">int</span> cap) : size(<span class="nm">0</span>), capacity(cap) {
+    data = <span class="kw">new</span> <span class="tp">T</span>[capacity];
+}
+
+<span class="kw">template</span>&lt;<span class="kw">class</span> <span class="tp">T</span>&gt;
+<span class="tp">DynamicArray</span>&lt;<span class="tp">T</span>&gt;::<span class="fn">DynamicArray</span>(<span class="kw">const</span> <span class="tp">DynamicArray</span>&lt;<span class="tp">T</span>&gt;&amp; other)
+    : size(other.size), capacity(other.capacity) {
+    data = <span class="kw">new</span> <span class="tp">T</span>[capacity];
+    <span class="kw">for</span> (<span class="kw">int</span> i = <span class="nm">0</span>; i &lt; size; i++) data[i] = other.data[i];
+}
+
+<span class="kw">template</span>&lt;<span class="kw">class</span> <span class="tp">T</span>&gt;
+<span class="tp">DynamicArray</span>&lt;<span class="tp">T</span>&gt;::~<span class="fn">DynamicArray</span>() { <span class="kw">delete</span>[] data; }
+
+<span class="kw">template</span>&lt;<span class="kw">class</span> <span class="tp">T</span>&gt;
+<span class="kw">void</span> <span class="tp">DynamicArray</span>&lt;<span class="tp">T</span>&gt;::<span class="fn">add</span>(<span class="kw">const</span> <span class="tp">T</span>&amp; item) {
+    <span class="kw">if</span> (size >= capacity) {
+        capacity *= <span class="nm">2</span>;
+        <span class="tp">T</span>* newData = <span class="kw">new</span> <span class="tp">T</span>[capacity];
+        <span class="kw">for</span> (<span class="kw">int</span> i = <span class="nm">0</span>; i &lt; size; i++) newData[i] = data[i];
+        <span class="kw">delete</span>[] data;
+        data = newData;
+    }
+    data[size++] = item;
+}
+
+<span class="kw">template</span>&lt;<span class="kw">class</span> <span class="tp">T</span>&gt;
+<span class="tp">T</span>&amp; <span class="tp">DynamicArray</span>&lt;<span class="tp">T</span>&gt;::<span class="kw">operator</span>[](<span class="kw">int</span> index) {
+    <span class="kw">return</span> data[index];
+}
+
+<span class="cm">// Usage:</span>
+<span class="kw">int</span> <span class="fn">main</span>() {
+    <span class="tp">DynamicArray</span>&lt;<span class="kw">int</span>&gt; nums(<span class="nm">3</span>);
+    nums.<span class="fn">add</span>(<span class="nm">10</span>); nums.<span class="fn">add</span>(<span class="nm">20</span>); nums.<span class="fn">add</span>(<span class="nm">30</span>); nums.<span class="fn">add</span>(<span class="nm">40</span>); <span class="cm">// triggers resize</span>
+    cout &lt;&lt; nums &lt;&lt; endl;  <span class="cm">// 10 20 30 40</span>
+    nums[<span class="nm">1</span>] = <span class="nm">99</span>;
+    cout &lt;&lt; nums &lt;&lt; endl;  <span class="cm">// 10 99 30 40</span>
+
+    <span class="tp">DynamicArray</span>&lt;<span class="tp">string</span>&gt; names(<span class="nm">2</span>);
+    names.<span class="fn">add</span>(<span class="st">"Alice"</span>); names.<span class="fn">add</span>(<span class="st">"Bob"</span>);
+    cout &lt;&lt; names &lt;&lt; endl;  <span class="cm">// Alice Bob</span>
+    <span class="kw">return</span> <span class="nm">0</span>;
+}</pre>
+      </div>
+    </details>
+  </div>
+
+  <!-- EXTRA 4: STL output tracing -->
+  <div class="mock-question">
+    <h4>Extra 4 &mdash; STL Output Tracing (Post-Midterm Focus)</h4>
+    <div class="marks">Practice determining output</div>
+    <p>What is the output of this program?</p>
+<pre><span class="kw">#include</span> <span class="st">&lt;iostream&gt;</span>
+<span class="kw">#include</span> <span class="st">&lt;vector&gt;</span>
+<span class="kw">#include</span> <span class="st">&lt;algorithm&gt;</span>
+<span class="kw">using namespace</span> std;
+
+<span class="kw">int</span> <span class="fn">main</span>() {
+    <span class="tp">vector</span>&lt;<span class="kw">int</span>&gt; v;
+    v.<span class="fn">push_back</span>(<span class="nm">5</span>);
+    v.<span class="fn">push_back</span>(<span class="nm">2</span>);
+    v.<span class="fn">push_back</span>(<span class="nm">8</span>);
+    v.<span class="fn">push_back</span>(<span class="nm">1</span>);
+    v.<span class="fn">push_back</span>(<span class="nm">9</span>);
+    v.<span class="fn">push_back</span>(<span class="nm">3</span>);
+
+    cout &lt;&lt; <span class="st">"Size: "</span> &lt;&lt; v.<span class="fn">size</span>() &lt;&lt; endl;
+
+    <span class="fn">sort</span>(v.<span class="fn">begin</span>(), v.<span class="fn">end</span>());
+
+    <span class="tp">vector</span>&lt;<span class="kw">int</span>&gt;::<span class="tp">iterator</span> it;
+    <span class="kw">for</span> (it = v.<span class="fn">begin</span>(); it != v.<span class="fn">end</span>(); it++)
+        cout &lt;&lt; *it &lt;&lt; <span class="st">" "</span>;
+    cout &lt;&lt; endl;
+
+    v.<span class="fn">erase</span>(v.<span class="fn">begin</span>());
+    v.<span class="fn">erase</span>(v.<span class="fn">begin</span>() + <span class="nm">2</span>);
+
+    <span class="kw">for</span> (it = v.<span class="fn">begin</span>(); it != v.<span class="fn">end</span>(); it++)
+        cout &lt;&lt; *it &lt;&lt; <span class="st">" "</span>;
+    cout &lt;&lt; endl;
+
+    v.<span class="fn">insert</span>(v.<span class="fn">begin</span>() + <span class="nm">1</span>, <span class="nm">99</span>);
+    v.<span class="fn">push_back</span>(<span class="nm">7</span>);
+    v.<span class="fn">pop_back</span>();
+
+    cout &lt;&lt; <span class="st">"Size: "</span> &lt;&lt; v.<span class="fn">size</span>() &lt;&lt; endl;
+    cout &lt;&lt; <span class="st">"Front: "</span> &lt;&lt; v.<span class="fn">front</span>() &lt;&lt; endl;
+    cout &lt;&lt; <span class="st">"Back: "</span> &lt;&lt; v.<span class="fn">back</span>() &lt;&lt; endl;
+
+    <span class="kw">return</span> <span class="nm">0</span>;
+}</pre>
+
+    <details>
+      <summary><span style="color:var(--accent3)">Show Solution</span></summary>
+      <div class="details-body">
+<pre>Size: 6
+1 2 3 5 8 9
+2 3 8 9
+Size: 5
+Front: 2
+Back: 9</pre>
+        <p><strong>Step by step:</strong></p>
+        <ul>
+          <li>After push_backs: {5, 2, 8, 1, 9, 3} &mdash; size = 6</li>
+          <li>After sort: {1, 2, 3, 5, 8, 9}</li>
+          <li>erase(begin()) removes index 0 (the 1): {2, 3, 5, 8, 9}</li>
+          <li>erase(begin()+2) removes index 2 (the 5): {2, 3, 8, 9}</li>
+          <li>insert(begin()+1, 99) inserts 99 at index 1: {2, 99, 3, 8, 9}</li>
+          <li>push_back(7): {2, 99, 3, 8, 9, 7}</li>
+          <li>pop_back() removes 7: {2, 99, 3, 8, 9}</li>
+          <li>Size = 5, Front = 2, Back = 9</li>
+        </ul>
+      </div>
+    </details>
+  </div>
+
+</div>
 
 <!-- FOOTER -->
 <footer style="text-align:center; padding: 4rem 2rem; color: var(--text-dim); font-size: 0.85rem; border-top: 1px solid var(--border); margin-top: 4rem;">
