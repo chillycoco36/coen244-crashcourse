@@ -1,0 +1,2356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>COEN 244 Crash Course</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700;800;900&display=swap');
+
+:root {
+  --bg: #0a0e17;
+  --bg-card: #111827;
+  --bg-code: #0d1117;
+  --bg-nav: rgba(10,14,23,0.92);
+  --border: #1e293b;
+  --text: #e2e8f0;
+  --text-dim: #94a3b8;
+  --text-bright: #f8fafc;
+  --accent: #38bdf8;
+  --accent2: #818cf8;
+  --accent3: #34d399;
+  --accent4: #fb923c;
+  --accent5: #f472b6;
+  --red: #ef4444;
+  --keyword: #c084fc;
+  --string: #34d399;
+  --comment: #6b7280;
+  --number: #fb923c;
+  --type: #38bdf8;
+  --function: #fbbf24;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html { scroll-behavior: smooth; scroll-padding-top: 80px; }
+
+body {
+  font-family: 'Outfit', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.7;
+  overflow-x: hidden;
+}
+
+/* ============ SCROLLBAR ============ */
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: #475569; }
+
+/* ============ NAV ============ */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  background: var(--bg-nav);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+  padding: 0 2rem;
+  display: flex; align-items: center; gap: 1rem;
+  height: 64px;
+}
+nav .logo {
+  font-weight: 800; font-size: 1.1rem;
+  color: var(--accent);
+  white-space: nowrap;
+  letter-spacing: -0.02em;
+}
+nav .nav-links {
+  display: flex; gap: 0.25rem;
+  overflow-x: auto; flex: 1;
+  scrollbar-width: none;
+}
+nav .nav-links::-webkit-scrollbar { display: none; }
+nav .nav-links a {
+  color: var(--text-dim);
+  text-decoration: none;
+  font-size: 0.78rem;
+  padding: 0.35rem 0.7rem;
+  border-radius: 6px;
+  white-space: nowrap;
+  transition: all 0.2s;
+  font-weight: 500;
+}
+nav .nav-links a:hover, nav .nav-links a.active {
+  background: rgba(56,189,248,0.1);
+  color: var(--accent);
+}
+
+/* ============ PROGRESS BAR ============ */
+#progress {
+  position: fixed; top: 64px; left: 0; right: 0; height: 3px;
+  background: var(--border); z-index: 99;
+}
+#progress-bar {
+  height: 100%; width: 0%;
+  background: linear-gradient(90deg, var(--accent), var(--accent2), var(--accent5));
+  transition: width 0.15s;
+}
+
+/* ============ HERO ============ */
+.hero {
+  min-height: 100vh;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  text-align: center;
+  padding: 2rem;
+  position: relative;
+  overflow: hidden;
+}
+.hero::before {
+  content: '';
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(ellipse 600px 400px at 30% 40%, rgba(56,189,248,0.08), transparent),
+    radial-gradient(ellipse 500px 500px at 70% 60%, rgba(129,140,248,0.07), transparent),
+    radial-gradient(ellipse 400px 300px at 50% 80%, rgba(244,114,182,0.05), transparent);
+}
+.hero-badge {
+  position: relative;
+  display: inline-block;
+  padding: 0.4rem 1.2rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  border: 1px solid var(--accent);
+  border-radius: 100px;
+  color: var(--accent);
+  margin-bottom: 2rem;
+  letter-spacing: 0.05em;
+}
+.hero h1 {
+  position: relative;
+  font-size: clamp(3rem, 7vw, 5.5rem);
+  font-weight: 900;
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+  margin-bottom: 1.5rem;
+  background: linear-gradient(135deg, var(--text-bright) 0%, var(--accent) 50%, var(--accent2) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.hero .subtitle {
+  position: relative;
+  font-size: 1.3rem;
+  color: var(--text-dim);
+  max-width: 600px;
+  margin-bottom: 3rem;
+  font-weight: 300;
+}
+.hero-grid {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  max-width: 900px;
+  width: 100%;
+}
+.hero-stat {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1.5rem;
+  text-align: center;
+}
+.hero-stat .num {
+  font-size: 2rem; font-weight: 800;
+  font-family: 'JetBrains Mono', monospace;
+}
+.hero-stat .label {
+  color: var(--text-dim); font-size: 0.85rem; margin-top: 0.25rem;
+}
+.stat-accent1 .num { color: var(--accent); }
+.stat-accent2 .num { color: var(--accent2); }
+.stat-accent3 .num { color: var(--accent3); }
+.stat-accent4 .num { color: var(--accent4); }
+
+/* ============ SECTIONS ============ */
+.container {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+.part-header {
+  text-align: center;
+  padding: 6rem 2rem 3rem;
+}
+.part-header .part-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--accent);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 0.75rem;
+}
+.part-header h2 {
+  font-size: 2.5rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--text-bright);
+}
+.part-header .part-desc {
+  color: var(--text-dim);
+  font-size: 1.1rem;
+  margin-top: 0.75rem;
+}
+
+section.topic {
+  padding: 4rem 0;
+  border-top: 1px solid var(--border);
+}
+section.topic:first-of-type { border-top: none; }
+
+.topic-head {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+.topic-num {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.3rem 0.7rem;
+  border-radius: 6px;
+  white-space: nowrap;
+}
+.topic-head h3 {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--text-bright);
+}
+.topic-time {
+  font-size: 0.8rem;
+  color: var(--text-dim);
+  background: var(--bg-card);
+  padding: 0.25rem 0.75rem;
+  border-radius: 100px;
+  border: 1px solid var(--border);
+  white-space: nowrap;
+  margin-left: auto;
+}
+
+/* Color coding per topic */
+.c1 { background: rgba(56,189,248,0.15); color: var(--accent); }
+.c2 { background: rgba(129,140,248,0.15); color: var(--accent2); }
+.c3 { background: rgba(52,211,153,0.15); color: var(--accent3); }
+.c4 { background: rgba(251,146,60,0.15); color: var(--accent4); }
+.c5 { background: rgba(244,114,182,0.15); color: var(--accent5); }
+.c6 { background: rgba(239,68,68,0.15); color: var(--red); }
+.c7 { background: rgba(56,189,248,0.15); color: var(--accent); }
+.c8 { background: rgba(129,140,248,0.15); color: var(--accent2); }
+
+/* ============ THEORY BOXES ============ */
+.theory-section {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 2rem;
+  margin-bottom: 2rem;
+}
+.theory-section h4 {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--accent);
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.theory-section h4::before {
+  content: '//';
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.85rem;
+  color: var(--comment);
+}
+.theory-section p, .theory-section li {
+  color: var(--text);
+  font-size: 0.95rem;
+  margin-bottom: 0.5rem;
+}
+.theory-section ul {
+  padding-left: 1.5rem;
+  margin-bottom: 1rem;
+}
+.theory-section ul li::marker { color: var(--accent); }
+
+.concept-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1rem;
+  margin: 1rem 0;
+}
+.concept-card {
+  background: rgba(0,0,0,0.3);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.25rem;
+}
+.concept-card .concept-title {
+  font-weight: 700;
+  font-size: 0.9rem;
+  margin-bottom: 0.5rem;
+}
+.concept-card p {
+  font-size: 0.85rem;
+  color: var(--text-dim);
+}
+
+.highlight-box {
+  background: rgba(56,189,248,0.06);
+  border-left: 3px solid var(--accent);
+  padding: 1rem 1.25rem;
+  border-radius: 0 8px 8px 0;
+  margin: 1rem 0;
+  font-size: 0.9rem;
+}
+.highlight-box.warn {
+  border-left-color: var(--accent4);
+  background: rgba(251,146,60,0.06);
+}
+.highlight-box.important {
+  border-left-color: var(--red);
+  background: rgba(239,68,68,0.06);
+}
+
+/* ============ CODE BLOCKS ============ */
+pre {
+  background: var(--bg-code);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.25rem;
+  overflow-x: auto;
+  margin: 1rem 0;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.82rem;
+  line-height: 1.65;
+  color: var(--text);
+  position: relative;
+}
+pre .lang-label {
+  position: absolute;
+  top: 0.5rem; right: 0.75rem;
+  font-size: 0.65rem;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+code { font-family: 'JetBrains Mono', monospace; }
+.inline-code {
+  background: rgba(56,189,248,0.1);
+  color: var(--accent);
+  padding: 0.15rem 0.4rem;
+  border-radius: 4px;
+  font-size: 0.85em;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* Syntax highlighting */
+.kw { color: var(--keyword); font-weight: 500; }
+.tp { color: var(--type); }
+.fn { color: var(--function); }
+.st { color: var(--string); }
+.cm { color: var(--comment); font-style: italic; }
+.nm { color: var(--number); }
+.op { color: #e2e8f0; }
+
+/* ============ COLLAPSIBLE ============ */
+details {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  margin: 1.5rem 0;
+  overflow: hidden;
+}
+details summary {
+  padding: 1.25rem 1.5rem;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 1rem;
+  color: var(--text-bright);
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  user-select: none;
+  list-style: none;
+  transition: background 0.2s;
+}
+details summary:hover { background: rgba(255,255,255,0.02); }
+details summary::before {
+  content: '▸';
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--accent);
+  font-size: 0.9rem;
+  transition: transform 0.2s;
+}
+details[open] summary::before { transform: rotate(90deg); }
+details summary::-webkit-details-marker { display: none; }
+
+.details-body {
+  padding: 0 1.5rem 1.5rem;
+  border-top: 1px solid var(--border);
+}
+.details-body p { margin: 0.75rem 0; font-size: 0.95rem; }
+.details-body h5 {
+  font-size: 1rem;
+  color: var(--accent3);
+  margin: 1.5rem 0 0.75rem;
+}
+.details-body ul { padding-left: 1.5rem; margin: 0.5rem 0; }
+.details-body li { margin-bottom: 0.3rem; font-size: 0.9rem; }
+
+/* ============ KEY TAKEAWAYS ============ */
+.takeaways {
+  background: linear-gradient(135deg, rgba(52,211,153,0.08), rgba(56,189,248,0.05));
+  border: 1px solid rgba(52,211,153,0.2);
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin: 1.5rem 0;
+}
+.takeaways h5 {
+  color: var(--accent3);
+  font-weight: 700;
+  font-size: 0.9rem;
+  margin-bottom: 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.takeaways ul { padding-left: 1.25rem; }
+.takeaways li {
+  font-size: 0.88rem;
+  color: var(--text);
+  margin-bottom: 0.4rem;
+}
+.takeaways li strong { color: var(--accent3); }
+
+/* ============ TABLE ============ */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1rem 0;
+  font-size: 0.88rem;
+}
+th, td {
+  padding: 0.75rem 1rem;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+}
+th {
+  background: rgba(56,189,248,0.08);
+  color: var(--accent);
+  font-weight: 600;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+td { color: var(--text); }
+tr:hover td { background: rgba(255,255,255,0.02); }
+
+/* ============ QUESTION BADGES ============ */
+.q-badge {
+  display: inline-block;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 0.2rem 0.6rem;
+  border-radius: 4px;
+  background: rgba(251,146,60,0.15);
+  color: var(--accent4);
+}
+
+/* ============ MOCK FINAL ============ */
+.mock-question {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 2rem;
+  margin-bottom: 2rem;
+}
+.mock-question h4 {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--text-bright);
+  margin-bottom: 0.5rem;
+}
+.mock-question .marks {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.8rem;
+  color: var(--accent4);
+  margin-bottom: 1rem;
+}
+
+/* ============ RESPONSIVE ============ */
+@media (max-width: 768px) {
+  nav { padding: 0 1rem; }
+  .hero h1 { font-size: 2.5rem; }
+  .hero-grid { grid-template-columns: repeat(2, 1fr); }
+  .topic-head { flex-wrap: wrap; }
+  .topic-time { margin-left: 0; }
+  .concept-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- ==================== NAV ==================== -->
+<nav>
+  <div class="logo">COEN 244</div>
+  <div class="nav-links">
+    <a href="#hero">Home</a>
+    <a href="#review243">COEN 243 Review</a>
+    <a href="#classes">Classes</a>
+    <a href="#composition">Composition</a>
+    <a href="#inheritance">Inheritance</a>
+    <a href="#polymorphism">Polymorphism</a>
+    <a href="#operators">Operators</a>
+    <a href="#exceptions">Exceptions</a>
+    <a href="#fileio">File I/O</a>
+    <a href="#templates">Templates</a>
+    <a href="#mockfinal">Mock Final</a>
+  </div>
+</nav>
+<div id="progress"><div id="progress-bar"></div></div>
+
+<!-- ==================== HERO ==================== -->
+<section class="hero" id="hero">
+  <div class="hero-badge">CONCORDIA UNIVERSITY</div>
+  <h1>COEN 244<br>Crash Course</h1>
+  <p class="subtitle">Programming Methodology II &mdash; C++ Object-Oriented Programming</p>
+  <div class="hero-grid">
+    <div class="hero-stat stat-accent1"><div class="num">3h</div><div class="label">Total Duration</div></div>
+    <div class="hero-stat stat-accent2"><div class="num">9</div><div class="label">Topics Covered</div></div>
+    <div class="hero-stat stat-accent3"><div class="num">1h30</div><div class="label">Theory + Practice</div></div>
+    <div class="hero-stat stat-accent4"><div class="num">1h30</div><div class="label">Mock Final</div></div>
+  </div>
+</section>
+
+<!-- ==================== PART 1 HEADER ==================== -->
+<div class="part-header" id="part1">
+  <div class="part-label">Part 1 &mdash; 1h 30min</div>
+  <h2>Theory &amp; Practice</h2>
+  <p class="part-desc">Exam-focused review: concise summaries, key concepts, and practice problems based on real past finals.</p>
+</div>
+
+<!-- EXAM STRATEGY BOX -->
+<div class="container">
+  <div class="theory-section" style="border:1px solid rgba(251,146,60,0.4); background: linear-gradient(135deg, rgba(251,146,60,0.08), rgba(239,68,68,0.05));">
+    <h4 style="color:var(--accent4); font-size:1.2rem;">Exam Strategy &mdash; What To Expect</h4>
+    <p>Based on analysis of <strong>all available past finals</strong> (2004, 2011, 2017, plus solution exams), here's how marks are typically distributed:</p>
+    <table>
+      <tr><th>Topic</th><th>Exam Weight</th><th>Appears In</th><th>Priority</th></tr>
+      <tr><td>Polymorphism (virtual, abstract, binding)</td><td>~25-30%</td><td>Every single final</td><td style="color:var(--red);font-weight:700">CRITICAL</td></tr>
+      <tr><td>Inheritance (constructors, hierarchy)</td><td>~20-25%</td><td>Every single final</td><td style="color:var(--red);font-weight:700">CRITICAL</td></tr>
+      <tr><td>Operator Overloading (&lt;&lt;, =, [], etc.)</td><td>~15-20%</td><td>Every single final</td><td style="color:var(--accent4);font-weight:700">HIGH</td></tr>
+      <tr><td>Class Composition (arrays of objects/pointers)</td><td>~10-15%</td><td>2011, Solution exam</td><td style="color:var(--accent4);font-weight:700">HIGH</td></tr>
+      <tr><td>Classes (constructors, copy, dynamic memory)</td><td>~10-15%</td><td>Every final (within other Qs)</td><td style="color:var(--accent4);font-weight:700">HIGH</td></tr>
+      <tr><td>Exception Handling</td><td>~5-10%</td><td>2004, 2011, Solution exam</td><td style="color:var(--accent);font-weight:700">MEDIUM</td></tr>
+      <tr><td>File I/O</td><td>~5-10%</td><td>2017, Solution exam</td><td style="color:var(--accent);font-weight:700">MEDIUM</td></tr>
+      <tr><td>Templates &amp; STL</td><td>~5-10%</td><td>2004, 2017</td><td style="color:var(--accent);font-weight:700">MEDIUM</td></tr>
+    </table>
+    <div class="highlight-box important" style="margin-top:1rem">
+      <strong>The #1 exam pattern:</strong> You are given a class hierarchy, asked to implement constructors, use polymorphism with an array of base-class pointers, overload operators, and handle exceptions &mdash; all in one connected scenario. Master this pattern and you cover ~70% of the exam.
+    </div>
+  </div>
+</div>
+
+<div class="container">
+
+<!-- ====================================================== -->
+<!--                COEN 243 REVIEW                          -->
+<!-- ====================================================== -->
+<section class="topic" id="review243">
+  <div class="topic-head">
+    <span class="topic-num" style="background:rgba(239,68,68,0.15);color:var(--red);">00</span>
+    <h3>COEN 243 Review &mdash; C++ Fundamentals</h3>
+    <span class="topic-time">Prerequisite Review</span>
+  </div>
+
+  <!-- VARIABLES & DATA TYPES -->
+  <div class="theory-section">
+    <h4>Variables &amp; Data Types</h4>
+    <p>A <strong>variable</strong> is a named storage location in memory that holds a value. Before using a variable, you must <strong>declare</strong> it by specifying its type and name.</p>
+
+<pre><span class="kw">int</span> age = <span class="nm">25</span>;           <span class="cm">// integer: whole numbers (4 bytes)</span>
+<span class="kw">double</span> gpa = <span class="nm">3.75</span>;      <span class="cm">// double: decimal numbers (8 bytes)</span>
+<span class="kw">float</span> temp = <span class="nm">36.6f</span>;     <span class="cm">// float: decimal numbers (4 bytes, less precise)</span>
+<span class="kw">char</span> grade = <span class="st">'A'</span>;       <span class="cm">// char: single character (1 byte)</span>
+<span class="kw">bool</span> passed = <span class="kw">true</span>;     <span class="cm">// bool: true or false (1 byte)</span>
+<span class="tp">string</span> name = <span class="st">"Alice"</span>;  <span class="cm">// string: text (need #include &lt;string&gt;)</span></pre>
+
+    <div class="highlight-box">
+      <strong>Think of it like this:</strong> A variable is a <strong>box</strong> with a label (the name) and a specific shape (the type). An <span class="inline-code">int</span> box can only hold whole numbers, a <span class="inline-code">double</span> box can hold decimals, etc.
+    </div>
+  </div>
+
+  <!-- INPUT / OUTPUT -->
+  <div class="theory-section">
+    <h4>Input &amp; Output (cin / cout)</h4>
+    <p><span class="inline-code">cout</span> prints to the screen. <span class="inline-code">cin</span> reads from the keyboard. Both use stream operators.</p>
+
+<pre><span class="kw">#include</span> <span class="st">&lt;iostream&gt;</span>
+<span class="kw">using namespace</span> std;
+
+<span class="kw">int</span> <span class="fn">main</span>() {
+    <span class="kw">int</span> x;
+    cout &lt;&lt; <span class="st">"Enter a number: "</span>;  <span class="cm">// &lt;&lt; sends data TO the screen</span>
+    cin &gt;&gt; x;                      <span class="cm">// &gt;&gt; reads data FROM the keyboard</span>
+    cout &lt;&lt; <span class="st">"You entered: "</span> &lt;&lt; x &lt;&lt; endl;
+    <span class="kw">return</span> <span class="nm">0</span>;
+}</pre>
+
+    <ul>
+      <li><span class="inline-code">&lt;&lt;</span> is the <strong>stream insertion</strong> operator (sends data into <span class="inline-code">cout</span>)</li>
+      <li><span class="inline-code">&gt;&gt;</span> is the <strong>stream extraction</strong> operator (extracts data from <span class="inline-code">cin</span>)</li>
+      <li><span class="inline-code">endl</span> prints a newline and flushes the output buffer</li>
+    </ul>
+  </div>
+
+  <!-- CONTROL STRUCTURES -->
+  <div class="theory-section">
+    <h4>Control Structures (if / for / while)</h4>
+    <p>Control structures decide <strong>which code runs</strong> and <strong>how many times</strong>.</p>
+
+    <div class="concept-grid">
+      <div class="concept-card">
+        <div class="concept-title" style="color:var(--accent)">if / else</div>
+        <p>Makes a decision. If the condition is true, run one block; otherwise, run the other.</p>
+<pre style="margin:0.5rem 0"><span class="kw">if</span> (grade >= <span class="nm">60</span>)
+    cout &lt;&lt; <span class="st">"Passed"</span>;
+<span class="kw">else</span>
+    cout &lt;&lt; <span class="st">"Failed"</span>;</pre>
+      </div>
+      <div class="concept-card">
+        <div class="concept-title" style="color:var(--accent3)">for loop</div>
+        <p>Repeats a fixed number of times. Has initialization, condition, and update.</p>
+<pre style="margin:0.5rem 0"><span class="kw">for</span> (<span class="kw">int</span> i = <span class="nm">0</span>; i &lt; <span class="nm">10</span>; i++)
+    cout &lt;&lt; i &lt;&lt; <span class="st">" "</span>;</pre>
+      </div>
+      <div class="concept-card">
+        <div class="concept-title" style="color:var(--accent4)">while loop</div>
+        <p>Repeats as long as a condition is true. Check happens before each iteration.</p>
+<pre style="margin:0.5rem 0"><span class="kw">int</span> n = <span class="nm">1</span>;
+<span class="kw">while</span> (n &lt;= <span class="nm">100</span>) {
+    cout &lt;&lt; n;
+    n *= <span class="nm">2</span>;
+}</pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- FUNCTIONS -->
+  <div class="theory-section">
+    <h4>Functions</h4>
+    <p>Functions break a program into smaller, reusable pieces. A function has a <strong>return type</strong>, a <strong>name</strong>, <strong>parameters</strong>, and a <strong>body</strong>.</p>
+
+<pre><span class="cm">// Function declaration (prototype)</span>
+<span class="kw">int</span> <span class="fn">square</span>(<span class="kw">int</span>);
+
+<span class="cm">// Function definition</span>
+<span class="kw">int</span> <span class="fn">square</span>(<span class="kw">int</span> y) {
+    <span class="kw">return</span> y * y;
+}
+
+<span class="cm">// Function call</span>
+<span class="kw">int</span> result = <span class="fn">square</span>(<span class="nm">5</span>);  <span class="cm">// result = 25</span></pre>
+
+    <div class="concept-grid">
+      <div class="concept-card">
+        <div class="concept-title" style="color:var(--red)">Pass by Value (copy)</div>
+        <p>The function gets a <strong>copy</strong> of the argument. Changes inside the function do NOT affect the original.</p>
+<pre style="margin:0.5rem 0"><span class="kw">void</span> <span class="fn">doubleIt</span>(<span class="kw">int</span> x) {
+    x = x * <span class="nm">2</span>;  <span class="cm">// only changes the copy!</span>
+}
+<span class="kw">int</span> a = <span class="nm">5</span>;
+<span class="fn">doubleIt</span>(a);
+cout &lt;&lt; a;  <span class="cm">// still 5!</span></pre>
+      </div>
+      <div class="concept-card">
+        <div class="concept-title" style="color:var(--accent3)">Pass by Reference (&amp;)</div>
+        <p>The function gets direct access to the original variable. Changes WILL affect the original.</p>
+<pre style="margin:0.5rem 0"><span class="kw">void</span> <span class="fn">doubleIt</span>(<span class="kw">int</span>&amp; x) {
+    x = x * <span class="nm">2</span>;  <span class="cm">// changes the original!</span>
+}
+<span class="kw">int</span> a = <span class="nm">5</span>;
+<span class="fn">doubleIt</span>(a);
+cout &lt;&lt; a;  <span class="cm">// now 10!</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- ARRAYS -->
+  <div class="theory-section">
+    <h4>Arrays</h4>
+    <p>An <strong>array</strong> is a collection of elements of the <strong>same type</strong>, stored in <strong>consecutive memory locations</strong>. The size is fixed at creation.</p>
+
+<pre><span class="kw">int</span> numbers[<span class="nm">5</span>] = {<span class="nm">10</span>, <span class="nm">20</span>, <span class="nm">30</span>, <span class="nm">40</span>, <span class="nm">50</span>};
+
+<span class="cm">// Access with index (0-based!)</span>
+cout &lt;&lt; numbers[<span class="nm">0</span>];  <span class="cm">// 10  (first element)</span>
+cout &lt;&lt; numbers[<span class="nm">4</span>];  <span class="cm">// 50  (last element)</span>
+cout &lt;&lt; numbers[<span class="nm">5</span>];  <span class="cm">// DANGER! Out of bounds (undefined behavior)</span>
+
+<span class="cm">// Loop through an array</span>
+<span class="kw">for</span> (<span class="kw">int</span> i = <span class="nm">0</span>; i &lt; <span class="nm">5</span>; i++)
+    cout &lt;&lt; numbers[i] &lt;&lt; <span class="st">" "</span>;</pre>
+
+    <div class="highlight-box warn">
+      <strong>Important:</strong> Array indices go from <span class="inline-code">0</span> to <span class="inline-code">size - 1</span>. An array of 5 elements has indices 0, 1, 2, 3, 4. Accessing index 5 is <strong>out of bounds</strong> (no error shown, but undefined behavior).
+    </div>
+  </div>
+
+  <!-- STRINGS -->
+  <div class="theory-section">
+    <h4>Strings</h4>
+    <p>Two ways to represent strings in C++:</p>
+
+    <div class="concept-grid">
+      <div class="concept-card">
+        <div class="concept-title" style="color:var(--red)">C-style strings (char*)</div>
+        <p>Arrays of characters ending with <span class="inline-code">'\0'</span> (null terminator). Lower level, manual memory management.</p>
+<pre style="margin:0.5rem 0"><span class="kw">char</span> name[] = <span class="st">"Alice"</span>;
+<span class="cm">// Actually stores: ['A','l','i','c','e','\0']</span>
+<span class="cm">// Need strlen(), strcpy(), strcmp()</span>
+<span class="cm">// from &lt;cstring&gt;</span></pre>
+      </div>
+      <div class="concept-card">
+        <div class="concept-title" style="color:var(--accent3)">C++ string class</div>
+        <p>The <span class="inline-code">string</span> class (from <span class="inline-code">&lt;string&gt;</span>). Easier, safer, handles memory automatically.</p>
+<pre style="margin:0.5rem 0"><span class="tp">string</span> name = <span class="st">"Alice"</span>;
+<span class="tp">string</span> full = name + <span class="st">" Smith"</span>; <span class="cm">// concatenation</span>
+cout &lt;&lt; name.<span class="fn">length</span>();  <span class="cm">// 5</span>
+cout &lt;&lt; name[<span class="nm">0</span>];       <span class="cm">// 'A'</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== POINTERS (THE BIG SECTION) ========== -->
+  <div class="theory-section" style="border: 1px solid rgba(239,68,68,0.3);">
+    <h4 style="color:var(--red); font-size:1.3rem;">POINTERS &mdash; The Most Important COEN 243 Topic</h4>
+    <p>A <strong>pointer</strong> is a variable that stores the <strong>memory address</strong> of another variable. Think of it as a piece of paper with directions to a house (the house is the actual data; the paper is the pointer).</p>
+
+    <div class="highlight-box">
+      <strong>Why do we care?</strong> Pointers enable: dynamic memory allocation (creating objects at runtime), passing large objects efficiently, polymorphism (base class pointers pointing to derived objects), and building data structures like linked lists.
+    </div>
+  </div>
+
+  <div class="theory-section">
+    <h4>Declaring &amp; Using Pointers</h4>
+    <p>Two key operators: <span class="inline-code">&amp;</span> (address-of) and <span class="inline-code">*</span> (dereference).</p>
+
+<pre><span class="kw">int</span> x = <span class="nm">42</span>;          <span class="cm">// a regular integer variable</span>
+<span class="kw">int</span>* ptr = &amp;x;       <span class="cm">// ptr stores the ADDRESS of x</span>
+
+cout &lt;&lt; x;           <span class="cm">// prints 42         (the value)</span>
+cout &lt;&lt; &amp;x;          <span class="cm">// prints 0x7fff5... (the address of x in memory)</span>
+cout &lt;&lt; ptr;          <span class="cm">// prints 0x7fff5... (same address, stored in ptr)</span>
+cout &lt;&lt; *ptr;         <span class="cm">// prints 42         (dereference: "go to that address, give me the value")</span>
+
+*ptr = <span class="nm">100</span>;          <span class="cm">// changes x to 100! (we modified x THROUGH the pointer)</span>
+cout &lt;&lt; x;           <span class="cm">// prints 100</span></pre>
+
+    <div class="highlight-box">
+      <strong>Memory visualization:</strong><br>
+      <span style="font-family:'JetBrains Mono',monospace; font-size:0.85rem;">
+      Variable x &nbsp;&nbsp;&nbsp;: address = 0x1000, value = 42<br>
+      Pointer ptr&nbsp;: address = 0x2000, value = 0x1000 (stores x's address!)<br><br>
+      &amp;x &nbsp;&nbsp;= 0x1000 &nbsp;(address of x)<br>
+      ptr &nbsp;= 0x1000 &nbsp;(what ptr holds)<br>
+      *ptr = 42 &nbsp;&nbsp;&nbsp;&nbsp;(value AT address 0x1000, which is x's value)
+      </span>
+    </div>
+  </div>
+
+  <div class="theory-section">
+    <h4>Pointer Arithmetic &amp; Arrays</h4>
+    <p>Array names are actually <strong>pointers</strong> to the first element! This is why pointers and arrays are deeply connected.</p>
+
+<pre><span class="kw">int</span> vals[] = {<span class="nm">4</span>, <span class="nm">7</span>, <span class="nm">11</span>};
+<span class="kw">int</span>* ptr = vals;       <span class="cm">// ptr points to first element (vals[0])</span>
+
+cout &lt;&lt; *ptr;          <span class="cm">// 4   (vals[0])</span>
+cout &lt;&lt; *(ptr + <span class="nm">1</span>);    <span class="cm">// 7   (vals[1])</span>
+cout &lt;&lt; *(ptr + <span class="nm">2</span>);    <span class="cm">// 11  (vals[2])</span>
+
+<span class="cm">// These are ALL equivalent ways to access vals[2]:</span>
+vals[<span class="nm">2</span>]         <span class="cm">// array notation</span>
+*(vals + <span class="nm">2</span>)     <span class="cm">// pointer arithmetic with array name</span>
+ptr[<span class="nm">2</span>]          <span class="cm">// using pointer like an array</span>
+*(ptr + <span class="nm">2</span>)      <span class="cm">// pointer arithmetic</span></pre>
+
+    <p><strong>Pointer arithmetic rule:</strong> <span class="inline-code">ptr + 1</span> doesn't add 1 byte &mdash; it adds <span class="inline-code">1 * sizeof(type)</span>. For an <span class="inline-code">int*</span>, it jumps 4 bytes (the size of one int) to reach the next element.</p>
+  </div>
+
+  <div class="theory-section">
+    <h4>Dynamic Memory Allocation (new / delete)</h4>
+    <p>You can create variables and arrays <strong>at runtime</strong> (on the <strong>heap</strong>) using <span class="inline-code">new</span>. You MUST free them with <span class="inline-code">delete</span> when done, or you get a <strong>memory leak</strong>.</p>
+
+<pre><span class="cm">// Single variable</span>
+<span class="kw">int</span>* ptr = <span class="kw">new</span> <span class="kw">int</span>;       <span class="cm">// allocate one int on the heap</span>
+*ptr = <span class="nm">42</span>;                 <span class="cm">// store a value</span>
+cout &lt;&lt; *ptr;              <span class="cm">// 42</span>
+<span class="kw">delete</span> ptr;                <span class="cm">// free the memory (MUST DO THIS!)</span>
+
+<span class="cm">// Dynamic array</span>
+<span class="kw">int</span> size = <span class="nm">5</span>;
+<span class="kw">int</span>* arr = <span class="kw">new</span> <span class="kw">int</span>[size]; <span class="cm">// allocate array of 5 ints</span>
+<span class="kw">for</span> (<span class="kw">int</span> i = <span class="nm">0</span>; i &lt; size; i++)
+    arr[i] = i * <span class="nm">10</span>;       <span class="cm">// use like a normal array</span>
+<span class="kw">delete</span>[] arr;              <span class="cm">// free array memory (note the []!)</span>
+
+<span class="cm">// Dynamic char array (C-string)</span>
+<span class="kw">char</span>* name = <span class="kw">new</span> <span class="kw">char</span>[<span class="fn">strlen</span>(<span class="st">"Alice"</span>) + <span class="nm">1</span>]; <span class="cm">// +1 for '\0'</span>
+<span class="fn">strcpy</span>(name, <span class="st">"Alice"</span>);
+<span class="kw">delete</span>[] name;</pre>
+
+    <div class="highlight-box important">
+      <strong>Critical rules:</strong><br>
+      &bull; <span class="inline-code">new</span> &rarr; use <span class="inline-code">delete</span><br>
+      &bull; <span class="inline-code">new[]</span> &rarr; use <span class="inline-code">delete[]</span> (with square brackets!)<br>
+      &bull; Forgetting to <span class="inline-code">delete</span> = <strong>memory leak</strong> (memory is never freed)<br>
+      &bull; Using a pointer after <span class="inline-code">delete</span> = <strong>dangling pointer</strong> (undefined behavior)
+    </div>
+  </div>
+
+  <div class="theory-section">
+    <h4>Pointers as Function Parameters</h4>
+    <p>Passing a pointer to a function lets the function modify the original variable (similar to pass by reference).</p>
+
+<pre><span class="kw">void</span> <span class="fn">swap</span>(<span class="kw">int</span>* x, <span class="kw">int</span>* y) {
+    <span class="kw">int</span> temp = *x;   <span class="cm">// save value at x</span>
+    *x = *y;          <span class="cm">// put value at y into x</span>
+    *y = temp;        <span class="cm">// put saved value into y</span>
+}
+
+<span class="kw">int</span> a = <span class="nm">5</span>, b = <span class="nm">10</span>;
+<span class="fn">swap</span>(&amp;a, &amp;b);        <span class="cm">// pass ADDRESSES of a and b</span>
+cout &lt;&lt; a;           <span class="cm">// 10 (swapped!)</span>
+cout &lt;&lt; b;           <span class="cm">// 5  (swapped!)</span></pre>
+
+    <table>
+      <tr><th>Method</th><th>Syntax</th><th>Can modify original?</th></tr>
+      <tr><td>Pass by value</td><td><span class="inline-code">void f(int x)</span></td><td style="color:var(--red)">No (gets a copy)</td></tr>
+      <tr><td>Pass by reference</td><td><span class="inline-code">void f(int&amp; x)</span></td><td style="color:var(--accent3)">Yes</td></tr>
+      <tr><td>Pass by pointer</td><td><span class="inline-code">void f(int* x)</span></td><td style="color:var(--accent3)">Yes (via *x)</td></tr>
+    </table>
+  </div>
+
+  <div class="theory-section">
+    <h4>Pointer to Pointer (Double Pointer)</h4>
+    <p>A pointer that stores the address of <strong>another pointer</strong>. Used for dynamic 2D arrays and arrays of pointers.</p>
+
+<pre><span class="kw">int</span> x = <span class="nm">42</span>;
+<span class="kw">int</span>* ptr = &amp;x;        <span class="cm">// ptr points to x</span>
+<span class="kw">int</span>** pptr = &amp;ptr;     <span class="cm">// pptr points to ptr (pointer to pointer)</span>
+
+cout &lt;&lt; **pptr;       <span class="cm">// 42 (dereference twice: pptr &rarr; ptr &rarr; x)</span>
+
+<span class="cm">// Dynamic array of pointers (used heavily in COEN 244!)</span>
+<span class="kw">int</span>** arr = <span class="kw">new</span> <span class="kw">int</span>*[<span class="nm">3</span>];     <span class="cm">// array of 3 int pointers</span>
+arr[<span class="nm">0</span>] = <span class="kw">new</span> <span class="kw">int</span>(<span class="nm">10</span>);       <span class="cm">// each pointer points to an int</span>
+arr[<span class="nm">1</span>] = <span class="kw">new</span> <span class="kw">int</span>(<span class="nm">20</span>);
+arr[<span class="nm">2</span>] = <span class="kw">new</span> <span class="kw">int</span>(<span class="nm">30</span>);
+cout &lt;&lt; *arr[<span class="nm">1</span>];             <span class="cm">// 20</span>
+
+<span class="cm">// Cleanup:</span>
+<span class="kw">for</span>(<span class="kw">int</span> i = <span class="nm">0</span>; i &lt; <span class="nm">3</span>; i++) <span class="kw">delete</span> arr[i];
+<span class="kw">delete</span>[] arr;</pre>
+  </div>
+
+  <div class="theory-section">
+    <h4>const with Pointers</h4>
+    <p>Three variations &mdash; this is a common exam question:</p>
+
+    <table>
+      <tr><th>Declaration</th><th>Meaning</th><th>Can change pointer?</th><th>Can change data?</th></tr>
+      <tr><td><span class="inline-code">int* ptr</span></td><td>Regular pointer</td><td style="color:var(--accent3)">Yes</td><td style="color:var(--accent3)">Yes</td></tr>
+      <tr><td><span class="inline-code">const int* ptr</span></td><td>Pointer to const</td><td style="color:var(--accent3)">Yes</td><td style="color:var(--red)">No</td></tr>
+      <tr><td><span class="inline-code">int* const ptr</span></td><td>Const pointer</td><td style="color:var(--red)">No</td><td style="color:var(--accent3)">Yes</td></tr>
+      <tr><td><span class="inline-code">const int* const ptr</span></td><td>Const pointer to const</td><td style="color:var(--red)">No</td><td style="color:var(--red)">No</td></tr>
+    </table>
+
+    <div class="highlight-box">
+      <strong>How to read it:</strong> Read from <strong>right to left</strong>.<br>
+      <span class="inline-code">const int* ptr</span> &rarr; "ptr is a pointer to an int that is const" (can't change the value)<br>
+      <span class="inline-code">int* const ptr</span> &rarr; "ptr is a const pointer to an int" (can't change where it points)
+    </div>
+  </div>
+
+  <div class="theory-section">
+    <h4>Common Pointer Mistakes</h4>
+
+    <div class="concept-grid">
+      <div class="concept-card">
+        <div class="concept-title" style="color:var(--red)">Uninitialized Pointer</div>
+<pre style="margin:0.5rem 0"><span class="kw">int</span>* ptr;       <span class="cm">// points to GARBAGE address</span>
+*ptr = <span class="nm">42</span>;      <span class="cm">// CRASH! Writing to random memory</span>
+<span class="cm">// FIX: int* ptr = nullptr; or int* ptr = &amp;x;</span></pre>
+      </div>
+      <div class="concept-card">
+        <div class="concept-title" style="color:var(--red)">Memory Leak</div>
+<pre style="margin:0.5rem 0"><span class="kw">int</span>* ptr = <span class="kw">new</span> <span class="kw">int</span>(<span class="nm">42</span>);
+ptr = <span class="kw">new</span> <span class="kw">int</span>(<span class="nm">100</span>); <span class="cm">// old memory LOST forever!</span>
+<span class="cm">// FIX: delete ptr; BEFORE reassigning</span></pre>
+      </div>
+      <div class="concept-card">
+        <div class="concept-title" style="color:var(--red)">Dangling Pointer</div>
+<pre style="margin:0.5rem 0"><span class="kw">int</span>* ptr = <span class="kw">new</span> <span class="kw">int</span>(<span class="nm">42</span>);
+<span class="kw">delete</span> ptr;
+cout &lt;&lt; *ptr;  <span class="cm">// UNDEFINED! Memory already freed</span>
+<span class="cm">// FIX: ptr = nullptr; after delete</span></pre>
+      </div>
+      <div class="concept-card">
+        <div class="concept-title" style="color:var(--red)">Wrong delete</div>
+<pre style="margin:0.5rem 0"><span class="kw">int</span>* arr = <span class="kw">new</span> <span class="kw">int</span>[<span class="nm">10</span>];
+<span class="kw">delete</span> arr;     <span class="cm">// WRONG! Used new[] but delete without []</span>
+<span class="cm">// FIX: delete[] arr;</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <details>
+    <summary><span class="q-badge">PRACTICE</span> Pointer Exercises</summary>
+    <div class="details-body">
+      <p><strong>Exercise 1:</strong> What is the output?</p>
+<pre><span class="kw">int</span> x = <span class="nm">5</span>, y = <span class="nm">10</span>;
+<span class="kw">int</span>* p1 = &amp;x;
+<span class="kw">int</span>* p2 = &amp;y;
+*p1 = *p2;
+cout &lt;&lt; x &lt;&lt; <span class="st">" "</span> &lt;&lt; y &lt;&lt; endl;
+p1 = p2;
+*p1 = <span class="nm">20</span>;
+cout &lt;&lt; x &lt;&lt; <span class="st">" "</span> &lt;&lt; y &lt;&lt; endl;</pre>
+
+      <p><strong>Exercise 2:</strong> Write a function that takes a dynamic array and its size, and returns a NEW dynamic array with all elements doubled.</p>
+
+<pre><span class="kw">int</span>* <span class="fn">doubleArray</span>(<span class="kw">const</span> <span class="kw">int</span>* arr, <span class="kw">int</span> size);</pre>
+
+      <p><strong>Exercise 3:</strong> What is wrong with this code?</p>
+<pre><span class="kw">int</span>* <span class="fn">createArray</span>() {
+    <span class="kw">int</span> arr[<span class="nm">5</span>] = {<span class="nm">1</span>,<span class="nm">2</span>,<span class="nm">3</span>,<span class="nm">4</span>,<span class="nm">5</span>};
+    <span class="kw">return</span> arr;
+}</pre>
+
+      <details>
+        <summary><span style="color:var(--accent3)">Show Solutions</span></summary>
+        <div class="details-body">
+          <h5>Exercise 1:</h5>
+<pre><span class="cm">// Line by line:</span>
+*p1 = *p2;    <span class="cm">// x = 10 (copied value of y into x)</span>
+              <span class="cm">// Output: 10 10</span>
+p1 = p2;      <span class="cm">// p1 now points to y (not x anymore)</span>
+*p1 = <span class="nm">20</span>;     <span class="cm">// y = 20 (modified y through p1)</span>
+              <span class="cm">// Output: 10 20</span></pre>
+
+          <h5>Exercise 2:</h5>
+<pre><span class="kw">int</span>* <span class="fn">doubleArray</span>(<span class="kw">const</span> <span class="kw">int</span>* arr, <span class="kw">int</span> size) {
+    <span class="kw">int</span>* result = <span class="kw">new</span> <span class="kw">int</span>[size];
+    <span class="kw">for</span> (<span class="kw">int</span> i = <span class="nm">0</span>; i &lt; size; i++)
+        result[i] = arr[i] * <span class="nm">2</span>;
+    <span class="kw">return</span> result;  <span class="cm">// caller must delete[] this!</span>
+}</pre>
+
+          <h5>Exercise 3:</h5>
+          <p><strong>Returning a pointer to a local array!</strong> The array <span class="inline-code">arr</span> is on the stack and is destroyed when the function returns. The returned pointer is a <strong>dangling pointer</strong>. Fix: use <span class="inline-code">new int[5]</span> to allocate on the heap.</p>
+        </div>
+      </details>
+    </div>
+  </details>
+
+  <div class="takeaways">
+    <h5>&#x1f4a1; COEN 243 Key Takeaways</h5>
+    <ul>
+      <li><span class="inline-code">&amp;</span> = "address of" &nbsp;|&nbsp; <span class="inline-code">*</span> = "value at address" (dereference)</li>
+      <li><span class="inline-code">new</span> allocates on the heap &rarr; must <span class="inline-code">delete</span> (or <span class="inline-code">delete[]</span> for arrays)</li>
+      <li>Array name = pointer to first element &rarr; <span class="inline-code">arr[i]</span> is same as <span class="inline-code">*(arr + i)</span></li>
+      <li>Always initialize pointers (<span class="inline-code">nullptr</span> if no value yet)</li>
+      <li>Pass by reference (<span class="inline-code">&amp;</span>) or pointer (<span class="inline-code">*</span>) to modify original variables</li>
+      <li>Rule of thumb: every <span class="inline-code">new</span> must have a matching <span class="inline-code">delete</span></li>
+    </ul>
+  </div>
+</section>
+
+<!-- ====================================================== -->
+<!--                TOPIC 1: CLASSES                         -->
+<!-- ====================================================== -->
+<section class="topic" id="classes">
+  <div class="topic-head">
+    <span class="topic-num c1">01</span>
+    <h3>C++ Classes</h3>
+    <span class="topic-time">~12 min</span>
+  </div>
+
+  <div class="theory-section" style="border:1px solid rgba(251,146,60,0.3); background:linear-gradient(135deg, rgba(251,146,60,0.06), transparent);">
+    <h4 style="color:var(--accent4);">EXAM ALERT &mdash; The building block of everything</h4>
+    <p>You won't get a standalone "write a simple class" question. But classes are the <strong>foundation</strong> of every exam question. You MUST know:</p>
+    <ul>
+      <li><strong>Constructors</strong> (default, parameterized, copy) &mdash; tested in every inheritance question</li>
+      <li><strong>Destructors</strong> &mdash; especially with dynamic memory (<span class="inline-code">delete[]</span>)</li>
+      <li><strong>Deep copy</strong> vs shallow copy &mdash; tested whenever <span class="inline-code">char*</span> appears</li>
+      <li><strong>Static members</strong> &mdash; for tracking object count (appears in 2004, solution exam)</li>
+      <li><strong>5 predefined functions</strong> &mdash; default constructor, copy constructor, destructor, <span class="inline-code">operator=</span>, <span class="inline-code">operator&amp;</span> (MCQ in 2004, 2017)</li>
+    </ul>
+    <p><strong>Real exam (2004 Q1.5):</strong> <em>"Comment on: void MyClass::del() { delete this; }"</em> &mdash; This is dangerous! The object destroys itself, but if it's stack-allocated, this is undefined behavior.</p>
+  </div>
+
+  <!-- THEORY -->
+  <div class="theory-section">
+    <h4>What is a Class?</h4>
+    <p>A <strong>class</strong> is an abstract representation of objects that share the same attributes and behavior. Classes allow you to create new data types unknown to C++.</p>
+    <p>An <strong>object</strong> can represent any real-world entity (a bank account, a student, a circle). Objects have <strong>attributes</strong> (data) and <strong>behavior</strong> (functions).</p>
+
+    <div class="concept-grid">
+      <div class="concept-card">
+        <div class="concept-title" style="color:var(--accent)">Constructor</div>
+        <p>Initializes data members when an object is created. Same name as the class, no return type. Called automatically on instantiation.</p>
+      </div>
+      <div class="concept-card">
+        <div class="concept-title" style="color:var(--accent2)">Data Members</div>
+        <p>Represent attributes of the object. Usually <span class="inline-code">private</span> (encapsulated). Can be any type (primitive or user-defined).</p>
+      </div>
+      <div class="concept-card">
+        <div class="concept-title" style="color:var(--accent3)">Member Functions</div>
+        <p>Describe what you can do with the object. Usually <span class="inline-code">public</span>. Also called methods. Include getters, setters, and logic.</p>
+      </div>
+      <div class="concept-card">
+        <div class="concept-title" style="color:var(--accent4)">Destructor</div>
+        <p>Called when an object is destroyed. Same name as class with <span class="inline-code">~</span> prefix. No arguments, no return. Used for cleanup (e.g., <span class="inline-code">delete[]</span>).</p>
+      </div>
+    </div>
+
+<pre><span class="lang-label">C++</span>
+<span class="kw">class</span> <span class="tp">Time</span> {
+<span class="kw">public</span>:
+    <span class="fn">Time</span>();                              <span class="cm">// constructor</span>
+    <span class="kw">void</span> <span class="fn">setTime</span>(<span class="kw">int</span>, <span class="kw">int</span>, <span class="kw">int</span>);       <span class="cm">// set hour, minute, second</span>
+    <span class="kw">void</span> <span class="fn">printTime</span>() <span class="kw">const</span>;            <span class="cm">// print time</span>
+    <span class="kw">int</span> <span class="fn">getHour</span>() <span class="kw">const</span>;               <span class="cm">// accessor</span>
+<span class="kw">private</span>:
+    <span class="kw">int</span> hour;                              <span class="cm">// 0-23</span>
+    <span class="kw">int</span> minute;                            <span class="cm">// 0-59</span>
+    <span class="kw">int</span> second;                            <span class="cm">// 0-59</span>
+};</pre>
+  </div>
+
+  <div class="theory-section">
+    <h4>Encapsulation &amp; Access Specifiers</h4>
+    <ul>
+      <li><span class="inline-code">private</span>: Members accessible <strong>only</strong> within the class's own member functions</li>
+      <li><span class="inline-code">public</span>: Members accessible from anywhere outside the class</li>
+      <li><span class="inline-code">protected</span>: Like private, but also accessible by derived classes (inheritance)</li>
+    </ul>
+    <div class="highlight-box important">
+      <strong>Key Rule:</strong> You cannot access private data members directly from outside: <span class="inline-code">t.hour = 14;</span> &rarr; <strong>compile error!</strong> Use setter functions instead.
+    </div>
+  </div>
+
+  <div class="theory-section">
+    <h4>Pointers to Objects &amp; Dynamic Memory</h4>
+    <p>Objects can be created on the heap with <span class="inline-code">new</span>:</p>
+<pre><span class="tp">Time</span>* pT = <span class="kw">new</span> <span class="tp">Time</span>();    <span class="cm">// creates on heap, constructor called</span>
+pT-><span class="fn">setTime</span>(<span class="nm">12</span>, <span class="nm">45</span>, <span class="nm">30</span>);  <span class="cm">// arrow operator for pointer access</span>
+pT-><span class="fn">printTime</span>();
+<span class="kw">delete</span> pT;                  <span class="cm">// destructor called, memory freed</span></pre>
+    <ul>
+      <li>Dot operator <span class="inline-code">.</span> &rarr; used with objects: <span class="inline-code">t.printTime()</span></li>
+      <li>Arrow operator <span class="inline-code">-></span> &rarr; used with pointers: <span class="inline-code">pT->printTime()</span></li>
+    </ul>
+  </div>
+
+  <div class="theory-section">
+    <h4>Copy Constructor &amp; Deep Copy</h4>
+    <p>A <strong>copy constructor</strong> creates a duplicate of an object at instantiation time. It has one parameter: a <span class="inline-code">const</span> reference to the same class.</p>
+<pre><span class="tp">Student</span>::<span class="fn">Student</span>(<span class="kw">const</span> <span class="tp">Student</span>&amp; stud) {
+    id = stud.id;
+    fname = <span class="kw">new</span> <span class="kw">char</span>[<span class="fn">strlen</span>(stud.fname) + <span class="nm">1</span>];  <span class="cm">// allocate new memory</span>
+    <span class="fn">strcpy</span>(fname, stud.fname);                      <span class="cm">// copy the string</span>
+}</pre>
+    <div class="highlight-box warn">
+      <strong>Shallow vs Deep Copy:</strong> If your class has pointer data members, the default (shallow) copy just copies the pointer address &mdash; both objects point to the same memory! A <strong>deep copy</strong> allocates new memory and copies the actual data.
+    </div>
+    <p><strong>When is the copy constructor called?</strong></p>
+    <ul>
+      <li><span class="inline-code">Student s2(s1);</span> or <span class="inline-code">Student s2 = s1;</span></li>
+      <li>Passing an object by value to a function</li>
+      <li>Returning an object by value from a function</li>
+    </ul>
+  </div>
+
+  <div class="theory-section">
+    <h4>Static Members</h4>
+    <p><strong>Static data members</strong> are shared across ALL objects of the class. They describe a property of the class itself, not individual objects.</p>
+    <p><strong>Static member functions</strong> can only access static data members. Called using: <span class="inline-code">ClassName::functionName()</span></p>
+<pre><span class="kw">class</span> <span class="tp">Account</span> {
+<span class="kw">private</span>:
+    <span class="kw">int</span> accountNumber;
+    <span class="kw">double</span> balance;
+    <span class="kw">static</span> <span class="kw">double</span> interestRate;   <span class="cm">// shared by ALL accounts</span>
+<span class="kw">public</span>:
+    <span class="kw">static</span> <span class="kw">double</span> <span class="fn">getInterestRate</span>();
+};
+<span class="cm">// Initialize OUTSIDE the class:</span>
+<span class="kw">double</span> <span class="tp">Account</span>::interestRate = <span class="nm">7.5</span>;
+
+<span class="cm">// Can call without creating an object:</span>
+cout &lt;&lt; <span class="tp">Account</span>::<span class="fn">getInterestRate</span>();</pre>
+  </div>
+
+  <div class="theory-section">
+    <h4>The <span class="inline-code">this</span> Pointer &amp; <span class="inline-code">const</span> Functions</h4>
+    <ul>
+      <li><span class="inline-code">this</span> is a constant pointer to the current object. Every non-static member function has access to it.</li>
+      <li><span class="inline-code">const</span> member functions cannot modify data members: <span class="inline-code">void print() const;</span></li>
+      <li>Constant objects can only call <span class="inline-code">const</span> member functions</li>
+    </ul>
+  </div>
+
+  <!-- PRACTICE QUESTION -->
+  <details>
+    <summary><span class="q-badge">PRACTICE</span> BankAccount Class</summary>
+    <div class="details-body">
+      <p>Design a class <span class="inline-code">BankAccount</span> with: <span class="inline-code">int accountId</span>, <span class="inline-code">char* ownerName</span> (dynamic), <span class="inline-code">double balance</span>, <span class="inline-code">static int count</span></p>
+<pre><span class="kw">class</span> <span class="tp">BankAccount</span> {
+<span class="kw">public</span>:
+    <span class="fn">BankAccount</span>();
+    <span class="fn">BankAccount</span>(<span class="kw">int</span> id, <span class="kw">const</span> <span class="kw">char</span>* owner, <span class="kw">double</span> balance);
+    <span class="fn">BankAccount</span>(<span class="kw">const</span> <span class="tp">BankAccount</span>&amp; other);
+    ~<span class="fn">BankAccount</span>();
+    <span class="kw">static</span> <span class="kw">int</span> <span class="fn">getCount</span>();
+<span class="kw">private</span>:
+    <span class="kw">int</span> accountId;
+    <span class="kw">char</span>* ownerName;
+    <span class="kw">double</span> balance;
+    <span class="kw">static</span> <span class="kw">int</span> count;
+};</pre>
+      <p><strong>Tasks:</strong></p>
+      <ul>
+        <li><strong>a) (4 marks)</strong> Implement the general constructor (dynamic allocation for ownerName, increment count)</li>
+        <li><strong>b) (3 marks)</strong> Implement the copy constructor with deep copy</li>
+        <li><strong>c) (2 marks)</strong> Implement the destructor</li>
+        <li><strong>d) (1 mark)</strong> Initialize static member count</li>
+      </ul>
+
+      <details>
+        <summary><span style="color:var(--accent3)">Show Solution</span></summary>
+        <div class="details-body">
+<pre><span class="kw">int</span> <span class="tp">BankAccount</span>::count = <span class="nm">0</span>;
+
+<span class="cm">// a) General constructor</span>
+<span class="tp">BankAccount</span>::<span class="fn">BankAccount</span>(<span class="kw">int</span> id, <span class="kw">const</span> <span class="kw">char</span>* owner, <span class="kw">double</span> bal)
+    : accountId(id), balance(bal) {
+    ownerName = <span class="kw">new</span> <span class="kw">char</span>[<span class="fn">strlen</span>(owner) + <span class="nm">1</span>];
+    <span class="fn">strcpy</span>(ownerName, owner);
+    count++;
+}
+
+<span class="cm">// b) Copy constructor &mdash; deep copy</span>
+<span class="tp">BankAccount</span>::<span class="fn">BankAccount</span>(<span class="kw">const</span> <span class="tp">BankAccount</span>&amp; other)
+    : accountId(other.accountId), balance(other.balance) {
+    ownerName = <span class="kw">new</span> <span class="kw">char</span>[<span class="fn">strlen</span>(other.ownerName) + <span class="nm">1</span>];
+    <span class="fn">strcpy</span>(ownerName, other.ownerName);
+    count++;
+}
+
+<span class="cm">// c) Destructor</span>
+<span class="tp">BankAccount</span>::~<span class="fn">BankAccount</span>() {
+    <span class="kw">delete</span>[] ownerName;
+    count--;
+}</pre>
+        </div>
+      </details>
+    </div>
+  </details>
+
+  <div class="takeaways">
+    <h5>&#x1f4a1; Key Takeaways</h5>
+    <ul>
+      <li><span class="inline-code">char*</span> data member &rarr; you <strong>need</strong> copy constructor, destructor, and operator= (<strong>Rule of 3</strong>)</li>
+      <li><strong>Static</strong> members are shared across all objects; initialized outside the class</li>
+      <li>Copy constructor must perform <strong>deep copy</strong> (not just copy the pointer)</li>
+      <li><span class="inline-code">const</span> correctness: mark read-only functions as <span class="inline-code">const</span></li>
+    </ul>
+  </div>
+</section>
+
+<!-- ====================================================== -->
+<!--                TOPIC 2: COMPOSITION                     -->
+<!-- ====================================================== -->
+<section class="topic" id="composition">
+  <div class="topic-head">
+    <span class="topic-num c2">02</span>
+    <h3>Class Composition</h3>
+    <span class="topic-time">~8 min</span>
+  </div>
+
+  <div class="theory-section">
+    <h4>What is Composition?</h4>
+    <p><strong>Composition</strong> means a class contains objects (or arrays of objects) of a different class as data members. This is a <strong>"has-a"</strong> relationship.</p>
+    <ul>
+      <li><strong>Composite class:</strong> the class that contains other objects</li>
+      <li><strong>Component object:</strong> the object member inside another class</li>
+      <li>Member functions of a composite class <strong>cannot directly access</strong> private members of component objects</li>
+    </ul>
+
+<pre><span class="kw">class</span> <span class="tp">Date</span> {
+<span class="kw">public</span>:
+    <span class="fn">Date</span>(<span class="kw">int</span> d, <span class="kw">int</span> m, <span class="kw">int</span> y, <span class="kw">int</span> hour, <span class="kw">int</span> min, <span class="kw">int</span> sec);
+    <span class="kw">void</span> <span class="fn">printDate</span>() <span class="kw">const</span>;
+<span class="kw">private</span>:
+    <span class="kw">int</span> day, month, year;
+    <span class="tp">Time</span> time;   <span class="cm">// component object &mdash; Date "has-a" Time</span>
+};</pre>
+  </div>
+
+  <div class="theory-section">
+    <h4>Construction &amp; Destruction Order</h4>
+    <div class="highlight-box">
+      <strong>Construction:</strong> Component objects are constructed <strong>first</strong> (before the composite constructor body runs).<br>
+      <strong>Destruction:</strong> Reversed &mdash; composite destructor body runs first, then component destructors.
+    </div>
+  </div>
+
+  <div class="theory-section">
+    <h4>Member Initializer List</h4>
+    <p>When a component class has <strong>no default constructor</strong>, you must use the member initializer list. It also avoids unnecessary default construction + assignment.</p>
+<pre><span class="cm">// Without initializer list (calls default constructor + assignment):</span>
+<span class="tp">Rectangle</span>::<span class="fn">Rectangle</span>(<span class="kw">const</span> <span class="tp">Point</span>&amp; pt1, <span class="kw">const</span> <span class="tp">Point</span>&amp; pt2) {
+    p1 = pt1;  <span class="cm">// Point() already called, then assignment</span>
+    p2 = pt2;
+}
+
+<span class="cm">// With initializer list (directly calls copy constructor):</span>
+<span class="tp">Rectangle</span>::<span class="fn">Rectangle</span>(<span class="kw">const</span> <span class="tp">Point</span>&amp; pt1, <span class="kw">const</span> <span class="tp">Point</span>&amp; pt2)
+    : p1(pt1), p2(pt2) { }  <span class="cm">// much more efficient!</span></pre>
+    <div class="highlight-box warn">
+      <strong>Must use initializer list for:</strong> component objects without default constructors, <span class="inline-code">const</span> data members, and reference data members.
+    </div>
+  </div>
+
+  <div class="theory-section">
+    <h4>Dynamic Arrays of Objects</h4>
+<pre><span class="cm">// Static array of objects (fixed size, objects need default constructor)</span>
+<span class="tp">Time</span> objectArray[<span class="nm">40</span>];
+
+<span class="cm">// Dynamic array of objects</span>
+<span class="tp">Time</span>* ptr = <span class="kw">new</span> <span class="tp">Time</span>[size];
+
+<span class="cm">// Dynamic array of POINTERS (objects can be different sizes)</span>
+<span class="tp">Time</span>** ptrArray = <span class="kw">new</span> <span class="tp">Time</span>*[size];
+ptrArray[<span class="nm">0</span>] = <span class="kw">new</span> <span class="tp">Time</span>();
+ptrArray[<span class="nm">0</span>]-><span class="fn">setHour</span>(<span class="nm">5</span>);
+ptrArray[<span class="nm">1</span>] = <span class="kw">nullptr</span>;</pre>
+  </div>
+
+  <details>
+    <summary><span class="q-badge">PRACTICE</span> Engine &amp; Car Composition</summary>
+    <div class="details-body">
+      <p>Given an <span class="inline-code">Engine</span> class (no default constructor), define a <span class="inline-code">Car</span> that "has-a" Engine.</p>
+      <ul>
+        <li><strong>a)</strong> Constructor using member initializer list</li>
+        <li><strong>b)</strong> What is the order of construction / destruction?</li>
+        <li><strong>c)</strong> Why must you use the initializer list?</li>
+      </ul>
+      <details>
+        <summary><span style="color:var(--accent3)">Show Solution</span></summary>
+        <div class="details-body">
+<pre><span class="kw">class</span> <span class="tp">Car</span> {
+<span class="kw">public</span>:
+    <span class="fn">Car</span>(<span class="kw">const</span> <span class="tp">string</span>&amp; m, <span class="kw">int</span> y, <span class="kw">int</span> hp, <span class="kw">const</span> <span class="tp">string</span>&amp; type);
+<span class="kw">private</span>:
+    <span class="tp">string</span> model;
+    <span class="kw">int</span> year;
+    <span class="tp">Engine</span> engine;  <span class="cm">// composition</span>
+};
+
+<span class="tp">Car</span>::<span class="fn">Car</span>(<span class="kw">const</span> <span class="tp">string</span>&amp; m, <span class="kw">int</span> y, <span class="kw">int</span> hp, <span class="kw">const</span> <span class="tp">string</span>&amp; type)
+    : model(m), year(y), engine(hp, type) { }
+<span class="cm">// Engine has no default constructor &rarr; MUST use initializer list</span></pre>
+          <p><strong>Construction:</strong> Engine first &rarr; Car body. <strong>Destruction:</strong> Car body &rarr; Engine.</p>
+        </div>
+      </details>
+    </div>
+  </details>
+
+  <div class="takeaways">
+    <h5>&#x1f4a1; Key Takeaways</h5>
+    <ul>
+      <li>Composition = <strong>"has-a"</strong> relationship (vs. inheritance = "is-a")</li>
+      <li>Member objects constructed <strong>before</strong> composite body; destroyed in <strong>reverse</strong></li>
+      <li>Use <strong>member initializer list</strong> when component has no default constructor</li>
+      <li>For <strong>arrays of pointers</strong>: <span class="inline-code">Type** arr = new Type*[size];</span></li>
+    </ul>
+  </div>
+</section>
+
+<!-- ====================================================== -->
+<!--                TOPIC 3: INHERITANCE                     -->
+<!-- ====================================================== -->
+<section class="topic" id="inheritance">
+  <div class="topic-head">
+    <span class="topic-num c3">03</span>
+    <h3>Inheritance</h3>
+    <span class="topic-time">~12 min</span>
+  </div>
+
+  <div class="theory-section" style="border:1px solid rgba(251,146,60,0.3); background:linear-gradient(135deg, rgba(251,146,60,0.06), transparent);">
+    <h4 style="color:var(--accent4);">EXAM ALERT &mdash; Foundation of the big question</h4>
+    <p>Inheritance is never tested alone &mdash; it's always <strong>combined with polymorphism</strong> in the big 25-30 mark question. You'll need to:</p>
+    <ul>
+      <li>Write derived class constructors that <strong>call the base constructor</strong> via initializer list</li>
+      <li>Know the <strong>construction/destruction order</strong> (base first, derived first to destruct)</li>
+      <li>Understand which members are accessible with <span class="inline-code">public</span>, <span class="inline-code">protected</span>, <span class="inline-code">private</span> inheritance</li>
+    </ul>
+    <p style="margin-top:0.5rem"><strong>Real exam (2017 Q9):</strong> <em>"If a base class has a constructor with arguments, the derived class must ___."</em> Answer: <strong>C) Have a constructor with arguments and pass them to the base class constructor.</strong></p>
+  </div>
+
+  <div class="theory-section">
+    <h4>What is Inheritance?</h4>
+    <p>Inheritance derives a new class from an existing class. The derived class inherits all members of the base class. This is an <strong>"is-a"</strong> relationship.</p>
+    <div class="concept-grid">
+      <div class="concept-card">
+        <div class="concept-title" style="color:var(--accent3)">Public Inheritance</div>
+        <p>Base public &rarr; stays public. Base protected &rarr; stays protected. Base private &rarr; <strong>not accessible</strong> directly.</p>
+      </div>
+      <div class="concept-card">
+        <div class="concept-title" style="color:var(--accent4)">Protected Inheritance</div>
+        <p>Base public/protected &rarr; become protected. Rarely used.</p>
+      </div>
+      <div class="concept-card">
+        <div class="concept-title" style="color:var(--accent5)">Private Inheritance</div>
+        <p>All base members become private. Alternative to composition.</p>
+      </div>
+    </div>
+<pre><span class="kw">class</span> <span class="tp">Student</span> : <span class="kw">public</span> <span class="tp">Person</span> {  <span class="cm">// Student "is-a" Person</span>
+<span class="kw">public</span>:
+    <span class="fn">Student</span>(<span class="kw">const</span> <span class="tp">string</span>&amp; name, <span class="kw">int</span> age, <span class="kw">int</span> id, <span class="kw">double</span> gpa);
+<span class="kw">private</span>:
+    <span class="kw">int</span> studentId;
+    <span class="kw">double</span> gpa;
+};</pre>
+  </div>
+
+  <div class="theory-section">
+    <h4>Constructors &amp; Destructors in Inheritance</h4>
+    <div class="highlight-box">
+      <strong>Construction:</strong> Base constructor &rarr; Derived constructor<br>
+      <strong>Destruction:</strong> Derived destructor &rarr; Base destructor (reverse order)
+    </div>
+    <p>Base class constructors, destructors, <span class="inline-code">operator=</span>, and friend functions are <strong>NOT inherited</strong>.</p>
+<pre><span class="tp">Student</span>::<span class="fn">Student</span>(<span class="kw">const</span> <span class="tp">string</span>&amp; n, <span class="kw">int</span> a, <span class="kw">int</span> id, <span class="kw">double</span> g)
+    : <span class="fn">Person</span>(n, a), studentId(id), gpa(g) { }
+    <span class="cm">// ^^^ Must explicitly call base constructor if no default exists</span></pre>
+    <div class="highlight-box important">
+      If the base class has <strong>no default constructor</strong> and you don't call it explicitly in the initializer list &rarr; <strong>compilation error!</strong>
+    </div>
+  </div>
+
+  <div class="theory-section">
+    <h4>Base &amp; Derived Pointer Assignments</h4>
+    <table>
+      <tr><th>Assignment</th><th>Valid?</th><th>Notes</th></tr>
+      <tr><td>Base* &rarr; Base object</td><td style="color:var(--accent3)">OK</td><td>Normal</td></tr>
+      <tr><td>Derived* &rarr; Derived object</td><td style="color:var(--accent3)">OK</td><td>Normal</td></tr>
+      <tr><td>Base* &rarr; Derived object</td><td style="color:var(--accent3)">OK</td><td>Upcasting &mdash; safe, enables polymorphism</td></tr>
+      <tr><td>Derived* &rarr; Base object</td><td style="color:var(--red)">ERROR</td><td>Not allowed without explicit cast</td></tr>
+    </table>
+  </div>
+
+  <details>
+    <summary><span class="q-badge">PRACTICE</span> Person &rarr; Student &rarr; GradStudent</summary>
+    <div class="details-body">
+      <p>Implement constructors, <span class="inline-code">print()</span> that calls base class version, and explain what happens without explicit base constructor call.</p>
+      <details>
+        <summary><span style="color:var(--accent3)">Show Solution</span></summary>
+        <div class="details-body">
+<pre><span class="tp">Person</span>::<span class="fn">Person</span>(<span class="kw">const</span> <span class="tp">string</span>&amp; n, <span class="kw">int</span> a) : name(n), age(a) {}
+
+<span class="tp">Student</span>::<span class="fn">Student</span>(<span class="kw">const</span> <span class="tp">string</span>&amp; n, <span class="kw">int</span> a, <span class="kw">int</span> id, <span class="kw">double</span> g)
+    : <span class="fn">Person</span>(n, a), studentId(id), gpa(g) {}
+
+<span class="tp">GradStudent</span>::<span class="fn">GradStudent</span>(<span class="kw">const</span> <span class="tp">string</span>&amp; n, <span class="kw">int</span> a, <span class="kw">int</span> id, <span class="kw">double</span> g,
+                         <span class="kw">const</span> <span class="tp">string</span>&amp; t, <span class="kw">const</span> <span class="tp">string</span>&amp; s)
+    : <span class="fn">Student</span>(n, a, id, g), thesisTopic(t), supervisor(s) {}
+
+<span class="kw">void</span> <span class="tp">GradStudent</span>::<span class="fn">print</span>() <span class="kw">const</span> {
+    <span class="tp">Student</span>::<span class="fn">print</span>();  <span class="cm">// call base class version</span>
+    cout &lt;&lt; <span class="st">"Thesis: "</span> &lt;&lt; thesisTopic &lt;&lt; endl;
+}</pre>
+        </div>
+      </details>
+    </div>
+  </details>
+
+  <div class="takeaways">
+    <h5>&#x1f4a1; Key Takeaways</h5>
+    <ul>
+      <li>Derived constructor <strong>must</strong> call base constructor if base has no default</li>
+      <li>Construction: base &rarr; derived. Destruction: derived &rarr; base</li>
+      <li>Use <span class="inline-code">Base::function()</span> to call an overridden function from derived class</li>
+      <li><span class="inline-code">protected</span> members: accessible in derived classes but not from outside</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ====================================================== -->
+<!--                TOPIC 4: POLYMORPHISM                    -->
+<!-- ====================================================== -->
+<section class="topic" id="polymorphism">
+  <div class="topic-head">
+    <span class="topic-num c4">04</span>
+    <h3>Polymorphism</h3>
+    <span class="topic-time">~18 min &bull; MOST TESTED</span>
+  </div>
+
+  <div class="theory-section" style="border:1px solid rgba(239,68,68,0.3); background:linear-gradient(135deg, rgba(239,68,68,0.06), transparent);">
+    <h4 style="color:var(--red);">EXAM ALERT &mdash; Polymorphism appears in EVERY final</h4>
+    <p>Every single past final has a 20-30 mark question that requires:</p>
+    <ul>
+      <li>Implementing a class hierarchy with <strong>virtual</strong> and <strong>pure virtual</strong> functions</li>
+      <li>Writing a <strong>driver program</strong> with an array of <strong>base-class pointers</strong></li>
+      <li>Demonstrating <strong>dynamic binding</strong> through a polymorphic loop</li>
+      <li>Properly using <strong>virtual destructors</strong> to avoid memory leaks</li>
+    </ul>
+    <p style="margin-top:0.5rem"><strong>Real exam (2017 Q1):</strong> <em>"Employee is a base class and HourlyWorker is a derived class with a redefined virtual print function. Will the output of ePtr->print() and ePtr->Employee::print() be identical?"</em> Answer: <strong>No</strong> &mdash; the first uses dynamic binding (calls HourlyWorker::print), the second uses static binding (explicit scope resolution calls Employee::print).</p>
+  </div>
+
+  <div class="theory-section">
+    <h4>What is Polymorphism?</h4>
+    <p>"Poly" + "morph" = <strong>many forms</strong>. The same function call produces different behavior depending on the actual object type. This is the core power of OOP.</p>
+    <div class="highlight-box">
+      <strong>Example:</strong> A screen manager sends <span class="inline-code">draw()</span> to an array of <span class="inline-code">SpaceObject*</span> pointers. A Martian draws itself in red, a Spaceship draws a silver saucer &mdash; same message, different results.
+    </div>
+  </div>
+
+  <div class="theory-section">
+    <h4>Virtual Functions &amp; Dynamic Binding</h4>
+    <p>Declared with <span class="inline-code">virtual</span> keyword in the base class. Derived classes <strong>override</strong> them.</p>
+
+    <div class="concept-grid">
+      <div class="concept-card">
+        <div class="concept-title" style="color:var(--accent)">Static Binding</div>
+        <p>Function determined at <strong>compile time</strong>. Happens with: direct object calls, non-virtual functions via pointers.</p>
+      </div>
+      <div class="concept-card">
+        <div class="concept-title" style="color:var(--accent4)">Dynamic Binding</div>
+        <p>Function determined at <strong>run time</strong>. Happens with: <strong>virtual</strong> functions called via pointer or reference.</p>
+      </div>
+    </div>
+
+<pre><span class="kw">class</span> <span class="tp">Shape</span> {
+<span class="kw">public</span>:
+    <span class="kw">virtual</span> <span class="kw">void</span> <span class="fn">print</span>() <span class="kw">const</span>;  <span class="cm">// virtual &rarr; enables dynamic binding</span>
+};
+
+<span class="kw">class</span> <span class="tp">Circle</span> : <span class="kw">public</span> <span class="tp">Shape</span> {
+<span class="kw">public</span>:
+    <span class="kw">virtual</span> <span class="kw">void</span> <span class="fn">print</span>() <span class="kw">const</span>;  <span class="cm">// override</span>
+};
+
+<span class="tp">Shape</span>* sPtr = <span class="kw">new</span> <span class="tp">Circle</span>(<span class="nm">30</span>, <span class="nm">10</span>, <span class="nm">12.5</span>);
+sPtr-><span class="fn">print</span>();  <span class="cm">// dynamic binding &rarr; calls Circle::print()!</span></pre>
+  </div>
+
+  <div class="theory-section">
+    <h4>Binding Rules Summary</h4>
+    <table>
+      <tr><th>Call</th><th>Binding</th><th>Why</th></tr>
+      <tr><td><span class="inline-code">obj.func()</span></td><td>Static</td><td>Called by object, not pointer</td></tr>
+      <tr><td><span class="inline-code">ptr->nonVirtualFunc()</span></td><td>Static</td><td>Non-virtual function</td></tr>
+      <tr><td><span class="inline-code">ptr->virtualFunc()</span></td><td><strong>Dynamic</strong></td><td>Virtual + pointer = dynamic</td></tr>
+      <tr><td><span class="inline-code">ref.virtualFunc()</span></td><td><strong>Dynamic</strong></td><td>Virtual + reference = dynamic</td></tr>
+      <tr><td><span class="inline-code">ptr->Base::func()</span></td><td>Static</td><td>Explicit scope resolution</td></tr>
+    </table>
+  </div>
+
+  <div class="theory-section">
+    <h4>Abstract Classes &amp; Pure Virtual Functions</h4>
+    <p>A class with one or more <strong>pure virtual functions</strong> (<span class="inline-code">= 0</span>) is <strong>abstract</strong>. You cannot instantiate it.</p>
+<pre><span class="kw">class</span> <span class="tp">Employee</span> {
+<span class="kw">public</span>:
+    <span class="kw">virtual</span> <span class="kw">void</span> <span class="fn">print</span>() <span class="kw">const</span>;                 <span class="cm">// virtual (has body)</span>
+    <span class="kw">virtual</span> <span class="kw">double</span> <span class="fn">getPay</span>() <span class="kw">const</span> = <span class="nm">0</span>;         <span class="cm">// PURE virtual (no body)</span>
+    <span class="kw">virtual</span> ~<span class="fn">Employee</span>();                        <span class="cm">// virtual destructor</span>
+};</pre>
+    <ul>
+      <li>Derived <strong>concrete</strong> classes must implement all pure virtual functions</li>
+      <li>If not implemented, the derived class is also abstract</li>
+      <li>You <strong>can</strong> have pointers/references of abstract type (for polymorphism)</li>
+    </ul>
+  </div>
+
+  <div class="theory-section">
+    <h4>Virtual Destructors &amp; Dynamic Casting</h4>
+    <div class="highlight-box important">
+      <strong>Virtual destructor:</strong> If you <span class="inline-code">delete</span> a derived object through a base pointer without virtual destructor, only the base destructor runs &rarr; <strong>memory leak!</strong> Always declare destructors <span class="inline-code">virtual</span> in base classes.
+    </div>
+    <p><strong>Dynamic cast</strong> lets you safely downcast a base pointer to a derived pointer:</p>
+<pre><span class="tp">Circle</span>* c = <span class="kw">dynamic_cast</span>&lt;<span class="tp">Circle</span>*&gt;(shapePtr);
+<span class="kw">if</span> (c != <span class="kw">nullptr</span>)
+    c-><span class="fn">setRadius</span>(<span class="nm">50</span>);</pre>
+  </div>
+
+  <details>
+    <summary><span class="q-badge">PRACTICE</span> Shape Hierarchy &mdash; Static vs Dynamic Binding</summary>
+    <div class="details-body">
+      <p>Given abstract <span class="inline-code">Shape</span> with pure virtual <span class="inline-code">area()</span> and <span class="inline-code">perimeter()</span>, implement <span class="inline-code">Rectangle</span> and <span class="inline-code">Circle</span>. Write a polymorphic driver. Analyze binding for each call.</p>
+      <details>
+        <summary><span style="color:var(--accent3)">Show Solution</span></summary>
+        <div class="details-body">
+<pre><span class="kw">double</span> <span class="tp">Rectangle</span>::<span class="fn">area</span>() <span class="kw">const</span> { <span class="kw">return</span> width * height; }
+<span class="kw">double</span> <span class="tp">Circle</span>::<span class="fn">area</span>() <span class="kw">const</span> { <span class="kw">return</span> <span class="nm">3.14159</span> * radius * radius; }
+
+<span class="kw">int</span> <span class="fn">main</span>() {
+    <span class="tp">Shape</span>* shapes[<span class="nm">3</span>];
+    shapes[<span class="nm">0</span>] = <span class="kw">new</span> <span class="tp">Rectangle</span>(<span class="nm">5.0</span>, <span class="nm">3.0</span>);
+    shapes[<span class="nm">1</span>] = <span class="kw">new</span> <span class="tp">Circle</span>(<span class="nm">4.0</span>);
+    shapes[<span class="nm">2</span>] = <span class="kw">new</span> <span class="tp">Rectangle</span>(<span class="nm">10.0</span>, <span class="nm">2.0</span>);
+    <span class="kw">for</span> (<span class="kw">int</span> i = <span class="nm">0</span>; i &lt; <span class="nm">3</span>; i++) {
+        shapes[i]-><span class="fn">print</span>();    <span class="cm">// dynamic binding</span>
+        cout &lt;&lt; shapes[i]-><span class="fn">area</span>() &lt;&lt; endl;  <span class="cm">// dynamic binding</span>
+        <span class="kw">delete</span> shapes[i];     <span class="cm">// virtual destructor needed</span>
+    }
+}</pre>
+          <table>
+            <tr><th>Call</th><th>Binding</th><th>Executes</th></tr>
+            <tr><td><span class="inline-code">r.area()</span></td><td>Static</td><td>Rectangle::area()</td></tr>
+            <tr><td><span class="inline-code">sPtr->area()</span></td><td>Dynamic</td><td>Rectangle::area()</td></tr>
+            <tr><td><span class="inline-code">sRef.area()</span></td><td>Dynamic</td><td>Rectangle::area()</td></tr>
+          </table>
+        </div>
+      </details>
+    </div>
+  </details>
+
+  <div class="takeaways">
+    <h5>&#x1f4a1; Key Takeaways</h5>
+    <ul>
+      <li><strong>Abstract class</strong> = at least one pure virtual function (<span class="inline-code">= 0</span>)</li>
+      <li><strong>Dynamic binding</strong> = virtual function + pointer/reference</li>
+      <li>Always use <strong>virtual destructor</strong> in base classes</li>
+      <li>The <strong>object type</strong> (not the pointer type) determines which function runs</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ====================================================== -->
+<!--                TOPIC 5: OPERATOR OVERLOADING            -->
+<!-- ====================================================== -->
+<section class="topic" id="operators">
+  <div class="topic-head">
+    <span class="topic-num c5">05</span>
+    <h3>Operator Overloading</h3>
+    <span class="topic-time">~12 min</span>
+  </div>
+
+  <div class="theory-section" style="border:1px solid rgba(239,68,68,0.3); background:linear-gradient(135deg, rgba(239,68,68,0.06), transparent);">
+    <h4 style="color:var(--red);">EXAM ALERT &mdash; Always tested (15-20 marks)</h4>
+    <p><strong>What they ask:</strong></p>
+    <ul>
+      <li>Implement <span class="inline-code">operator&lt;&lt;</span> (friend function) &mdash; appears in <strong>every</strong> final</li>
+      <li>Implement <span class="inline-code">operator=</span> with deep copy and self-assignment check &mdash; appears when class has <span class="inline-code">char*</span> or dynamic arrays</li>
+      <li>Implement comparison operators (<span class="inline-code">&lt;</span>, <span class="inline-code">==</span>) &mdash; 2011, 2017 finals</li>
+      <li>Implement <span class="inline-code">operator[]</span> &mdash; 2011 final, 2017 final</li>
+    </ul>
+    <p style="margin-top:0.5rem"><strong>Real exam (2017 Q15):</strong> <em>"Which is correct for operator[]?"</em> Answer: Must return <span class="inline-code">int&amp;</span> (reference), not <span class="inline-code">int</span>, so you can write <span class="inline-code">obj[2] = 3;</span> (needs to be an l-value).</p>
+    <p><strong>Real exam (2017 Q8):</strong> <em>"Assuming operator+ is overloaded, does it make += overloaded?"</em> Answer: <strong>No!</strong> Each operator must be overloaded separately.</p>
+  </div>
+
+  <div class="theory-section">
+    <h4>How It Works</h4>
+    <p>Operators can be redefined for class objects. The function name is <span class="inline-code">operator</span> followed by the symbol (e.g., <span class="inline-code">operator+</span>).</p>
+    <ul>
+      <li>Cannot create <strong>new</strong> operators &mdash; only overload existing ones</li>
+      <li>Cannot change how operators work on <strong>fundamental types</strong></li>
+      <li>Overloading <span class="inline-code">+</span> does <strong>NOT</strong> automatically overload <span class="inline-code">+=</span></li>
+    </ul>
+  </div>
+
+  <div class="theory-section">
+    <h4>Member vs Friend Functions</h4>
+    <table>
+      <tr><th>Type</th><th>When to Use</th><th>Notes</th></tr>
+      <tr><td><strong>Member function</strong></td><td>Left operand is our class object</td><td><span class="inline-code">this</span> is the left operand. <span class="inline-code">=</span>, <span class="inline-code">()</span>, <span class="inline-code">[]</span>, <span class="inline-code">-></span> MUST be members.</td></tr>
+      <tr><td><strong>Friend function</strong></td><td>Left operand is NOT our class</td><td>e.g., <span class="inline-code">cout &lt;&lt; obj</span> &mdash; left operand is <span class="inline-code">ostream</span></td></tr>
+    </table>
+<pre><span class="cm">// Member: a + b  means  a.operator+(b)</span>
+<span class="tp">Rational</span> <span class="tp">Rational</span>::<span class="kw">operator</span>+(<span class="kw">const</span> <span class="tp">Rational</span>&amp; x) <span class="kw">const</span> {
+    <span class="kw">return</span> <span class="tp">Rational</span>(n*x.d + x.n*d, d*x.d);
+}
+
+<span class="cm">// Friend: cout &lt;&lt; obj  means  operator&lt;&lt;(cout, obj)</span>
+<span class="kw">friend</span> <span class="tp">ostream</span>&amp; <span class="kw">operator</span>&lt;&lt;(<span class="tp">ostream</span>&amp; out, <span class="kw">const</span> <span class="tp">Rational</span>&amp; r) {
+    out &lt;&lt; r.n &lt;&lt; <span class="st">"/"</span> &lt;&lt; r.d;
+    <span class="kw">return</span> out;
+}</pre>
+  </div>
+
+  <div class="theory-section">
+    <h4>Assignment Operator (operator=)</h4>
+    <p>Critical when class has dynamic memory. Must perform <strong>self-assignment check</strong> and <strong>deep copy</strong>.</p>
+<pre><span class="kw">const</span> <span class="tp">Set</span>&amp; <span class="tp">Set</span>::<span class="kw">operator</span>=(<span class="kw">const</span> <span class="tp">Set</span>&amp; right) {
+    <span class="kw">if</span> (&amp;right != <span class="kw">this</span>) {        <span class="cm">// self-assignment check!</span>
+        <span class="kw">delete</span>[] ptr;              <span class="cm">// free old memory</span>
+        size = right.<span class="fn">getSize</span>();
+        ptr = <span class="kw">new</span> <span class="kw">int</span>[size];       <span class="cm">// allocate new</span>
+        <span class="kw">for</span> (<span class="kw">int</span> i = <span class="nm">0</span>; i &lt; size; i++)
+            ptr[i] = right[i];      <span class="cm">// copy data</span>
+    }
+    <span class="kw">return</span> *<span class="kw">this</span>;
+}</pre>
+  </div>
+
+  <details>
+    <summary><span class="q-badge">PRACTICE</span> Fraction Class Operators</summary>
+    <div class="details-body">
+      <p>Implement <span class="inline-code">operator+</span>, <span class="inline-code">operator&lt;&lt;</span>, <span class="inline-code">operator&gt;&gt;</span>, <span class="inline-code">operator=</span>. Explain why <span class="inline-code">&lt;&lt;</span> and <span class="inline-code">&gt;&gt;</span> must be friends.</p>
+      <details>
+        <summary><span style="color:var(--accent3)">Show Solution</span></summary>
+        <div class="details-body">
+<pre><span class="tp">Fraction</span> <span class="tp">Fraction</span>::<span class="kw">operator</span>+(<span class="kw">const</span> <span class="tp">Fraction</span>&amp; other) <span class="kw">const</span> {
+    <span class="kw">int</span> num = numerator * other.denominator + other.numerator * denominator;
+    <span class="kw">int</span> den = denominator * other.denominator;
+    <span class="kw">return</span> <span class="tp">Fraction</span>(num, den);
+}
+
+<span class="tp">ostream</span>&amp; <span class="kw">operator</span>&lt;&lt;(<span class="tp">ostream</span>&amp; out, <span class="kw">const</span> <span class="tp">Fraction</span>&amp; f) {
+    out &lt;&lt; f.numerator &lt;&lt; <span class="st">"/"</span> &lt;&lt; f.denominator;
+    <span class="kw">return</span> out;  <span class="cm">// return stream for chaining</span>
+}
+
+<span class="kw">const</span> <span class="tp">Fraction</span>&amp; <span class="tp">Fraction</span>::<span class="kw">operator</span>=(<span class="kw">const</span> <span class="tp">Fraction</span>&amp; other) {
+    <span class="kw">if</span> (<span class="kw">this</span> != &amp;other) {
+        numerator = other.numerator;
+        denominator = other.denominator;
+    }
+    <span class="kw">return</span> *<span class="kw">this</span>;
+}</pre>
+          <p><strong>Why friend?</strong> Because <span class="inline-code">cout &lt;&lt; f</span> means <span class="inline-code">operator&lt;&lt;(cout, f)</span> &mdash; the left operand is <span class="inline-code">ostream</span>, not <span class="inline-code">Fraction</span>. Can't be a member of <span class="inline-code">Fraction</span>.</p>
+        </div>
+      </details>
+    </div>
+  </details>
+
+  <div class="takeaways">
+    <h5>&#x1f4a1; Key Takeaways</h5>
+    <ul>
+      <li><span class="inline-code">&lt;&lt;</span> and <span class="inline-code">&gt;&gt;</span> must be <strong>friend</strong> (left operand is stream, not our class)</li>
+      <li><span class="inline-code">=</span>, <span class="inline-code">()</span>, <span class="inline-code">[]</span>, <span class="inline-code">-></span> <strong>must</strong> be member functions</li>
+      <li>Always check for <strong>self-assignment</strong> in <span class="inline-code">operator=</span></li>
+      <li>Return <span class="inline-code">ostream&amp;</span> to allow chaining: <span class="inline-code">cout &lt;&lt; a &lt;&lt; b</span></li>
+    </ul>
+  </div>
+</section>
+
+<!-- ====================================================== -->
+<!--                TOPIC 6: EXCEPTION HANDLING              -->
+<!-- ====================================================== -->
+<section class="topic" id="exceptions">
+  <div class="topic-head">
+    <span class="topic-num c6">06</span>
+    <h3>Exception Handling</h3>
+    <span class="topic-time">~8 min</span>
+  </div>
+
+  <div class="theory-section" style="border:1px solid rgba(56,189,248,0.3); background:linear-gradient(135deg, rgba(56,189,248,0.06), transparent);">
+    <h4 style="color:var(--accent);">EXAM ALERT &mdash; Usually combined with other topics</h4>
+    <p>Exception handling rarely gets its own standalone question. Instead, it's <strong>woven into</strong> other questions:</p>
+    <ul>
+      <li><strong>2011 Final:</strong> Constructor throws exception if weight &lt; 0 &mdash; integrated with inheritance question</li>
+      <li><strong>Solution exam:</strong> <span class="inline-code">delete_policy()</span> throws exception if policy not found &mdash; integrated with composition</li>
+      <li><strong>2017 Final Q5:</strong> Output tracing &mdash; "What does this try/catch print?" (Answer: only the first matching catch runs)</li>
+    </ul>
+    <p><strong>Real exam (2017 Q5):</strong> Given a try block that allocates memory and throws <span class="inline-code">int n</span> when <span class="inline-code">n &gt; 9</span>, what prints? Answer: <strong>"Exception: index 10 is out of range"</strong> (only the first throw executes, only the matching catch runs).</p>
+  </div>
+
+  <div class="theory-section">
+    <h4>try / throw / catch</h4>
+    <p>Exceptions handle errors gracefully without crashing the program.</p>
+<pre><span class="kw">try</span> {
+    <span class="cm">// code that might throw</span>
+    <span class="kw">if</span> (denominator == <span class="nm">0</span>)
+        <span class="kw">throw</span> <span class="st">"Division by zero"</span>;
+    result = numerator / denominator;
+}
+<span class="kw">catch</span> (<span class="kw">const</span> <span class="kw">char</span>* msg) {
+    cout &lt;&lt; <span class="st">"Error: "</span> &lt;&lt; msg &lt;&lt; endl;
+}
+<span class="kw">catch</span> (<span class="kw">int</span> errorCode) {
+    cout &lt;&lt; <span class="st">"Error code: "</span> &lt;&lt; errorCode &lt;&lt; endl;
+}</pre>
+    <ul>
+      <li>Code in <span class="inline-code">try</span> block is monitored for exceptions</li>
+      <li><span class="inline-code">throw</span> sends the exception (can throw any type)</li>
+      <li><span class="inline-code">catch</span> blocks handle specific exception types</li>
+      <li>Code after <span class="inline-code">throw</span> in the try block does <strong>NOT</strong> execute</li>
+      <li>If no <span class="inline-code">catch</span> matches, exception propagates up the call stack</li>
+    </ul>
+  </div>
+
+  <div class="theory-section">
+    <h4>Custom Exception Classes</h4>
+<pre><span class="kw">class</span> <span class="tp">WeightLessThanZeroException</span> {
+<span class="kw">public</span>:
+    <span class="fn">WeightLessThanZeroException</span>() {}
+    <span class="tp">string</span> <span class="fn">what</span>() { <span class="kw">return</span> <span class="st">"Weight must be >= 0."</span>; }
+};
+
+<span class="cm">// Usage:</span>
+<span class="kw">if</span> (weight &lt; <span class="nm">0</span>)
+    <span class="kw">throw</span> <span class="tp">WeightLessThanZeroException</span>();</pre>
+  </div>
+
+  <details>
+    <summary><span class="q-badge">PRACTICE</span> SafeArray with Exceptions</summary>
+    <div class="details-body">
+      <p>Build a <span class="inline-code">SafeArray</span> that throws <span class="inline-code">IndexOutOfBoundsException</span> and <span class="inline-code">NegativeSizeException</span>.</p>
+      <details>
+        <summary><span style="color:var(--accent3)">Show Solution</span></summary>
+        <div class="details-body">
+<pre><span class="tp">SafeArray</span>::<span class="fn">SafeArray</span>(<span class="kw">int</span> s) {
+    <span class="kw">if</span> (s &lt; <span class="nm">0</span>) <span class="kw">throw</span> <span class="tp">NegativeSizeException</span>(s);
+    size = s;
+    arr = <span class="kw">new</span> <span class="kw">int</span>[size];
+}
+
+<span class="kw">int</span>&amp; <span class="tp">SafeArray</span>::<span class="kw">operator</span>[](<span class="kw">int</span> index) {
+    <span class="kw">if</span> (index &lt; <span class="nm">0</span> || index >= size)
+        <span class="kw">throw</span> <span class="tp">IndexOutOfBoundsException</span>(index, size);
+    <span class="kw">return</span> arr[index];
+}
+
+<span class="kw">int</span> <span class="fn">main</span>() {
+    <span class="kw">try</span> {
+        <span class="tp">SafeArray</span> sa(<span class="nm">5</span>);
+        sa[<span class="nm">10</span>] = <span class="nm">42</span>;  <span class="cm">// throws!</span>
+    } <span class="kw">catch</span> (<span class="tp">IndexOutOfBoundsException</span>&amp; e) {
+        cout &lt;&lt; e.<span class="fn">what</span>() &lt;&lt; endl;
+    }
+}</pre>
+        </div>
+      </details>
+    </div>
+  </details>
+
+  <div class="takeaways">
+    <h5>&#x1f4a1; Key Takeaways</h5>
+    <ul>
+      <li><span class="inline-code">throw</span> sends, <span class="inline-code">catch</span> handles &mdash; code after throw <strong>does NOT execute</strong></li>
+      <li>Custom exception classes store useful error info</li>
+      <li>Multiple <span class="inline-code">catch</span> blocks for different types</li>
+      <li>Uncaught exceptions propagate up the call stack &rarr; program terminates</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ====================================================== -->
+<!--                TOPIC 7: FILE I/O                       -->
+<!-- ====================================================== -->
+<section class="topic" id="fileio">
+  <div class="topic-head">
+    <span class="topic-num c7">07</span>
+    <h3>File I/O</h3>
+    <span class="topic-time">~8 min</span>
+  </div>
+
+  <div class="theory-section" style="border:1px solid rgba(56,189,248,0.3); background:linear-gradient(135deg, rgba(56,189,248,0.06), transparent);">
+    <h4 style="color:var(--accent);">EXAM ALERT &mdash; 5-10 marks, often the last question</h4>
+    <p>File I/O questions usually ask you to:</p>
+    <ul>
+      <li>Write object data to a sequential file (using <span class="inline-code">ofstream</span>)</li>
+      <li>Read data back from a file (using <span class="inline-code">ifstream</span>)</li>
+      <li>Search a file for a specific record</li>
+    </ul>
+    <p><strong>Real exam (2017 Q14):</strong> After reading a file with <span class="inline-code">getline()</span> in a while loop, what do you need before re-reading? Answer: <span class="inline-code">inFile.clear(); inFile.seekg(0);</span> &mdash; you must clear the EOF flag AND reset the position.</p>
+    <p><strong>Solution exam Q9:</strong> Write to end of file only if record doesn't already exist &mdash; uses <span class="inline-code">fstream</span> with <span class="inline-code">ios::in | ios::app</span>.</p>
+  </div>
+
+  <div class="theory-section">
+    <h4>File Streams</h4>
+    <p>Include <span class="inline-code">&lt;fstream&gt;</span>. Three classes: <span class="inline-code">ifstream</span> (read), <span class="inline-code">ofstream</span> (write), <span class="inline-code">fstream</span> (both).</p>
+<pre><span class="cm">// Writing to a file</span>
+<span class="tp">ofstream</span> outFile(<span class="st">"grades.txt"</span>, <span class="tp">ios</span>::out);
+<span class="kw">if</span> (!outFile) { cerr &lt;&lt; <span class="st">"Error"</span>; <span class="fn">exit</span>(<span class="nm">1</span>); }
+outFile &lt;&lt; id &lt;&lt; <span class="st">" "</span> &lt;&lt; name &lt;&lt; <span class="st">" "</span> &lt;&lt; grade &lt;&lt; endl;
+outFile.<span class="fn">close</span>();
+
+<span class="cm">// Reading from a file</span>
+<span class="tp">ifstream</span> inFile(<span class="st">"grades.txt"</span>, <span class="tp">ios</span>::in);
+<span class="kw">while</span> (inFile >> id >> name >> grade) {
+    cout &lt;&lt; id &lt;&lt; <span class="st">" "</span> &lt;&lt; name &lt;&lt; <span class="st">" "</span> &lt;&lt; grade &lt;&lt; endl;
+}
+inFile.<span class="fn">close</span>();</pre>
+  </div>
+
+  <div class="theory-section">
+    <h4>Important Operations</h4>
+    <ul>
+      <li>Always <strong>check if file opened</strong>: <span class="inline-code">if (!file) { ... }</span></li>
+      <li>Always <span class="inline-code">close()</span> the file when done</li>
+      <li><strong>Rewind a file:</strong> <span class="inline-code">file.clear(); file.seekg(0, ios::beg);</span></li>
+      <li>Pass file streams <strong>by reference</strong>, not by value</li>
+      <li><span class="inline-code">get()</span> reads one char; <span class="inline-code">getline(file, str)</span> reads a full line</li>
+      <li>File modes: <span class="inline-code">ios::app</span> (append), <span class="inline-code">ios::binary</span>, <span class="inline-code">ios::ate</span> (go to end)</li>
+    </ul>
+  </div>
+
+  <details>
+    <summary><span class="q-badge">PRACTICE</span> Student Records File</summary>
+    <div class="details-body">
+      <p>Write functions to write, read, and search student records in a file.</p>
+      <details>
+        <summary><span style="color:var(--accent3)">Show Solution</span></summary>
+        <div class="details-body">
+<pre><span class="kw">void</span> <span class="fn">writeRecords</span>(<span class="kw">const</span> <span class="tp">StudentRecord</span> records[], <span class="kw">int</span> count, <span class="kw">const</span> <span class="tp">string</span>&amp; filename) {
+    <span class="tp">ofstream</span> outFile(filename, <span class="tp">ios</span>::out);
+    <span class="kw">if</span> (!outFile) { cerr &lt;&lt; <span class="st">"Error"</span>; <span class="fn">exit</span>(<span class="nm">1</span>); }
+    <span class="kw">for</span> (<span class="kw">int</span> i = <span class="nm">0</span>; i &lt; count; i++)
+        outFile &lt;&lt; records[i].id &lt;&lt; <span class="st">" "</span> &lt;&lt; records[i].name &lt;&lt; <span class="st">" "</span> &lt;&lt; records[i].gpa &lt;&lt; endl;
+    outFile.<span class="fn">close</span>();
+}
+
+<span class="kw">void</span> <span class="fn">readAndPrint</span>(<span class="kw">const</span> <span class="tp">string</span>&amp; filename) {
+    <span class="tp">ifstream</span> inFile(filename);
+    <span class="kw">int</span> id; <span class="tp">string</span> name; <span class="kw">double</span> gpa;
+    <span class="kw">while</span> (inFile >> id >> name >> gpa)
+        cout &lt;&lt; id &lt;&lt; <span class="st">" "</span> &lt;&lt; name &lt;&lt; <span class="st">" "</span> &lt;&lt; gpa &lt;&lt; endl;
+    inFile.<span class="fn">close</span>();
+}</pre>
+        </div>
+      </details>
+    </div>
+  </details>
+
+  <div class="takeaways">
+    <h5>&#x1f4a1; Key Takeaways</h5>
+    <ul>
+      <li><span class="inline-code">ofstream</span> = write, <span class="inline-code">ifstream</span> = read, <span class="inline-code">fstream</span> = both</li>
+      <li>Always check file opened &amp; always <span class="inline-code">close()</span></li>
+      <li>To re-read: <span class="inline-code">file.clear()</span> then <span class="inline-code">file.seekg(0)</span></li>
+      <li>Pass streams <strong>by reference</strong></li>
+    </ul>
+  </div>
+</section>
+
+<!-- ====================================================== -->
+<!--                TOPIC 8: TEMPLATES & STL                 -->
+<!-- ====================================================== -->
+<section class="topic" id="templates">
+  <div class="topic-head">
+    <span class="topic-num c8">08</span>
+    <h3>Templates &amp; STL</h3>
+    <span class="topic-time">~8 min</span>
+  </div>
+
+  <div class="theory-section" style="border:1px solid rgba(56,189,248,0.3); background:linear-gradient(135deg, rgba(56,189,248,0.06), transparent);">
+    <h4 style="color:var(--accent);">EXAM ALERT &mdash; Usually 5-10 marks (MCQ or output tracing)</h4>
+    <p>Templates/STL questions are typically shorter and easier. Common patterns:</p>
+    <ul>
+      <li><strong>2004 Final Q2:</strong> Write a class template <span class="inline-code">Point&lt;T&gt;</span> with constructor, getSlope(), and <span class="inline-code">operator&lt;&lt;</span></li>
+      <li><strong>2017 Final Q2:</strong> What does <span class="inline-code">f1(2, 5)</span> return given a function template? (Answer: 2 &mdash; template deduces T1=int)</li>
+      <li><strong>2017 Final Q10-11:</strong> Which destructor / isEmpty() syntax is correct for <span class="inline-code">Stack&lt;T&gt;</span>? (Must use <span class="inline-code">template&lt;class T&gt;</span> and <span class="inline-code">Stack&lt;T&gt;::</span>)</li>
+      <li><strong>STL:</strong> "Determine the output" with vector push_back, sort, erase, iterators</li>
+    </ul>
+  </div>
+
+  <div class="theory-section">
+    <h4>Function Templates</h4>
+    <p>Write <strong>one</strong> function that works with any type. The compiler generates type-specific versions.</p>
+<pre><span class="kw">template</span>&lt;<span class="kw">class</span> <span class="tp">T</span>&gt;
+<span class="kw">void</span> <span class="fn">printArray</span>(<span class="kw">const</span> <span class="tp">T</span>* array, <span class="kw">int</span> count) {
+    <span class="kw">for</span> (<span class="kw">int</span> i = <span class="nm">0</span>; i &lt; count; i++)
+        cout &lt;&lt; array[i] &lt;&lt; <span class="st">" "</span>;
+}
+
+<span class="kw">int</span> a[] = {<span class="nm">1</span>,<span class="nm">2</span>,<span class="nm">3</span>};
+<span class="kw">double</span> b[] = {<span class="nm">1.1</span>,<span class="nm">2.2</span>};
+<span class="fn">printArray</span>(a, <span class="nm">3</span>);  <span class="cm">// generates int version</span>
+<span class="fn">printArray</span>(b, <span class="nm">2</span>);  <span class="cm">// generates double version</span></pre>
+  </div>
+
+  <div class="theory-section">
+    <h4>Class Templates</h4>
+<pre><span class="kw">template</span>&lt;<span class="kw">class</span> <span class="tp">T</span>&gt;
+<span class="kw">class</span> <span class="tp">Stack</span> {
+<span class="kw">private</span>:
+    <span class="kw">int</span> size, top;
+    <span class="tp">T</span>* stackPtr;
+<span class="kw">public</span>:
+    <span class="fn">Stack</span>(<span class="kw">int</span> s);
+    ~<span class="fn">Stack</span>();
+    <span class="kw">void</span> <span class="fn">push</span>(<span class="kw">const</span> <span class="tp">T</span>&amp;);
+    <span class="tp">T</span> <span class="fn">pop</span>();
+};
+
+<span class="cm">// Member function defined outside:</span>
+<span class="kw">template</span>&lt;<span class="kw">class</span> <span class="tp">T</span>&gt;
+<span class="tp">Stack</span>&lt;<span class="tp">T</span>&gt;::<span class="fn">Stack</span>(<span class="kw">int</span> s) {
+    size = s; top = <span class="nm">-1</span>;
+    stackPtr = <span class="kw">new</span> <span class="tp">T</span>[size];
+}
+
+<span class="cm">// Usage:</span>
+<span class="tp">Stack</span>&lt;<span class="kw">double</span>&gt; doubleStack(<span class="nm">5</span>);
+<span class="tp">Stack</span>&lt;<span class="kw">int</span>&gt; intStack(<span class="nm">10</span>);</pre>
+  </div>
+
+  <div class="theory-section">
+    <h4>STL: vector Basics</h4>
+<pre><span class="tp">vector</span>&lt;<span class="kw">int</span>&gt; v;
+v.<span class="fn">push_back</span>(<span class="nm">30</span>);       <span class="cm">// add to end</span>
+v.<span class="fn">push_back</span>(<span class="nm">10</span>);
+v.<span class="fn">size</span>();              <span class="cm">// returns 2</span>
+v.<span class="fn">front</span>();             <span class="cm">// first element</span>
+v.<span class="fn">back</span>();              <span class="cm">// last element</span>
+v.<span class="fn">erase</span>(v.<span class="fn">begin</span>()+<span class="nm">1</span>); <span class="cm">// remove at index 1</span>
+v.<span class="fn">pop_back</span>();          <span class="cm">// remove last</span>
+
+<span class="fn">sort</span>(v.<span class="fn">begin</span>(), v.<span class="fn">end</span>());  <span class="cm">// sort ascending</span>
+
+<span class="cm">// Iterator loop:</span>
+<span class="tp">vector</span>&lt;<span class="kw">int</span>&gt;::<span class="tp">iterator</span> it;
+<span class="kw">for</span> (it = v.<span class="fn">begin</span>(); it != v.<span class="fn">end</span>(); it++)
+    cout &lt;&lt; *it &lt;&lt; <span class="st">" "</span>;</pre>
+  </div>
+
+  <details>
+    <summary><span class="q-badge">PRACTICE</span> Pair Template + STL Output Tracing</summary>
+    <div class="details-body">
+      <p><strong>Part A:</strong> Define a <span class="inline-code">Pair&lt;T1, T2&gt;</span> class template.</p>
+      <p><strong>Part B:</strong> What is the output?</p>
+<pre><span class="tp">vector</span>&lt;<span class="kw">int</span>&gt; v;
+v.<span class="fn">push_back</span>(<span class="nm">30</span>); v.<span class="fn">push_back</span>(<span class="nm">10</span>); v.<span class="fn">push_back</span>(<span class="nm">50</span>);
+v.<span class="fn">push_back</span>(<span class="nm">20</span>); v.<span class="fn">push_back</span>(<span class="nm">40</span>);
+cout &lt;&lt; <span class="st">"Size: "</span> &lt;&lt; v.<span class="fn">size</span>() &lt;&lt; endl;
+<span class="fn">sort</span>(v.<span class="fn">begin</span>(), v.<span class="fn">end</span>());
+<span class="cm">// print all...</span>
+v.<span class="fn">erase</span>(v.<span class="fn">begin</span>() + <span class="nm">1</span>);
+<span class="cm">// print all...</span>
+cout &lt;&lt; <span class="st">"Front: "</span> &lt;&lt; v.<span class="fn">front</span>() &lt;&lt; endl;
+cout &lt;&lt; <span class="st">"Back: "</span> &lt;&lt; v.<span class="fn">back</span>() &lt;&lt; endl;</pre>
+      <details>
+        <summary><span style="color:var(--accent3)">Show Solution</span></summary>
+        <div class="details-body">
+<pre>Size: 5
+10 20 30 40 50
+10 30 40 50
+Front: 10
+Back: 50</pre>
+          <p>After sort: {10,20,30,40,50}. Erase at index 1 removes 20. Front=10, Back=50.</p>
+        </div>
+      </details>
+    </div>
+  </details>
+
+  <div class="takeaways">
+    <h5>&#x1f4a1; Key Takeaways</h5>
+    <ul>
+      <li>Templates: <span class="inline-code">template&lt;class T&gt;</span> before class/function</li>
+      <li>Member functions outside: <span class="inline-code">ClassName&lt;T&gt;::funcName()</span></li>
+      <li>STL vector: <span class="inline-code">push_back</span>, <span class="inline-code">pop_back</span>, <span class="inline-code">front</span>, <span class="inline-code">back</span>, <span class="inline-code">erase</span>, <span class="inline-code">size</span></li>
+      <li>Iterators: <span class="inline-code">vector&lt;T&gt;::iterator</span> with <span class="inline-code">begin()</span>/<span class="inline-code">end()</span></li>
+    </ul>
+  </div>
+</section>
+
+</div><!-- end container -->
+
+<!-- ==================== QUICK REFERENCE ==================== -->
+<div class="container" style="padding-top:4rem; padding-bottom:2rem;">
+  <div class="theory-section" style="border:1px solid rgba(129,140,248,0.3); background:linear-gradient(135deg, rgba(129,140,248,0.06), transparent);">
+    <h4 style="color:var(--accent2); font-size:1.3rem;">Quick Reference &mdash; Exam Cheat Sheet</h4>
+    <p>Memorize these patterns before the exam:</p>
+
+    <div class="concept-grid">
+      <div class="concept-card">
+        <div class="concept-title" style="color:var(--accent)">Constructor Chain</div>
+<pre style="margin:0.5rem 0;font-size:0.75rem"><span class="tp">Derived</span>::<span class="fn">Derived</span>(args)
+  : <span class="fn">Base</span>(args), member(args) { }</pre>
+      </div>
+      <div class="concept-card">
+        <div class="concept-title" style="color:var(--accent2)">Deep Copy Pattern</div>
+<pre style="margin:0.5rem 0;font-size:0.75rem">name = <span class="kw">new</span> <span class="kw">char</span>[<span class="fn">strlen</span>(o.name)+<span class="nm">1</span>];
+<span class="fn">strcpy</span>(name, o.name);</pre>
+      </div>
+      <div class="concept-card">
+        <div class="concept-title" style="color:var(--accent3)">operator= Pattern</div>
+<pre style="margin:0.5rem 0;font-size:0.75rem"><span class="kw">if</span> (<span class="kw">this</span> != &amp;other) {
+  <span class="kw">delete</span>[] data;
+  <span class="cm">// deep copy...</span>
+} <span class="kw">return</span> *<span class="kw">this</span>;</pre>
+      </div>
+      <div class="concept-card">
+        <div class="concept-title" style="color:var(--accent4)">operator&lt;&lt; Pattern</div>
+<pre style="margin:0.5rem 0;font-size:0.75rem"><span class="kw">friend</span> <span class="tp">ostream</span>&amp; <span class="kw">operator</span>&lt;&lt;(
+  <span class="tp">ostream</span>&amp; out,
+  <span class="kw">const</span> <span class="tp">MyClass</span>&amp; obj) {
+  out &lt;&lt; obj.data;
+  <span class="kw">return</span> out; }</pre>
+      </div>
+      <div class="concept-card">
+        <div class="concept-title" style="color:var(--accent5)">Polymorphic Loop</div>
+<pre style="margin:0.5rem 0;font-size:0.75rem"><span class="tp">Base</span>* arr[N];
+arr[<span class="nm">0</span>] = <span class="kw">new</span> <span class="tp">Derived1</span>(...);
+<span class="kw">for</span>(<span class="kw">int</span> i=<span class="nm">0</span>;i&lt;N;i++) {
+  arr[i]-><span class="fn">virtualFunc</span>();
+  <span class="kw">delete</span> arr[i]; }</pre>
+      </div>
+      <div class="concept-card">
+        <div class="concept-title" style="color:var(--red)">File I/O Pattern</div>
+<pre style="margin:0.5rem 0;font-size:0.75rem"><span class="tp">ifstream</span> in(<span class="st">"f.txt"</span>);
+<span class="kw">if</span>(!in) <span class="fn">exit</span>(<span class="nm">1</span>);
+<span class="kw">while</span>(in &gt;&gt; x &gt;&gt; y) { }
+in.<span class="fn">close</span>();
+<span class="cm">// Re-read: clear() + seekg(0)</span></pre>
+      </div>
+    </div>
+
+    <div style="margin-top:1rem;">
+      <p><strong>Binding Rules (one-liner):</strong> Object call = static. Non-virtual via ptr = static. <strong>Virtual via ptr/ref = DYNAMIC.</strong></p>
+      <p><strong>Construction order:</strong> Base &rarr; Derived. <strong>Destruction:</strong> Derived &rarr; Base.</p>
+      <p><strong>Must be member:</strong> <span class="inline-code">=</span> <span class="inline-code">()</span> <span class="inline-code">[]</span> <span class="inline-code">-></span> &nbsp;|&nbsp; <strong>Must be friend:</strong> <span class="inline-code">&lt;&lt;</span> <span class="inline-code">&gt;&gt;</span></p>
+      <p><strong>Abstract class</strong> = has <span class="inline-code">= 0</span> &nbsp;|&nbsp; <strong>Virtual destructor</strong> = always in base classes with virtual functions</p>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== PART 2 HEADER ==================== -->
+<div class="part-header" id="mockfinal">
+  <div class="part-label">Part 2 &mdash; 1h 30min</div>
+  <h2>Mock Final Exam</h2>
+  <p class="part-desc">100 marks + 10 bonus &bull; Theme: University Course Management System</p>
+</div>
+
+<div class="container">
+
+<!-- Q1 THEORY -->
+<div class="mock-question">
+  <h4>Q1 &mdash; Theory / Short Answer</h4>
+  <div class="marks">20 MARKS &bull; Answer 4 of 6</div>
+  <p><strong>1.1</strong> List the member functions that are predefined (compiler-generated) for all classes.</p>
+  <p><strong>1.2</strong> Explain the difference between static binding and dynamic binding. Give one example of each.</p>
+  <p><strong>1.3</strong> Why does <span class="inline-code">operator=</span> need a self-assignment check? What happens without it when the class has dynamic memory?</p>
+  <p><strong>1.4</strong> Difference between abstract and concrete class? Can you have pointers of abstract type?</p>
+  <p><strong>1.5</strong> Order of constructor/destructor calls in inheritance? Why is a virtual destructor important?</p>
+  <p><strong>1.6</strong> Advantage of templates over function overloading?</p>
+
+  <details>
+    <summary><span style="color:var(--accent3)">Show Solutions</span></summary>
+    <div class="details-body">
+      <h5>1.1</h5><p>Default constructor, copy constructor, destructor, <span class="inline-code">operator=</span>, <span class="inline-code">operator&amp;</span>.</p>
+      <h5>1.2</h5><p><strong>Static:</strong> resolved at compile time (object calls, non-virtual via pointers). <strong>Dynamic:</strong> resolved at run time (virtual functions via pointer/reference).</p>
+      <h5>1.3</h5><p>Without self-assignment check on <span class="inline-code">a = a</span>: you <span class="inline-code">delete[]</span> your own data, then try to copy from garbage memory.</p>
+      <h5>1.4</h5><p>Abstract: has pure virtual function(s), can't instantiate. Concrete: all implemented, can instantiate. Yes, you can have pointers of abstract type.</p>
+      <h5>1.5</h5><p>Construction: base &rarr; derived. Destruction: derived &rarr; base. Virtual destructor ensures the correct derived destructor runs when deleting through a base pointer.</p>
+      <h5>1.6</h5><p>Templates avoid code duplication. Write one function/class for any type instead of N separate overloads.</p>
+    </div>
+  </details>
+</div>
+
+<!-- Q2 CLASSES + INHERITANCE + POLYMORPHISM -->
+<div class="mock-question">
+  <h4>Q2 &mdash; Classes + Inheritance + Polymorphism</h4>
+  <div class="marks">30 MARKS</div>
+  <p>Build a hierarchy: <span class="inline-code">Person</span> (abstract) &rarr; <span class="inline-code">Instructor</span> / <span class="inline-code">Student</span> &rarr; <span class="inline-code">GradStudent</span></p>
+  <p>Person has: <span class="inline-code">char* name</span> (dynamic), <span class="inline-code">int id</span>, <span class="inline-code">static int personCount</span>, pure virtual <span class="inline-code">calculatePay()</span></p>
+
+  <p><strong>a) (5)</strong> Complete class declaration for Person<br>
+  <strong>b) (5)</strong> Implement constructor, copy constructor, destructor<br>
+  <strong>c) (5)</strong> Declare &amp; implement Instructor (salary/12 = monthly pay)<br>
+  <strong>d) (5)</strong> Declare &amp; implement Student (grades array, pay = 0)<br>
+  <strong>e) (5)</strong> Declare GradStudent (stipend = pay)<br>
+  <strong>f) (5)</strong> Driver: array of Person*, polymorphic loop, proper deletion</p>
+
+  <details>
+    <summary><span style="color:var(--accent3)">Show Full Solution</span></summary>
+    <div class="details-body">
+<pre><span class="cm">// Person Declaration</span>
+<span class="kw">class</span> <span class="tp">Person</span> {
+<span class="kw">public</span>:
+    <span class="fn">Person</span>(<span class="kw">const</span> <span class="kw">char</span>* name, <span class="kw">int</span> id);
+    <span class="fn">Person</span>(<span class="kw">const</span> <span class="tp">Person</span>&amp; other);
+    <span class="kw">virtual</span> ~<span class="fn">Person</span>();
+    <span class="kw">virtual</span> <span class="kw">double</span> <span class="fn">calculatePay</span>() <span class="kw">const</span> = <span class="nm">0</span>;
+    <span class="kw">virtual</span> <span class="kw">void</span> <span class="fn">print</span>() <span class="kw">const</span>;
+    <span class="kw">friend</span> <span class="tp">ostream</span>&amp; <span class="kw">operator</span>&lt;&lt;(<span class="tp">ostream</span>&amp;, <span class="kw">const</span> <span class="tp">Person</span>&amp;);
+    <span class="kw">static</span> <span class="kw">int</span> <span class="fn">getPersonCount</span>();
+<span class="kw">protected</span>:
+    <span class="kw">char</span>* name; <span class="kw">int</span> id; <span class="kw">static</span> <span class="kw">int</span> personCount;
+};
+
+<span class="kw">int</span> <span class="tp">Person</span>::personCount = <span class="nm">0</span>;
+<span class="tp">Person</span>::<span class="fn">Person</span>(<span class="kw">const</span> <span class="kw">char</span>* n, <span class="kw">int</span> i) : id(i) {
+    name = <span class="kw">new</span> <span class="kw">char</span>[<span class="fn">strlen</span>(n)+<span class="nm">1</span>]; <span class="fn">strcpy</span>(name, n); personCount++;
+}
+<span class="tp">Person</span>::<span class="fn">Person</span>(<span class="kw">const</span> <span class="tp">Person</span>&amp; o) : id(o.id) {
+    name = <span class="kw">new</span> <span class="kw">char</span>[<span class="fn">strlen</span>(o.name)+<span class="nm">1</span>]; <span class="fn">strcpy</span>(name, o.name); personCount++;
+}
+<span class="tp">Person</span>::~<span class="fn">Person</span>() { <span class="kw">delete</span>[] name; personCount--; }
+
+<span class="cm">// Instructor</span>
+<span class="kw">class</span> <span class="tp">Instructor</span> : <span class="kw">public</span> <span class="tp">Person</span> {
+<span class="kw">public</span>:
+    <span class="fn">Instructor</span>(<span class="kw">const</span> <span class="kw">char</span>* n, <span class="kw">int</span> i, <span class="kw">double</span> s, <span class="kw">const</span> <span class="tp">string</span>&amp; d)
+        : <span class="fn">Person</span>(n,i), salary(s), department(d) {}
+    <span class="kw">double</span> <span class="fn">calculatePay</span>() <span class="kw">const</span> { <span class="kw">return</span> salary/<span class="nm">12.0</span>; }
+<span class="kw">private</span>:
+    <span class="kw">double</span> salary; <span class="tp">string</span> department;
+};
+
+<span class="cm">// Student</span>
+<span class="kw">class</span> <span class="tp">Student</span> : <span class="kw">public</span> <span class="tp">Person</span> {
+<span class="kw">public</span>:
+    <span class="fn">Student</span>(<span class="kw">const</span> <span class="kw">char</span>* n, <span class="kw">int</span> i, <span class="kw">const</span> <span class="kw">double</span>* g, <span class="kw">int</span> num)
+        : <span class="fn">Person</span>(n,i), numCourses(num) {
+        grades = <span class="kw">new</span> <span class="kw">double</span>[numCourses];
+        <span class="kw">for</span>(<span class="kw">int</span> j=<span class="nm">0</span>; j&lt;numCourses; j++) grades[j] = g[j];
+    }
+    ~<span class="fn">Student</span>() { <span class="kw">delete</span>[] grades; }
+    <span class="kw">double</span> <span class="fn">calculatePay</span>() <span class="kw">const</span> { <span class="kw">return</span> <span class="nm">0.0</span>; }
+<span class="kw">protected</span>:
+    <span class="kw">double</span>* grades; <span class="kw">int</span> numCourses;
+};
+
+<span class="cm">// GradStudent</span>
+<span class="kw">class</span> <span class="tp">GradStudent</span> : <span class="kw">public</span> <span class="tp">Student</span> {
+<span class="kw">public</span>:
+    <span class="fn">GradStudent</span>(<span class="kw">const</span> <span class="kw">char</span>* n, <span class="kw">int</span> i, <span class="kw">const</span> <span class="kw">double</span>* g, <span class="kw">int</span> num,
+                <span class="kw">double</span> s, <span class="kw">const</span> <span class="tp">string</span>&amp; a)
+        : <span class="fn">Student</span>(n,i,g,num), stipend(s), researchArea(a) {}
+    <span class="kw">double</span> <span class="fn">calculatePay</span>() <span class="kw">const</span> { <span class="kw">return</span> stipend; }
+<span class="kw">private</span>:
+    <span class="kw">double</span> stipend; <span class="tp">string</span> researchArea;
+};
+
+<span class="cm">// Driver</span>
+<span class="kw">int</span> <span class="fn">main</span>() {
+    <span class="tp">Person</span>* people[<span class="nm">4</span>];
+    <span class="kw">double</span> g1[]={<span class="nm">3.5</span>,<span class="nm">3.7</span>}, g2[]={<span class="nm">3.9</span>,<span class="nm">4.0</span>,<span class="nm">3.8</span>};
+    people[<span class="nm">0</span>] = <span class="kw">new</span> <span class="tp">Instructor</span>(<span class="st">"Dr. Smith"</span>,<span class="nm">1001</span>,<span class="nm">96000</span>,<span class="st">"COEN"</span>);
+    people[<span class="nm">1</span>] = <span class="kw">new</span> <span class="tp">Student</span>(<span class="st">"Alice"</span>,<span class="nm">40123456</span>,g1,<span class="nm">2</span>);
+    people[<span class="nm">2</span>] = <span class="kw">new</span> <span class="tp">Student</span>(<span class="st">"Bob"</span>,<span class="nm">40234567</span>,g1,<span class="nm">2</span>);
+    people[<span class="nm">3</span>] = <span class="kw">new</span> <span class="tp">GradStudent</span>(<span class="st">"Carol"</span>,<span class="nm">40345678</span>,g2,<span class="nm">3</span>,<span class="nm">2000</span>,<span class="st">"AI"</span>);
+    <span class="kw">for</span>(<span class="kw">int</span> i=<span class="nm">0</span>;i&lt;<span class="nm">4</span>;i++) {
+        people[i]-><span class="fn">print</span>();  <span class="cm">// dynamic binding</span>
+        cout &lt;&lt; <span class="st">"Pay: $"</span> &lt;&lt; people[i]-><span class="fn">calculatePay</span>() &lt;&lt; endl;
+    }
+    <span class="kw">for</span>(<span class="kw">int</span> i=<span class="nm">0</span>;i&lt;<span class="nm">4</span>;i++) <span class="kw">delete</span> people[i];
+}</pre>
+    </div>
+  </details>
+</div>
+
+<!-- Q3 COMPOSITION -->
+<div class="mock-question">
+  <h4>Q3 &mdash; Class Composition</h4>
+  <div class="marks">15 MARKS</div>
+  <p>Implement <span class="inline-code">enrollStudent()</span> (add if not duplicate, not full), <span class="inline-code">dropStudent()</span> (shift array), and <span class="inline-code">CourseManager</span> (constructor, destructor, addCourse).</p>
+  <details>
+    <summary><span style="color:var(--accent3)">Show Solution</span></summary>
+    <div class="details-body">
+<pre><span class="kw">bool</span> <span class="tp">Course</span>::<span class="fn">enrollStudent</span>(<span class="kw">int</span> studentId) {
+    <span class="kw">if</span> (enrollmentCount >= maxCapacity) <span class="kw">return</span> <span class="kw">false</span>;
+    <span class="kw">for</span> (<span class="kw">int</span> i = <span class="nm">0</span>; i &lt; enrollmentCount; i++)
+        <span class="kw">if</span> (enrolledIds[i] == studentId) <span class="kw">return</span> <span class="kw">false</span>;
+    enrolledIds[enrollmentCount++] = studentId;
+    <span class="kw">return</span> <span class="kw">true</span>;
+}
+
+<span class="kw">bool</span> <span class="tp">Course</span>::<span class="fn">dropStudent</span>(<span class="kw">int</span> studentId) {
+    <span class="kw">for</span> (<span class="kw">int</span> i = <span class="nm">0</span>; i &lt; enrollmentCount; i++) {
+        <span class="kw">if</span> (enrolledIds[i] == studentId) {
+            <span class="kw">for</span> (<span class="kw">int</span> j = i; j &lt; enrollmentCount-<span class="nm">1</span>; j++)
+                enrolledIds[j] = enrolledIds[j+<span class="nm">1</span>];
+            enrollmentCount--;
+            <span class="kw">return</span> <span class="kw">true</span>;
+        }
+    }
+    <span class="kw">return</span> <span class="kw">false</span>;
+}
+
+<span class="tp">CourseManager</span>::<span class="fn">CourseManager</span>(<span class="kw">int</span> max) : numCourses(<span class="nm">0</span>), maxCourses(max) {
+    courses = <span class="kw">new</span> <span class="tp">Course</span>*[maxCourses];
+    <span class="kw">for</span> (<span class="kw">int</span> i = <span class="nm">0</span>; i &lt; maxCourses; i++) courses[i] = <span class="kw">nullptr</span>;
+}
+<span class="tp">CourseManager</span>::~<span class="fn">CourseManager</span>() {
+    <span class="kw">for</span> (<span class="kw">int</span> i = <span class="nm">0</span>; i &lt; numCourses; i++) <span class="kw">delete</span> courses[i];
+    <span class="kw">delete</span>[] courses;
+}
+<span class="kw">bool</span> <span class="tp">CourseManager</span>::<span class="fn">addCourse</span>(<span class="kw">const</span> <span class="tp">Course</span>&amp; c) {
+    <span class="kw">if</span> (numCourses >= maxCourses) <span class="kw">return</span> <span class="kw">false</span>;
+    <span class="kw">for</span> (<span class="kw">int</span> i = <span class="nm">0</span>; i &lt; numCourses; i++)
+        <span class="kw">if</span> (courses[i]-><span class="fn">getCode</span>() == c.<span class="fn">getCode</span>()) <span class="kw">return</span> <span class="kw">false</span>;
+    courses[numCourses++] = <span class="kw">new</span> <span class="tp">Course</span>(c);
+    <span class="kw">return</span> <span class="kw">true</span>;
+}</pre>
+    </div>
+  </details>
+</div>
+
+<!-- Q4 OPERATOR OVERLOADING -->
+<div class="mock-question">
+  <h4>Q4 &mdash; Operator Overloading</h4>
+  <div class="marks">15 MARKS</div>
+  <p>Implement <span class="inline-code">operator+=</span>, <span class="inline-code">operator=</span> (deep copy), <span class="inline-code">operator&lt;&lt;</span>, and <span class="inline-code">operator&gt;</span> for a Transcript class with dynamic arrays.</p>
+  <details>
+    <summary><span style="color:var(--accent3)">Show Solution</span></summary>
+    <div class="details-body">
+<pre><span class="cm">// operator=</span>
+<span class="kw">const</span> <span class="tp">Transcript</span>&amp; <span class="tp">Transcript</span>::<span class="kw">operator</span>=(<span class="kw">const</span> <span class="tp">Transcript</span>&amp; other) {
+    <span class="kw">if</span> (<span class="kw">this</span> != &amp;other) {
+        <span class="kw">delete</span>[] courseCodes; <span class="kw">delete</span>[] grades;
+        studentId = other.studentId;
+        numCourses = other.numCourses;
+        capacity = other.capacity;
+        courseCodes = <span class="kw">new</span> <span class="tp">string</span>[capacity];
+        grades = <span class="kw">new</span> <span class="kw">double</span>[capacity];
+        <span class="kw">for</span>(<span class="kw">int</span> i=<span class="nm">0</span>; i&lt;numCourses; i++) {
+            courseCodes[i] = other.courseCodes[i];
+            grades[i] = other.grades[i];
+        }
+    }
+    <span class="kw">return</span> *<span class="kw">this</span>;
+}
+
+<span class="cm">// operator&lt;&lt;</span>
+<span class="tp">ostream</span>&amp; <span class="kw">operator</span>&lt;&lt;(<span class="tp">ostream</span>&amp; out, <span class="kw">const</span> <span class="tp">Transcript</span>&amp; t) {
+    out &lt;&lt; <span class="st">"Student ID: "</span> &lt;&lt; t.studentId &lt;&lt; endl;
+    <span class="kw">for</span>(<span class="kw">int</span> i=<span class="nm">0</span>; i&lt;t.numCourses; i++)
+        out &lt;&lt; t.courseCodes[i] &lt;&lt; <span class="st">": "</span> &lt;&lt; t.grades[i] &lt;&lt; endl;
+    out &lt;&lt; <span class="st">"GPA: "</span> &lt;&lt; t.<span class="fn">getGPA</span>() &lt;&lt; endl;
+    <span class="kw">return</span> out;
+}
+
+<span class="cm">// operator&gt;</span>
+<span class="kw">bool</span> <span class="tp">Transcript</span>::<span class="kw">operator</span>&gt;(<span class="kw">const</span> <span class="tp">Transcript</span>&amp; other) <span class="kw">const</span> {
+    <span class="kw">return</span> <span class="fn">getGPA</span>() &gt; other.<span class="fn">getGPA</span>();
+}</pre>
+    </div>
+  </details>
+</div>
+
+<!-- Q5 EXCEPTION + FILE I/O -->
+<div class="mock-question">
+  <h4>Q5 &mdash; Exception Handling + File I/O</h4>
+  <div class="marks">20 MARKS</div>
+  <p>Custom exceptions: <span class="inline-code">FileException</span>, <span class="inline-code">InvalidGradeException</span>, <span class="inline-code">DuplicateEnrollmentException</span>. Write save/load functions with try/catch.</p>
+  <details>
+    <summary><span style="color:var(--accent3)">Show Solution</span></summary>
+    <div class="details-body">
+<pre><span class="kw">void</span> <span class="fn">saveEnrollments</span>(<span class="kw">const</span> <span class="tp">CourseManager</span>&amp; mgr, <span class="kw">const</span> <span class="tp">string</span>&amp; filename) {
+    <span class="tp">ofstream</span> outFile(filename);
+    <span class="kw">if</span> (!outFile) <span class="kw">throw</span> <span class="tp">FileException</span>(filename);
+    <span class="cm">// write courses...</span>
+    outFile.<span class="fn">close</span>();
+}
+
+<span class="kw">void</span> <span class="fn">safeEnroll</span>(<span class="tp">Course</span>&amp; course, <span class="kw">int</span> studentId, <span class="kw">double</span> grade) {
+    <span class="kw">if</span> (grade &lt; <span class="nm">0.0</span> || grade &gt; <span class="nm">4.3</span>)
+        <span class="kw">throw</span> <span class="tp">InvalidGradeException</span>(grade);
+    <span class="kw">if</span> (course.<span class="fn">isEnrolled</span>(studentId))
+        <span class="kw">throw</span> <span class="tp">DuplicateEnrollmentException</span>(studentId, course.<span class="fn">getCode</span>());
+    course.<span class="fn">enrollStudent</span>(studentId);
+}
+
+<span class="kw">int</span> <span class="fn">main</span>() {
+    <span class="kw">try</span> {
+        <span class="fn">safeEnroll</span>(coen244, <span class="nm">40123456</span>, <span class="nm">3.7</span>);
+        <span class="fn">safeEnroll</span>(coen244, <span class="nm">40123456</span>, <span class="nm">3.9</span>);  <span class="cm">// duplicate!</span>
+    } <span class="kw">catch</span> (<span class="tp">DuplicateEnrollmentException</span>&amp; e) {
+        cout &lt;&lt; e.<span class="fn">what</span>() &lt;&lt; endl;
+    }
+    <span class="kw">try</span> {
+        <span class="fn">saveEnrollments</span>(manager, <span class="st">"data.dat"</span>);
+    } <span class="kw">catch</span> (<span class="tp">FileException</span>&amp; e) {
+        cout &lt;&lt; e.<span class="fn">what</span>() &lt;&lt; endl;
+    }
+}</pre>
+    </div>
+  </details>
+</div>
+
+<!-- Q6 TEMPLATES + STL -->
+<div class="mock-question">
+  <h4>Q6 &mdash; Templates + STL (Bonus)</h4>
+  <div class="marks">10 BONUS MARKS</div>
+  <p><strong>(a)</strong> Write a function template <span class="inline-code">findMax</span> for any array type.</p>
+  <p><strong>(b)</strong> Determine the output of a vector program with sort, insert, pop_back.</p>
+  <details>
+    <summary><span style="color:var(--accent3)">Show Solution</span></summary>
+    <div class="details-body">
+<pre><span class="kw">template</span> &lt;<span class="kw">class</span> <span class="tp">T</span>&gt;
+<span class="tp">T</span> <span class="fn">findMax</span>(<span class="kw">const</span> <span class="tp">T</span> arr[], <span class="kw">int</span> size) {
+    <span class="tp">T</span> max = arr[<span class="nm">0</span>];
+    <span class="kw">for</span> (<span class="kw">int</span> i = <span class="nm">1</span>; i &lt; size; i++)
+        <span class="kw">if</span> (arr[i] &gt; max) max = arr[i];
+    <span class="kw">return</span> max;
+}</pre>
+      <p><strong>(b) Output:</strong></p>
+<pre>COEN244 COEN352 ELEC275 ENGR233
+COEN244 COEN352 COMP248 ELEC275 ENGR233
+Size: 4
+First: COEN244
+Last: ELEC275</pre>
+    </div>
+  </details>
+</div>
+
+<!-- MARK DISTRIBUTION -->
+<div class="mock-question" style="background: linear-gradient(135deg, var(--bg-card), rgba(56,189,248,0.05));">
+  <h4>Mark Distribution Summary</h4>
+  <table>
+    <tr><th>Question</th><th>Topic</th><th>Marks</th></tr>
+    <tr><td>Q1</td><td>Theory / Short Answer</td><td>20</td></tr>
+    <tr><td>Q2</td><td>Classes + Inheritance + Polymorphism</td><td>30</td></tr>
+    <tr><td>Q3</td><td>Class Composition</td><td>15</td></tr>
+    <tr><td>Q4</td><td>Operator Overloading</td><td>15</td></tr>
+    <tr><td>Q5</td><td>Exception Handling + File I/O</td><td>20</td></tr>
+    <tr><td>Q6</td><td>Templates + STL (bonus)</td><td>10</td></tr>
+    <tr><td colspan="2" style="font-weight:700; color:var(--accent)">TOTAL</td><td style="font-weight:700; color:var(--accent)">100 (+10)</td></tr>
+  </table>
+</div>
+
+</div><!-- end container -->
+
+<!-- FOOTER -->
+<footer style="text-align:center; padding: 4rem 2rem; color: var(--text-dim); font-size: 0.85rem; border-top: 1px solid var(--border); margin-top: 4rem;">
+  COEN 244 Crash Course &mdash; Concordia University &mdash; Built for students, by students
+</footer>
+
+<!-- ==================== JS ==================== -->
+<script>
+// Progress bar
+window.addEventListener('scroll', () => {
+  const h = document.documentElement;
+  const pct = (h.scrollTop / (h.scrollHeight - h.clientHeight)) * 100;
+  document.getElementById('progress-bar').style.width = pct + '%';
+});
+
+// Active nav link
+const sections = document.querySelectorAll('section.topic, .part-header, .hero');
+const navLinks = document.querySelectorAll('nav .nav-links a');
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      const id = entry.target.id;
+      navLinks.forEach(l => l.classList.remove('active'));
+      const active = document.querySelector(`nav .nav-links a[href="#${id}"]`);
+      if (active) active.classList.add('active');
+    }
+  });
+}, { rootMargin: '-30% 0px -60% 0px' });
+sections.forEach(s => { if (s.id) observer.observe(s); });
+</script>
+</body>
+</html>
