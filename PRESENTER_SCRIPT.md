@@ -7,7 +7,7 @@
 
 # OPENING [0:00 — 0:03]
 
-**[Open http://localhost:3000 — hero section visible]**
+**[Open the website (localhost) — hero section visible]**
 
 > "Hey everyone, welcome to the COEN 244 crash course. I'm Chris, and for the next 3 hours we're going to go through everything you need for the final."
 >
