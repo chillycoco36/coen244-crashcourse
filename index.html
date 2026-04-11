@@ -1651,45 +1651,124 @@ sPtr-><span class="fn">print</span>();  <span class="cm">// dynamic binding &rar
 
   <div class="theory-section">
     <h4>How It Works</h4>
-    <p>Operators can be redefined for class objects. The function name is <span class="inline-code">operator</span> followed by the symbol (e.g., <span class="inline-code">operator+</span>).</p>
+    <p>In C++, operators like <span class="inline-code">+</span>, <span class="inline-code">-</span>, <span class="inline-code">==</span>, <span class="inline-code">&lt;&lt;</span> are actually <strong>function calls</strong> behind the scenes. When you write <span class="inline-code">5 + 3</span>, the compiler knows how to add integers. But when you write <span class="inline-code">student1 + student2</span>, C++ has NO idea what <span class="inline-code">+</span> means for YOUR class. So you DEFINE it.</p>
+    <p>The function name is the keyword <span class="inline-code">operator</span> followed by the symbol: <span class="inline-code">operator+</span>, <span class="inline-code">operator&lt;&lt;</span>, <span class="inline-code">operator=</span>, <span class="inline-code">operator[]</span>.</p>
     <ul>
       <li>Cannot create <strong>new</strong> operators &mdash; only overload existing ones</li>
-      <li>Cannot change how operators work on <strong>fundamental types</strong></li>
-      <li>Overloading <span class="inline-code">+</span> does <strong>NOT</strong> automatically overload <span class="inline-code">+=</span></li>
+      <li>Cannot change how operators work on <strong>fundamental types</strong> (int, double, etc.)</li>
+      <li>Overloading <span class="inline-code">+</span> does <strong>NOT</strong> automatically overload <span class="inline-code">+=</span>. Each operator is separate.</li>
     </ul>
   </div>
 
   <div class="theory-section">
-    <h4>Member vs Friend Functions</h4>
-    <table>
-      <tr><th>Type</th><th>When to Use</th><th>Notes</th></tr>
-      <tr><td><strong>Member function</strong></td><td>Left operand is our class object</td><td><span class="inline-code">this</span> is the left operand. <span class="inline-code">=</span>, <span class="inline-code">()</span>, <span class="inline-code">[]</span>, <span class="inline-code">-></span> MUST be members.</td></tr>
-      <tr><td><strong>Friend function</strong></td><td>Left operand is NOT our class</td><td>e.g., <span class="inline-code">cout &lt;&lt; obj</span> &mdash; left operand is <span class="inline-code">ostream</span></td></tr>
-    </table>
-<pre><span class="cm">// Member: a + b  means  a.operator+(b)</span>
-<span class="tp">Rational</span> <span class="tp">Rational</span>::<span class="kw">operator</span>+(<span class="kw">const</span> <span class="tp">Rational</span>&amp; x) <span class="kw">const</span> {
-    <span class="kw">return</span> <span class="tp">Rational</span>(n*x.d + x.n*d, d*x.d);
-}
+    <h4>Member vs Friend &mdash; The #1 Rule</h4>
+    <p>For every operator, ask yourself: <strong>"What is on the LEFT side?"</strong></p>
+    <div class="highlight-box">
+      <strong>If the LEFT operand is YOUR class</strong> &rarr; make it a <strong>member function</strong>.<br>
+      <strong>If the LEFT operand is NOT your class</strong> (like <span class="inline-code">cout</span>) &rarr; make it a <strong>friend function</strong>.
+    </div>
 
-<span class="cm">// Friend: cout &lt;&lt; obj  means  operator&lt;&lt;(cout, obj)</span>
-<span class="kw">friend</span> <span class="tp">ostream</span>&amp; <span class="kw">operator</span>&lt;&lt;(<span class="tp">ostream</span>&amp; out, <span class="kw">const</span> <span class="tp">Rational</span>&amp; r) {
-    out &lt;&lt; r.n &lt;&lt; <span class="st">"/"</span> &lt;&lt; r.d;
-    <span class="kw">return</span> out;
-}</pre>
+    <table>
+      <tr><th>Expression</th><th>Left Operand</th><th>Type</th><th>How C++ Sees It</th></tr>
+      <tr><td><span class="inline-code">s1 + s2</span></td><td>s1 (our class)</td><td><strong>Member</strong></td><td><span class="inline-code">s1.operator+(s2)</span></td></tr>
+      <tr><td><span class="inline-code">s1 == s2</span></td><td>s1 (our class)</td><td><strong>Member</strong></td><td><span class="inline-code">s1.operator==(s2)</span></td></tr>
+      <tr><td><span class="inline-code">s1 > s2</span></td><td>s1 (our class)</td><td><strong>Member</strong></td><td><span class="inline-code">s1.operator>(s2)</span></td></tr>
+      <tr><td><span class="inline-code">s1 = s2</span></td><td>s1 (our class)</td><td><strong>Member</strong> (required)</td><td><span class="inline-code">s1.operator=(s2)</span></td></tr>
+      <tr><td><span class="inline-code">s1[2]</span></td><td>s1 (our class)</td><td><strong>Member</strong> (required)</td><td><span class="inline-code">s1.operator[](2)</span></td></tr>
+      <tr><td><span class="inline-code">cout &lt;&lt; s1</span></td><td>cout (ostream)</td><td><strong>Friend</strong></td><td><span class="inline-code">operator&lt;&lt;(cout, s1)</span></td></tr>
+      <tr><td><span class="inline-code">cin >> s1</span></td><td>cin (istream)</td><td><strong>Friend</strong></td><td><span class="inline-code">operator>>(cin, s1)</span></td></tr>
+    </table>
+
+    <p><strong>Must be member:</strong> <span class="inline-code">=</span>, <span class="inline-code">()</span>, <span class="inline-code">[]</span>, <span class="inline-code">-></span> &nbsp;&nbsp;|&nbsp;&nbsp; <strong>Must be friend:</strong> <span class="inline-code">&lt;&lt;</span>, <span class="inline-code">&gt;&gt;</span></p>
   </div>
 
   <div class="theory-section">
-    <h4>Assignment Operator (operator=)</h4>
-    <p>Critical when class has dynamic memory. Must perform <strong>self-assignment check</strong> and <strong>deep copy</strong>.</p>
-<pre><span class="kw">const</span> <span class="tp">Set</span>&amp; <span class="tp">Set</span>::<span class="kw">operator</span>=(<span class="kw">const</span> <span class="tp">Set</span>&amp; right) {
-    <span class="kw">if</span> (&amp;right != <span class="kw">this</span>) {        <span class="cm">// self-assignment check!</span>
-        <span class="kw">delete</span>[] ptr;              <span class="cm">// free old memory</span>
-        size = right.<span class="fn">getSize</span>();
-        ptr = <span class="kw">new</span> <span class="kw">int</span>[size];       <span class="cm">// allocate new</span>
-        <span class="kw">for</span> (<span class="kw">int</span> i = <span class="nm">0</span>; i &lt; size; i++)
-            ptr[i] = right[i];      <span class="cm">// copy data</span>
+    <h4>Full Example: Student Class with All Operators</h4>
+<pre><span class="kw">class</span> <span class="tp">Student</span> {
+<span class="kw">private</span>:
+    <span class="kw">int</span> id;
+    <span class="tp">string</span> name;
+    <span class="kw">double</span> gpa;
+<span class="kw">public</span>:
+    <span class="fn">Student</span>(<span class="kw">int</span> i, <span class="tp">string</span> n, <span class="kw">double</span> g) : id(i), name(n), gpa(g) {}
+
+    <span class="cm">// ===== MEMBER: operator> (s1 > s2 → s1.operator>(s2)) =====</span>
+    <span class="cm">// Left side is s1 — our class — so MEMBER</span>
+    <span class="kw">bool</span> <span class="kw">operator</span>&gt;(<span class="kw">const</span> <span class="tp">Student</span>&amp; other) <span class="kw">const</span> {
+        <span class="kw">return</span> gpa &gt; other.gpa;
     }
-    <span class="kw">return</span> *<span class="kw">this</span>;
+
+    <span class="cm">// ===== MEMBER: operator== (s1 == s2 → s1.operator==(s2)) =====</span>
+    <span class="kw">bool</span> <span class="kw">operator</span>==(<span class="kw">const</span> <span class="tp">Student</span>&amp; other) <span class="kw">const</span> {
+        <span class="kw">return</span> id == other.id;
+    }
+
+    <span class="cm">// ===== MEMBER: operator= (s1 = s2 → s1.operator=(s2)) =====</span>
+    <span class="kw">const</span> <span class="tp">Student</span>&amp; <span class="kw">operator</span>=(<span class="kw">const</span> <span class="tp">Student</span>&amp; other) {
+        <span class="kw">if</span> (<span class="kw">this</span> != &amp;other) {
+            id = other.id; name = other.name; gpa = other.gpa;
+        }
+        <span class="kw">return</span> *<span class="kw">this</span>;
+    }
+
+    <span class="cm">// ===== FRIEND: operator&lt;&lt; (cout &lt;&lt; s1 → operator&lt;&lt;(cout, s1)) =====</span>
+    <span class="cm">// Left side is cout (ostream) — NOT our class — so FRIEND</span>
+    <span class="kw">friend</span> <span class="tp">ostream</span>&amp; <span class="kw">operator</span>&lt;&lt;(<span class="tp">ostream</span>&amp; out, <span class="kw">const</span> <span class="tp">Student</span>&amp; s) {
+        out &lt;&lt; <span class="st">"ID: "</span> &lt;&lt; s.id &lt;&lt; <span class="st">" | "</span> &lt;&lt; s.name &lt;&lt; <span class="st">" | GPA: "</span> &lt;&lt; s.gpa;
+        <span class="kw">return</span> out;  <span class="cm">// return stream for chaining: cout &lt;&lt; a &lt;&lt; b</span>
+    }
+
+    <span class="cm">// ===== FRIEND: operator&gt;&gt; (cin &gt;&gt; s1 → operator&gt;&gt;(cin, s1)) =====</span>
+    <span class="cm">// Left side is cin (istream) — NOT our class — so FRIEND</span>
+    <span class="cm">// NOTE: NO const on Student — we are WRITING into it</span>
+    <span class="kw">friend</span> <span class="tp">istream</span>&amp; <span class="kw">operator</span>&gt;&gt;(<span class="tp">istream</span>&amp; in, <span class="tp">Student</span>&amp; s) {
+        cout &lt;&lt; <span class="st">"Enter ID, Name, GPA: "</span>;
+        in &gt;&gt; s.id &gt;&gt; s.name &gt;&gt; s.gpa;
+        <span class="kw">return</span> in;
+    }
+};
+
+<span class="kw">int</span> <span class="fn">main</span>() {
+    <span class="tp">Student</span> s1(<span class="nm">40123</span>, <span class="st">"Alice"</span>, <span class="nm">3.8</span>);
+    <span class="tp">Student</span> s2(<span class="nm">40456</span>, <span class="st">"Bob"</span>, <span class="nm">3.5</span>);
+
+    <span class="kw">if</span> (s1 &gt; s2)  cout &lt;&lt; <span class="st">"Alice has higher GPA"</span> &lt;&lt; endl;
+    cout &lt;&lt; s1 &lt;&lt; endl;   <span class="cm">// ID: 40123 | Alice | GPA: 3.8</span>
+    cout &lt;&lt; s2 &lt;&lt; endl;   <span class="cm">// ID: 40456 | Bob | GPA: 3.5</span>
+
+    <span class="tp">Student</span> s3(<span class="nm">0</span>, <span class="st">""</span>, <span class="nm">0</span>);
+    cin &gt;&gt; s3;            <span class="cm">// reads from keyboard into s3</span>
+    cout &lt;&lt; s3 &lt;&lt; endl;
+}</pre>
+
+    <div class="highlight-box">
+      <strong>Key difference between &lt;&lt; and &gt;&gt;:</strong><br>
+      <span class="inline-code">operator&lt;&lt;</span> takes <span class="inline-code">const Student&amp;</span> &mdash; we only READ from the object to print it.<br>
+      <span class="inline-code">operator&gt;&gt;</span> takes <span class="inline-code">Student&amp;</span> (NO const) &mdash; we WRITE into the object from keyboard input.
+    </div>
+  </div>
+
+  <div class="theory-section">
+    <h4>Assignment Operator (operator=) &mdash; Step by Step</h4>
+    <p>When your class has <strong>dynamic memory</strong> (pointers), the default operator= does a <strong>shallow copy</strong> &mdash; both objects end up pointing to the same memory. You MUST write your own with a <strong>deep copy</strong>.</p>
+
+    <div class="highlight-box important">
+      <strong>Why self-assignment check?</strong> Imagine <span class="inline-code">a = a</span>. Without the check:<br>
+      Step 1: <span class="inline-code">delete[] data</span> &mdash; you just deleted YOUR OWN data!<br>
+      Step 2: <span class="inline-code">new char[strlen(other.data)+1]</span> &mdash; but <span class="inline-code">other</span> IS you. <span class="inline-code">other.data</span> was just deleted. You're reading garbage.<br>
+      The fix: <span class="inline-code">if (this != &amp;other)</span> at the top. Same object? Skip everything.
+    </div>
+
+<pre><span class="cm">// The 5-step pattern — memorize this:</span>
+<span class="kw">const</span> <span class="tp">MyClass</span>&amp; <span class="tp">MyClass</span>::<span class="kw">operator</span>=(<span class="kw">const</span> <span class="tp">MyClass</span>&amp; other) {
+    <span class="kw">if</span> (<span class="kw">this</span> != &amp;other) {              <span class="cm">// Step 1: self-assignment check</span>
+        <span class="kw">delete</span>[] data;                  <span class="cm">// Step 2: free old memory</span>
+        size = other.size;               <span class="cm">// Step 3: copy simple members</span>
+        data = <span class="kw">new</span> <span class="kw">int</span>[size];           <span class="cm">// Step 4: allocate new memory</span>
+        <span class="kw">for</span> (<span class="kw">int</span> i = <span class="nm">0</span>; i &lt; size; i++)
+            data[i] = other.data[i];     <span class="cm">// Step 5: copy data element by element</span>
+    }
+    <span class="kw">return</span> *<span class="kw">this</span>;                      <span class="cm">// return *this for chaining: a = b = c</span>
 }</pre>
   </div>
 
@@ -1757,31 +1836,98 @@ sPtr-><span class="fn">print</span>();  <span class="cm">// dynamic binding &rar
   </div>
 
   <div class="theory-section">
-    <h4>try / throw / catch</h4>
-    <p>Exceptions handle errors gracefully without crashing the program.</p>
+    <h4>try / throw / catch &mdash; How It Works</h4>
+    <p>When something goes wrong in your code (invalid input, file not found, division by zero), you have two choices: crash, or handle it gracefully. Exception handling lets you do the second.</p>
+
+    <p><strong>Three keywords:</strong></p>
+    <ul>
+      <li><span class="inline-code">try</span> &mdash; wrap code that MIGHT fail. You're saying "watch this code for problems."</li>
+      <li><span class="inline-code">throw</span> &mdash; when something goes wrong, throw an exception. Like raising a flag: "PROBLEM HERE!"</li>
+      <li><span class="inline-code">catch</span> &mdash; handle the problem. Each catch block specifies what TYPE of exception it handles.</li>
+    </ul>
+
 <pre><span class="kw">try</span> {
     <span class="cm">// code that might throw</span>
     <span class="kw">if</span> (denominator == <span class="nm">0</span>)
-        <span class="kw">throw</span> <span class="st">"Division by zero"</span>;
-    result = numerator / denominator;
+        <span class="kw">throw</span> <span class="st">"Division by zero"</span>;   <span class="cm">// THROW — everything after this is SKIPPED</span>
+    result = numerator / denominator; <span class="cm">// this line NEVER runs if we threw</span>
 }
-<span class="kw">catch</span> (<span class="kw">const</span> <span class="kw">char</span>* msg) {
+<span class="kw">catch</span> (<span class="kw">const</span> <span class="kw">char</span>* msg) {          <span class="cm">// catches thrown strings</span>
     cout &lt;&lt; <span class="st">"Error: "</span> &lt;&lt; msg &lt;&lt; endl;
 }
-<span class="kw">catch</span> (<span class="kw">int</span> errorCode) {
+<span class="kw">catch</span> (<span class="kw">int</span> errorCode) {              <span class="cm">// catches thrown integers</span>
     cout &lt;&lt; <span class="st">"Error code: "</span> &lt;&lt; errorCode &lt;&lt; endl;
-}</pre>
-    <ul>
-      <li>Code in <span class="inline-code">try</span> block is monitored for exceptions</li>
-      <li><span class="inline-code">throw</span> sends the exception (can throw any type)</li>
-      <li><span class="inline-code">catch</span> blocks handle specific exception types</li>
-      <li>Code after <span class="inline-code">throw</span> in the try block does <strong>NOT</strong> execute</li>
-      <li>If no <span class="inline-code">catch</span> matches, exception propagates up the call stack</li>
-    </ul>
+}
+<span class="cm">// Program CONTINUES normally here after catch — it doesn't crash!</span></pre>
+
+    <div class="highlight-box important">
+      <strong>Critical flow rules:</strong><br>
+      1. The MOMENT <span class="inline-code">throw</span> happens, everything after it in the try block is <strong>SKIPPED</strong>.<br>
+      2. Only the <strong>FIRST matching</strong> catch block runs. The rest are skipped.<br>
+      3. If <strong>NO catch matches</strong>, the exception propagates up to the calling function. If nobody catches it, program terminates.<br>
+      4. After the catch runs, the program <strong>continues normally</strong>. It doesn't crash.
+    </div>
   </div>
 
   <div class="theory-section">
-    <h4>Custom Exception Classes</h4>
+    <h4>Full Example: Student with Exception Handling</h4>
+<pre><span class="cm">// Step 1: Define custom exception classes</span>
+<span class="kw">class</span> <span class="tp">NegativeAgeException</span> {
+<span class="kw">public</span>:
+    <span class="fn">NegativeAgeException</span>(<span class="kw">int</span> a) : age(a) {}
+    <span class="tp">string</span> <span class="fn">what</span>() <span class="kw">const</span> {
+        <span class="kw">return</span> <span class="st">"Invalid age: "</span> + <span class="fn">to_string</span>(age) + <span class="st">". Age cannot be negative."</span>;
+    }
+<span class="kw">private</span>:
+    <span class="kw">int</span> age;
+};
+
+<span class="kw">class</span> <span class="tp">InvalidGPAException</span> {
+<span class="kw">public</span>:
+    <span class="fn">InvalidGPAException</span>(<span class="kw">double</span> g) : gpa(g) {}
+    <span class="tp">string</span> <span class="fn">what</span>() <span class="kw">const</span> {
+        <span class="kw">return</span> <span class="st">"Invalid GPA: "</span> + <span class="fn">to_string</span>(gpa) + <span class="st">". Must be 0.0-4.3."</span>;
+    }
+<span class="kw">private</span>:
+    <span class="kw">double</span> gpa;
+};
+
+<span class="cm">// Step 2: Constructor THROWS if data is invalid</span>
+<span class="kw">class</span> <span class="tp">Student</span> {
+<span class="kw">public</span>:
+    <span class="fn">Student</span>(<span class="tp">string</span> n, <span class="kw">int</span> a, <span class="kw">double</span> g) {
+        <span class="kw">if</span> (a &lt; <span class="nm">0</span>) <span class="kw">throw</span> <span class="tp">NegativeAgeException</span>(a);      <span class="cm">// STOP! Jump to catch</span>
+        <span class="kw">if</span> (g &lt; <span class="nm">0.0</span> || g &gt; <span class="nm">4.3</span>) <span class="kw">throw</span> <span class="tp">InvalidGPAException</span>(g); <span class="cm">// STOP!</span>
+        name = n; age = a; gpa = g;  <span class="cm">// only runs if no throw</span>
+    }
+<span class="kw">private</span>:
+    <span class="tp">string</span> name; <span class="kw">int</span> age; <span class="kw">double</span> gpa;
+};
+
+<span class="cm">// Step 3: Driver with try/catch</span>
+<span class="kw">int</span> <span class="fn">main</span>() {
+    <span class="kw">try</span> {
+        <span class="tp">Student</span> s1(<span class="st">"Alice"</span>, <span class="nm">20</span>, <span class="nm">3.8</span>);   <span class="cm">// OK — no exception</span>
+        <span class="tp">Student</span> s2(<span class="st">"Bob"</span>, -<span class="nm">5</span>, <span class="nm">3.2</span>);     <span class="cm">// THROWS NegativeAgeException!</span>
+        <span class="tp">Student</span> s3(<span class="st">"Carol"</span>, <span class="nm">21</span>, <span class="nm">3.9</span>);  <span class="cm">// NEVER RUNS — skipped after throw</span>
+    }
+    <span class="kw">catch</span> (<span class="tp">NegativeAgeException</span>&amp; e) {
+        cout &lt;&lt; <span class="st">"Error: "</span> &lt;&lt; e.<span class="fn">what</span>() &lt;&lt; endl;  <span class="cm">// THIS runs</span>
+    }
+    <span class="kw">catch</span> (<span class="tp">InvalidGPAException</span>&amp; e) {
+        cout &lt;&lt; <span class="st">"Error: "</span> &lt;&lt; e.<span class="fn">what</span>() &lt;&lt; endl;  <span class="cm">// skipped (wrong type)</span>
+    }
+    cout &lt;&lt; <span class="st">"Program continues normally."</span> &lt;&lt; endl;
+    <span class="kw">return</span> <span class="nm">0</span>;
+}
+<span class="cm">// Output:</span>
+<span class="cm">// Error: Invalid age: -5. Age cannot be negative.</span>
+<span class="cm">// Program continues normally.</span></pre>
+  </div>
+
+  <div class="theory-section">
+    <h4>Custom Exception Classes (from past exams)</h4>
+    <p>On the exam, custom exceptions are simple classes with a constructor and a <span class="inline-code">what()</span> method:</p>
 <pre><span class="kw">class</span> <span class="tp">WeightLessThanZeroException</span> {
 <span class="kw">public</span>:
     <span class="fn">WeightLessThanZeroException</span>() {}
@@ -1859,24 +2005,51 @@ sPtr-><span class="fn">print</span>();  <span class="cm">// dynamic binding &rar
   </div>
 
   <div class="theory-section">
-    <h4>File Streams</h4>
-    <p>Include <span class="inline-code">&lt;fstream&gt;</span>. Three classes: <span class="inline-code">ifstream</span> (read), <span class="inline-code">ofstream</span> (write), <span class="inline-code">fstream</span> (both).</p>
-<pre><span class="cm">// Writing to a file</span>
-<span class="tp">ofstream</span> outFile(<span class="st">"grades.txt"</span>, <span class="tp">ios</span>::out);
-<span class="kw">if</span> (!outFile) { cerr &lt;&lt; <span class="st">"Error"</span>; <span class="fn">exit</span>(<span class="nm">1</span>); }
-outFile &lt;&lt; id &lt;&lt; <span class="st">" "</span> &lt;&lt; name &lt;&lt; <span class="st">" "</span> &lt;&lt; grade &lt;&lt; endl;
-outFile.<span class="fn">close</span>();
+    <h4>File Streams &mdash; Reading and Writing Files</h4>
+    <p>Up to now, all input comes from the keyboard (<span class="inline-code">cin</span>) and output goes to the screen (<span class="inline-code">cout</span>). File I/O lets you read from files and write to files instead. The beautiful thing: it works <strong>exactly like cin and cout</strong> &mdash; same <span class="inline-code">&gt;&gt;</span> and <span class="inline-code">&lt;&lt;</span> operators.</p>
 
-<span class="cm">// Reading from a file</span>
-<span class="tp">ifstream</span> inFile(<span class="st">"grades.txt"</span>, <span class="tp">ios</span>::in);
-<span class="kw">while</span> (inFile >> id >> name >> grade) {
-    cout &lt;&lt; id &lt;&lt; <span class="st">" "</span> &lt;&lt; name &lt;&lt; <span class="st">" "</span> &lt;&lt; grade &lt;&lt; endl;
-}
-inFile.<span class="fn">close</span>();</pre>
+    <p>Include <span class="inline-code">&lt;fstream&gt;</span>. Three classes:</p>
+    <div class="concept-grid">
+      <div class="concept-card">
+        <div class="concept-title" style="color:var(--accent)">ofstream (write)</div>
+        <p><strong>o</strong>utput <strong>f</strong>ile stream. Data goes OUT from your program to the file. Use <span class="inline-code">&lt;&lt;</span> just like cout.</p>
+      </div>
+      <div class="concept-card">
+        <div class="concept-title" style="color:var(--accent3)">ifstream (read)</div>
+        <p><strong>i</strong>nput <strong>f</strong>ile stream. Data comes IN from the file to your program. Use <span class="inline-code">&gt;&gt;</span> just like cin.</p>
+      </div>
+      <div class="concept-card">
+        <div class="concept-title" style="color:var(--accent4)">fstream (both)</div>
+        <p>Can read AND write. Open with <span class="inline-code">ios::in | ios::out</span>.</p>
+      </div>
+    </div>
+
+    <p><strong>Writing to a file:</strong></p>
+<pre><span class="tp">ofstream</span> outFile(<span class="st">"grades.txt"</span>);              <span class="cm">// 1. Create and open file</span>
+<span class="kw">if</span> (!outFile) { cerr &lt;&lt; <span class="st">"Error"</span>; <span class="fn">exit</span>(<span class="nm">1</span>); } <span class="cm">// 2. ALWAYS check if it opened!</span>
+outFile &lt;&lt; <span class="nm">40123</span> &lt;&lt; <span class="st">" Alice "</span> &lt;&lt; <span class="nm">3.8</span> &lt;&lt; endl; <span class="cm">// 3. Write — same as cout!</span>
+outFile &lt;&lt; <span class="nm">40456</span> &lt;&lt; <span class="st">" Bob "</span> &lt;&lt; <span class="nm">3.5</span> &lt;&lt; endl;
+outFile.<span class="fn">close</span>();                              <span class="cm">// 4. ALWAYS close when done</span>
+<span class="cm">// File now contains:</span>
+<span class="cm">// 40123 Alice 3.8</span>
+<span class="cm">// 40456 Bob 3.5</span></pre>
+
+    <p><strong>Reading from a file:</strong></p>
+<pre><span class="tp">ifstream</span> inFile(<span class="st">"grades.txt"</span>);               <span class="cm">// 1. Open for reading</span>
+<span class="kw">if</span> (!inFile) { cerr &lt;&lt; <span class="st">"Error"</span>; <span class="fn">exit</span>(<span class="nm">1</span>); }  <span class="cm">// 2. Check if opened</span>
+<span class="kw">int</span> id; <span class="tp">string</span> name; <span class="kw">double</span> gpa;            <span class="cm">// 3. Variables to store data</span>
+<span class="kw">while</span> (inFile &gt;&gt; id &gt;&gt; name &gt;&gt; gpa) {       <span class="cm">// 4. Read one record at a time</span>
+    cout &lt;&lt; id &lt;&lt; <span class="st">" "</span> &lt;&lt; name &lt;&lt; <span class="st">" "</span> &lt;&lt; gpa &lt;&lt; endl;  <span class="cm">// 5. Print it</span>
+}                                              <span class="cm">// Loop stops automatically at end of file</span>
+inFile.<span class="fn">close</span>();                               <span class="cm">// 6. Close</span></pre>
+
+    <div class="highlight-box">
+      <strong>Think of it this way:</strong> Replace <span class="inline-code">cout</span> with <span class="inline-code">outFile</span> to write to a file. Replace <span class="inline-code">cin</span> with <span class="inline-code">inFile</span> to read from a file. Same operators, different destination/source.
+    </div>
   </div>
 
   <div class="theory-section">
-    <h4>Important Operations</h4>
+    <h4>Important Operations &amp; Common Traps</h4>
     <ul>
       <li>Always <strong>check if file opened</strong>: <span class="inline-code">if (!file) { ... }</span></li>
       <li>Always <span class="inline-code">close()</span> the file when done</li>
@@ -1947,6 +2120,12 @@ inFile.<span class="fn">close</span>();</pre>
   </div>
 
   <div class="theory-section">
+    <h4>What Are Templates?</h4>
+    <p>Imagine writing a function that finds the maximum of two values. For integers, you write one function. For doubles, you write another. For strings, another. The logic is <strong>identical</strong> &mdash; only the type changes.</p>
+    <p>Templates let you write it <strong>ONCE</strong> using a placeholder type <span class="inline-code">T</span>. The compiler generates type-specific versions automatically when you use it.</p>
+  </div>
+
+  <div class="theory-section">
     <h4>Function Templates</h4>
     <p>Write <strong>one</strong> function that works with any type. The compiler generates type-specific versions.</p>
 <pre><span class="kw">template</span>&lt;<span class="kw">class</span> <span class="tp">T</span>&gt;
@@ -1962,29 +2141,77 @@ inFile.<span class="fn">close</span>();</pre>
   </div>
 
   <div class="theory-section">
-    <h4>Class Templates</h4>
+    <h4>Class Templates &mdash; Full Stack Example</h4>
+    <p>Same idea but for a whole class. Use <span class="inline-code">T</span> as a placeholder type throughout.</p>
+
 <pre><span class="kw">template</span>&lt;<span class="kw">class</span> <span class="tp">T</span>&gt;
 <span class="kw">class</span> <span class="tp">Stack</span> {
 <span class="kw">private</span>:
-    <span class="kw">int</span> size, top;
-    <span class="tp">T</span>* stackPtr;
+    <span class="kw">int</span> size;       <span class="cm">// max capacity</span>
+    <span class="kw">int</span> top;        <span class="cm">// index of top element (-1 = empty)</span>
+    <span class="tp">T</span>* stackPtr;   <span class="cm">// T* — if T=int, this is int*. If T=string, this is string*</span>
 <span class="kw">public</span>:
     <span class="fn">Stack</span>(<span class="kw">int</span> s);
     ~<span class="fn">Stack</span>();
-    <span class="kw">void</span> <span class="fn">push</span>(<span class="kw">const</span> <span class="tp">T</span>&amp;);
+    <span class="kw">void</span> <span class="fn">push</span>(<span class="kw">const</span> <span class="tp">T</span>&amp; value);
     <span class="tp">T</span> <span class="fn">pop</span>();
+    <span class="kw">bool</span> <span class="fn">isEmpty</span>() <span class="kw">const</span>;
 };
 
-<span class="cm">// Member function defined outside:</span>
+<span class="cm">// IMPORTANT: Outside member functions need TWO things:</span>
+<span class="cm">// 1. template&lt;class T&gt;    on the line above</span>
+<span class="cm">// 2. Stack&lt;T&gt;::           not just Stack::</span>
+
 <span class="kw">template</span>&lt;<span class="kw">class</span> <span class="tp">T</span>&gt;
 <span class="tp">Stack</span>&lt;<span class="tp">T</span>&gt;::<span class="fn">Stack</span>(<span class="kw">int</span> s) {
-    size = s; top = <span class="nm">-1</span>;
-    stackPtr = <span class="kw">new</span> <span class="tp">T</span>[size];
+    size = s;
+    top = <span class="nm">-1</span>;                    <span class="cm">// -1 = empty stack</span>
+    stackPtr = <span class="kw">new</span> <span class="tp">T</span>[size];      <span class="cm">// allocate array of T</span>
 }
 
-<span class="cm">// Usage:</span>
-<span class="tp">Stack</span>&lt;<span class="kw">double</span>&gt; doubleStack(<span class="nm">5</span>);
-<span class="tp">Stack</span>&lt;<span class="kw">int</span>&gt; intStack(<span class="nm">10</span>);</pre>
+<span class="kw">template</span>&lt;<span class="kw">class</span> <span class="tp">T</span>&gt;
+<span class="tp">Stack</span>&lt;<span class="tp">T</span>&gt;::~<span class="fn">Stack</span>() { <span class="kw">delete</span>[] stackPtr; }
+
+<span class="kw">template</span>&lt;<span class="kw">class</span> <span class="tp">T</span>&gt;
+<span class="kw">void</span> <span class="tp">Stack</span>&lt;<span class="tp">T</span>&gt;::<span class="fn">push</span>(<span class="kw">const</span> <span class="tp">T</span>&amp; value) {
+    <span class="kw">if</span> (top &lt; size - <span class="nm">1</span>)
+        stackPtr[++top] = value;   <span class="cm">// move top up, store value</span>
+    <span class="kw">else</span>
+        cout &lt;&lt; <span class="st">"Stack full!"</span> &lt;&lt; endl;
+}
+
+<span class="kw">template</span>&lt;<span class="kw">class</span> <span class="tp">T</span>&gt;
+<span class="tp">T</span> <span class="tp">Stack</span>&lt;<span class="tp">T</span>&gt;::<span class="fn">pop</span>() {
+    <span class="kw">if</span> (!<span class="fn">isEmpty</span>())
+        <span class="kw">return</span> stackPtr[top--];  <span class="cm">// return top value, move top down</span>
+    cout &lt;&lt; <span class="st">"Stack empty!"</span> &lt;&lt; endl;
+    <span class="kw">return</span> <span class="tp">T</span>();
+}
+
+<span class="kw">template</span>&lt;<span class="kw">class</span> <span class="tp">T</span>&gt;
+<span class="kw">bool</span> <span class="tp">Stack</span>&lt;<span class="tp">T</span>&gt;::<span class="fn">isEmpty</span>() <span class="kw">const</span> { <span class="kw">return</span> top == <span class="nm">-1</span>; }
+
+<span class="cm">// Usage — specify the type in angle brackets:</span>
+<span class="kw">int</span> <span class="fn">main</span>() {
+    <span class="tp">Stack</span>&lt;<span class="kw">int</span>&gt; intStack(<span class="nm">5</span>);         <span class="cm">// every T becomes int</span>
+    intStack.<span class="fn">push</span>(<span class="nm">10</span>);
+    intStack.<span class="fn">push</span>(<span class="nm">20</span>);
+    intStack.<span class="fn">push</span>(<span class="nm">30</span>);
+    cout &lt;&lt; intStack.<span class="fn">pop</span>() &lt;&lt; endl;  <span class="cm">// 30 (last in, first out)</span>
+    cout &lt;&lt; intStack.<span class="fn">pop</span>() &lt;&lt; endl;  <span class="cm">// 20</span>
+
+    <span class="tp">Stack</span>&lt;<span class="tp">string</span>&gt; strStack(<span class="nm">3</span>);       <span class="cm">// every T becomes string</span>
+    strStack.<span class="fn">push</span>(<span class="st">"Hello"</span>);
+    strStack.<span class="fn">push</span>(<span class="st">"World"</span>);
+    cout &lt;&lt; strStack.<span class="fn">pop</span>() &lt;&lt; endl;  <span class="cm">// World</span>
+}</pre>
+
+    <div class="highlight-box important">
+      <strong>The syntax students always get wrong on exams:</strong><br>
+      WRONG: <span class="inline-code">Stack::Stack(int s) { ... }</span><br>
+      RIGHT: <span class="inline-code">template&lt;class T&gt; Stack&lt;T&gt;::Stack(int s) { ... }</span><br><br>
+      You need BOTH the <span class="inline-code">template&lt;class T&gt;</span> line AND <span class="inline-code">Stack&lt;T&gt;::</span> with the <span class="inline-code">&lt;T&gt;</span>. This was a direct question on the 2017 final (Q10-11).
+    </div>
   </div>
 
   <div class="theory-section">
