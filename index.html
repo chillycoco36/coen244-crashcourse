@@ -691,6 +691,54 @@ table { border-radius: 12px; overflow: hidden; }
   details summary { padding: 1.1rem 1.25rem; }
 }
 
+/* ============ BACK TO TOP ============ */
+#back-to-top {
+  position: fixed; bottom: 2rem; right: 2rem;
+  width: 44px; height: 44px;
+  border-radius: 50%;
+  background: rgba(99,102,241,0.9);
+  border: 1px solid rgba(255,255,255,0.1);
+  color: white;
+  font-size: 1.2rem;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.3s, transform 0.3s;
+  z-index: 90;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 4px 20px rgba(99,102,241,0.3);
+}
+#back-to-top.visible { opacity: 1; pointer-events: all; }
+#back-to-top:hover { transform: translateY(-3px); }
+
+/* ============ COPY BUTTON ============ */
+pre { position: relative; }
+.copy-btn {
+  position: absolute;
+  top: 0.5rem; right: 0.5rem;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
+  color: var(--text-dim);
+  font-size: 0.65rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-family: 'JetBrains Mono', monospace;
+  transition: all 0.2s;
+  opacity: 0;
+}
+pre:hover .copy-btn { opacity: 1; }
+.copy-btn:hover { background: rgba(99,102,241,0.2); color: var(--accent2); }
+.copy-btn.copied { background: rgba(52,211,153,0.2); color: var(--accent3); }
+
+/* ============ SECTION DIVIDER ============ */
+.section-divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(99,102,241,0.3), transparent);
+  margin: 0;
+  border: none;
+}
+
 /* ============ PRINT STYLES ============ */
 @media print {
   nav, #progress { display: none; }
@@ -712,20 +760,21 @@ table { border-radius: 12px; overflow: hidden; }
   <div class="logo">COEN 244</div>
   <div class="nav-links">
     <a href="#hero">Home</a>
-    <a href="#review243">COEN 243 Review</a>
+    <a href="#review243" style="opacity:0.6">243</a>
     <a href="#classes">Classes</a>
-    <a href="#composition">Composition</a>
-    <a href="#inheritance">Inheritance</a>
-    <a href="#polymorphism">Polymorphism</a>
-    <a href="#operators">Operators</a>
-    <a href="#exceptions">Exceptions</a>
-    <a href="#fileio">File I/O</a>
-    <a href="#templates">Templates</a>
-    <a href="#full-example">Full Example</a>
-    <a href="#code-structures">Code Structures</a>
-    <a href="#mockfinal">Mock Final</a>
-    <a href="#cheatsheet-guide">Cheat Sheet</a>
-    <a href="#extra">Extra Practice</a>
+    <a href="#composition">Comp.</a>
+    <a href="#inheritance">Inherit.</a>
+    <a href="#polymorphism">Poly.</a>
+    <a href="#operators">Oper.</a>
+    <a href="#exceptions">Except.</a>
+    <a href="#fileio">Files</a>
+    <a href="#templates">Templ.</a>
+    <a href="#full-example" style="border-left:1px solid rgba(255,255,255,0.1); margin-left:0.25rem; padding-left:0.75rem;">Example</a>
+    <a href="#code-structures">Ref</a>
+    <a href="#mockfinal" style="border-left:1px solid rgba(255,255,255,0.1); margin-left:0.25rem; padding-left:0.75rem;">Final</a>
+    <a href="#mistakes">Mistakes</a>
+    <a href="#cheatsheet-guide">Sheet</a>
+    <a href="#extra">Extra</a>
   </div>
 </nav>
 <div id="progress"><div id="progress-bar"></div></div>
@@ -742,6 +791,29 @@ table { border-radius: 12px; overflow: hidden; }
     <div class="hero-stat stat-accent4"><div class="num">1h30</div><div class="label">Mock Final</div></div>
   </div>
 </section>
+
+<!-- ==================== TABLE OF CONTENTS ==================== -->
+<div class="container" style="padding-top: 2rem;">
+  <div class="theory-section" style="border:1px solid rgba(99,102,241,0.2);">
+    <h4 style="color:var(--accent2);">Course Roadmap</h4>
+    <div class="concept-grid" style="grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));">
+      <div class="concept-card"><div class="concept-title" style="color:var(--text-dim)">00</div><p><a href="#review243" style="color:var(--text);text-decoration:none;">COEN 243 Review</a></p></div>
+      <div class="concept-card"><div class="concept-title" style="color:var(--accent)">01</div><p><a href="#classes" style="color:var(--text);text-decoration:none;">Classes</a></p></div>
+      <div class="concept-card"><div class="concept-title" style="color:var(--accent2)">02</div><p><a href="#composition" style="color:var(--text);text-decoration:none;">Composition</a></p></div>
+      <div class="concept-card"><div class="concept-title" style="color:var(--accent3)">03</div><p><a href="#inheritance" style="color:var(--text);text-decoration:none;">Inheritance</a></p></div>
+      <div class="concept-card"><div class="concept-title" style="color:var(--accent4)">04</div><p><a href="#polymorphism" style="color:var(--text);text-decoration:none;">Polymorphism</a></p></div>
+      <div class="concept-card"><div class="concept-title" style="color:var(--accent5)">05</div><p><a href="#operators" style="color:var(--text);text-decoration:none;">Operators</a></p></div>
+      <div class="concept-card"><div class="concept-title" style="color:var(--red)">06</div><p><a href="#exceptions" style="color:var(--text);text-decoration:none;">Exceptions</a></p></div>
+      <div class="concept-card"><div class="concept-title" style="color:var(--accent)">07</div><p><a href="#fileio" style="color:var(--text);text-decoration:none;">File I/O</a></p></div>
+      <div class="concept-card"><div class="concept-title" style="color:var(--accent2)">08</div><p><a href="#templates" style="color:var(--text);text-decoration:none;">Templates &amp; STL</a></p></div>
+      <div class="concept-card"><div class="concept-title" style="color:var(--accent3)">FE</div><p><a href="#full-example" style="color:var(--text);text-decoration:none;">Full Example</a></p></div>
+      <div class="concept-card"><div class="concept-title" style="color:var(--accent4)">REF</div><p><a href="#code-structures" style="color:var(--text);text-decoration:none;">Code Structures</a></p></div>
+      <div class="concept-card"><div class="concept-title" style="color:var(--accent5)">MF</div><p><a href="#mockfinal" style="color:var(--text);text-decoration:none;">Mock Final</a></p></div>
+    </div>
+  </div>
+</div>
+
+<hr class="section-divider">
 
 <!-- ==================== PART 1 HEADER ==================== -->
 <div class="part-header" id="part1">
@@ -772,6 +844,36 @@ table { border-radius: 12px; overflow: hidden; }
     <div class="highlight-box warn" style="margin-top:1rem">
       <strong>POST-MIDTERM TOPICS ARE MORE HEAVILY TESTED ON THE FINAL.</strong> The professor has indicated that topics covered AFTER the midterm &mdash; <strong>Operator Overloading, Exception Handling, File I/O, Templates &amp; STL</strong> &mdash; will carry more weight on the final exam. Pre-midterm topics (Classes, Composition, Inheritance, Polymorphism) are still tested, but expect a bigger chunk of marks on the post-midterm material. Don't neglect operator overloading and exception handling!
     </div>
+
+    <div style="margin-top:1.5rem;">
+      <p style="font-weight:700; color:var(--text-bright); margin-bottom:0.75rem;">What the Exam Paper Looks Like:</p>
+      <div class="concept-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
+        <div class="concept-card" style="border-left:3px solid var(--accent);">
+          <div class="concept-title" style="color:var(--accent);">Q1 &mdash; Theory (20 marks)</div>
+          <p>6 short answer questions, pick 4. MCQ-style or 2-3 sentences each.</p>
+        </div>
+        <div class="concept-card" style="border-left:3px solid var(--red);">
+          <div class="concept-title" style="color:var(--red);">Q2 &mdash; The Big One (25-30 marks)</div>
+          <p>Full class hierarchy + polymorphism + driver. The single biggest question.</p>
+        </div>
+        <div class="concept-card" style="border-left:3px solid var(--accent3);">
+          <div class="concept-title" style="color:var(--accent3);">Q3 &mdash; Composition (15 marks)</div>
+          <p>Manager class with array of pointers. add(), remove() with shifting.</p>
+        </div>
+        <div class="concept-card" style="border-left:3px solid var(--accent5);">
+          <div class="concept-title" style="color:var(--accent5);">Q4 &mdash; Operators (15 marks)</div>
+          <p>operator&lt;&lt;, operator=, operator[], maybe operator+ or ==.</p>
+        </div>
+        <div class="concept-card" style="border-left:3px solid var(--accent4);">
+          <div class="concept-title" style="color:var(--accent4);">Q5 &mdash; Exceptions + I/O (15-20 marks)</div>
+          <p>Custom exceptions in constructors + file read/write.</p>
+        </div>
+        <div class="concept-card" style="border-left:3px solid var(--accent2);">
+          <div class="concept-title" style="color:var(--accent2);">Q6 &mdash; Templates/STL (5-10 marks)</div>
+          <p>Function/class template syntax or "determine the output" for vector.</p>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -785,6 +887,11 @@ table { border-radius: 12px; overflow: hidden; }
     <span class="topic-num" style="background:rgba(239,68,68,0.15);color:var(--red);">00</span>
     <h3>COEN 243 Review &mdash; C++ Fundamentals</h3>
     <span class="topic-time">Prerequisite Review</span>
+  </div>
+
+  <div class="highlight-box" style="margin-bottom:1.5rem; background:rgba(99,102,241,0.06); border-left-color:var(--accent2);">
+    <strong>Already comfortable with pointers and basic C++?</strong> Skip ahead to <a href="#classes" style="color:var(--accent2); font-weight:600;">Topic 1: Classes &rarr;</a><br>
+    <span style="color:var(--text-dim); font-size:0.85rem;">This section is a refresher of COEN 243 material. If you took 243 recently and feel solid on pointers, dynamic memory, and pass-by-reference, jump straight to the 244 content.</span>
   </div>
 
   <!-- VARIABLES & DATA TYPES -->
@@ -2759,6 +2866,7 @@ Back: 50</pre>
 
 </div><!-- end container -->
 
+<hr class="section-divider">
 <!-- ==================== FULL WORKED EXAMPLE ==================== -->
 <div class="part-header" id="full-example">
   <div class="part-label">Full Worked Example</div>
@@ -3112,6 +3220,7 @@ Back: 50</pre>
 
 </div>
 
+<hr class="section-divider">
 <!-- ==================== ALL CODE STRUCTURES ==================== -->
 <div class="part-header" id="code-structures">
   <div class="part-label">Reference</div>
@@ -3506,6 +3615,7 @@ cout &lt;&lt; <span class="tp">MyClass</span>::<span class="fn">getCount</span>(
 
 </div>
 
+<hr class="section-divider">
 <!-- ==================== PART 2 HEADER ==================== -->
 <div class="part-header" id="mockfinal">
   <div class="part-label">Part 2 &mdash; 1h 30min</div>
@@ -3804,6 +3914,180 @@ Last: ELEC275</pre>
 
 </div><!-- end container -->
 
+<hr class="section-divider">
+
+<!-- ==================== COMMON EXAM MISTAKES ==================== -->
+<div class="part-header" id="mistakes">
+  <div class="part-label">Don't Lose Marks</div>
+  <h2>Top 10 Common Exam Mistakes</h2>
+  <p class="part-desc">These are the things students lose the most marks on. Avoid all 10 and you're ahead of 90% of the class.</p>
+</div>
+
+<div class="container">
+  <div class="theory-section" style="border:1px solid rgba(239,68,68,0.3);">
+    <h4 style="color:var(--red);">Mistakes That Cost You Marks Every Year</h4>
+
+    <table>
+      <tr><th>#</th><th>Mistake</th><th>What Happens</th><th>The Fix</th></tr>
+      <tr><td>1</td><td>Forgetting <span class="inline-code">virtual</span> destructor</td><td>Memory leak when deleting derived through base pointer</td><td>Always <span class="inline-code">virtual ~Base();</span></td></tr>
+      <tr><td>2</td><td>Shallow copy instead of deep copy</td><td>Two objects share same <span class="inline-code">char*</span>, one deletes it &rarr; dangling pointer</td><td><span class="inline-code">new char[strlen+1]</span>, <span class="inline-code">strcpy</span></td></tr>
+      <tr><td>3</td><td>Missing base constructor call</td><td>Compile error (no default constructor in base)</td><td><span class="inline-code">: Base(args)</span> in initializer list</td></tr>
+      <tr><td>4</td><td>No self-assignment check in <span class="inline-code">operator=</span></td><td><span class="inline-code">a = a</span> deletes own data then copies garbage</td><td><span class="inline-code">if (this != &amp;other)</span></td></tr>
+      <tr><td>5</td><td>Making <span class="inline-code">operator&lt;&lt;</span> a member function</td><td>Compile error &mdash; left operand is <span class="inline-code">ostream</span></td><td>Make it a <span class="inline-code">friend</span> function</td></tr>
+      <tr><td>6</td><td><span class="inline-code">delete</span> instead of <span class="inline-code">delete[]</span> for arrays</td><td>Undefined behavior</td><td><span class="inline-code">new[]</span> &rarr; <span class="inline-code">delete[]</span>, always match</td></tr>
+      <tr><td>7</td><td>Not initializing static members outside class</td><td>Linker error &mdash; "undefined reference"</td><td><span class="inline-code">int MyClass::count = 0;</span> in .cpp</td></tr>
+      <tr><td>8</td><td>Forgetting <span class="inline-code">file.clear()</span> before re-reading</td><td>Second read loop doesn't execute</td><td><span class="inline-code">clear()</span> + <span class="inline-code">seekg(0)</span> &mdash; need both</td></tr>
+      <tr><td>9</td><td>Using <span class="inline-code">Stack::</span> instead of <span class="inline-code">Stack&lt;T&gt;::</span> in templates</td><td>Compile error</td><td><span class="inline-code">template&lt;class T&gt; Stack&lt;T&gt;::func()</span></td></tr>
+      <tr><td>10</td><td>Confusing static and dynamic binding</td><td>Wrong answer on theory questions</td><td>Virtual + pointer/ref = dynamic. Everything else = static.</td></tr>
+    </table>
+  </div>
+</div>
+
+<hr class="section-divider">
+
+<!-- ==================== OUTPUT TRACING ==================== -->
+<div class="part-header" id="tracing">
+  <div class="part-label">Quick Practice</div>
+  <h2>Output Tracing &mdash; "What Does This Print?"</h2>
+  <p class="part-desc">These are free marks on the exam. Practice tracing step by step.</p>
+</div>
+
+<div class="container">
+  <!-- Tracing 1: Binding -->
+  <div class="mock-question">
+    <h4>Trace 1 &mdash; Static vs Dynamic Binding</h4>
+<pre><span class="kw">class</span> <span class="tp">A</span> {
+<span class="kw">public</span>:
+    <span class="kw">virtual</span> <span class="kw">void</span> <span class="fn">show</span>() { cout &lt;&lt; <span class="st">"A"</span>; }
+};
+<span class="kw">class</span> <span class="tp">B</span> : <span class="kw">public</span> <span class="tp">A</span> {
+<span class="kw">public</span>:
+    <span class="kw">void</span> <span class="fn">show</span>() { cout &lt;&lt; <span class="st">"B"</span>; }
+};
+<span class="kw">int</span> <span class="fn">main</span>() {
+    <span class="tp">B</span> b;
+    <span class="tp">A</span>* ptr = &amp;b;
+    <span class="tp">A</span>&amp; ref = b;
+    b.<span class="fn">show</span>();       <span class="cm">// Line 1</span>
+    ptr-><span class="fn">show</span>();   <span class="cm">// Line 2</span>
+    ref.<span class="fn">show</span>();    <span class="cm">// Line 3</span>
+    ptr-><span class="tp">A</span>::<span class="fn">show</span>(); <span class="cm">// Line 4</span>
+}</pre>
+    <details>
+      <summary><span style="color:var(--accent3)">Show Answer</span></summary>
+      <div class="details-body">
+<pre>B B B A</pre>
+        <p>Line 1: <strong>B</strong> &mdash; object call, static binding, calls B::show (b IS a B).<br>
+        Line 2: <strong>B</strong> &mdash; virtual + pointer = dynamic, actual object is B.<br>
+        Line 3: <strong>B</strong> &mdash; virtual + reference = dynamic, actual object is B.<br>
+        Line 4: <strong>A</strong> &mdash; explicit scope A:: forces static binding, calls A::show.</p>
+      </div>
+    </details>
+  </div>
+
+  <!-- Tracing 2: Constructors -->
+  <div class="mock-question">
+    <h4>Trace 2 &mdash; Constructor / Destructor Order</h4>
+<pre><span class="kw">class</span> <span class="tp">Base</span> {
+<span class="kw">public</span>:
+    <span class="fn">Base</span>() { cout &lt;&lt; <span class="st">"B+"</span>; }
+    <span class="kw">virtual</span> ~<span class="fn">Base</span>() { cout &lt;&lt; <span class="st">"B-"</span>; }
+};
+<span class="kw">class</span> <span class="tp">Derived</span> : <span class="kw">public</span> <span class="tp">Base</span> {
+<span class="kw">public</span>:
+    <span class="fn">Derived</span>() { cout &lt;&lt; <span class="st">"D+"</span>; }
+    ~<span class="fn">Derived</span>() { cout &lt;&lt; <span class="st">"D-"</span>; }
+};
+<span class="kw">int</span> <span class="fn">main</span>() {
+    <span class="tp">Base</span>* p = <span class="kw">new</span> <span class="tp">Derived</span>();
+    <span class="kw">delete</span> p;
+}</pre>
+    <details>
+      <summary><span style="color:var(--accent3)">Show Answer</span></summary>
+      <div class="details-body">
+<pre>B+ D+ D- B-</pre>
+        <p>Construction: Base first (B+), then Derived (D+).<br>
+        Destruction: Derived first (D-), then Base (B-). Virtual destructor ensures D- runs!</p>
+      </div>
+    </details>
+  </div>
+
+  <!-- Tracing 3: Exception -->
+  <div class="mock-question">
+    <h4>Trace 3 &mdash; Exception Flow</h4>
+<pre><span class="kw">int</span> <span class="fn">main</span>() {
+    cout &lt;&lt; <span class="st">"1 "</span>;
+    <span class="kw">try</span> {
+        cout &lt;&lt; <span class="st">"2 "</span>;
+        <span class="kw">throw</span> <span class="nm">42</span>;
+        cout &lt;&lt; <span class="st">"3 "</span>;
+    }
+    <span class="kw">catch</span> (<span class="kw">double</span> d) { cout &lt;&lt; <span class="st">"4 "</span>; }
+    <span class="kw">catch</span> (<span class="kw">int</span> n) { cout &lt;&lt; <span class="st">"5 "</span>; }
+    <span class="kw">catch</span> (...) { cout &lt;&lt; <span class="st">"6 "</span>; }
+    cout &lt;&lt; <span class="st">"7"</span>;
+}</pre>
+    <details>
+      <summary><span style="color:var(--accent3)">Show Answer</span></summary>
+      <div class="details-body">
+<pre>1 2 5 7</pre>
+        <p>"1" prints. Enter try, "2" prints. throw 42 &mdash; "3" is SKIPPED.<br>
+        catch(double) doesn't match (42 is int). catch(int) matches &rarr; "5" prints.<br>
+        catch(...) skipped (already caught). After catch, "7" prints. Program continues.</p>
+      </div>
+    </details>
+  </div>
+
+  <!-- Tracing 4: STL -->
+  <div class="mock-question">
+    <h4>Trace 4 &mdash; STL Vector Operations</h4>
+<pre><span class="tp">vector</span>&lt;<span class="kw">int</span>&gt; v;
+v.<span class="fn">push_back</span>(<span class="nm">5</span>); v.<span class="fn">push_back</span>(<span class="nm">2</span>); v.<span class="fn">push_back</span>(<span class="nm">8</span>); v.<span class="fn">push_back</span>(<span class="nm">1</span>);
+<span class="fn">sort</span>(v.<span class="fn">begin</span>(), v.<span class="fn">end</span>());
+v.<span class="fn">erase</span>(v.<span class="fn">begin</span>());
+v.<span class="fn">push_back</span>(<span class="nm">4</span>);
+v.<span class="fn">pop_back</span>();
+cout &lt;&lt; v.<span class="fn">size</span>() &lt;&lt; <span class="st">" "</span> &lt;&lt; v.<span class="fn">front</span>() &lt;&lt; <span class="st">" "</span> &lt;&lt; v.<span class="fn">back</span>();</pre>
+    <details>
+      <summary><span style="color:var(--accent3)">Show Answer</span></summary>
+      <div class="details-body">
+<pre>3 2 8</pre>
+        <p>After push_backs: {5, 2, 8, 1}. After sort: {1, 2, 5, 8}.<br>
+        erase(begin()) removes 1: {2, 5, 8}. push_back(4): {2, 5, 8, 4}.<br>
+        pop_back() removes 4: {2, 5, 8}. Size=3, front=2, back=8.</p>
+      </div>
+    </details>
+  </div>
+</div>
+
+<hr class="section-divider">
+
+<!-- ==================== AM I READY ==================== -->
+<div class="container" style="padding: 4rem 1.5rem 2rem;">
+  <div class="theory-section" style="border:1px solid rgba(52,211,153,0.4); background:linear-gradient(135deg, rgba(52,211,153,0.08), transparent);">
+    <h4 style="color:var(--accent3); font-size:1.3rem;">Am I Ready? &mdash; Self-Assessment Checklist</h4>
+    <p>If you can answer YES to all of these, you're ready for the final.</p>
+    <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap:0.5rem; margin-top:1rem;">
+      <p style="margin:0.3rem 0"><input type="checkbox"> I can write a <strong>deep copy</strong> constructor from memory</p>
+      <p style="margin:0.3rem 0"><input type="checkbox"> I can write <strong>operator&lt;&lt;</strong> as a friend function</p>
+      <p style="margin:0.3rem 0"><input type="checkbox"> I can write <strong>operator=</strong> with self-assignment check</p>
+      <p style="margin:0.3rem 0"><input type="checkbox"> I know the difference between <strong>static and dynamic binding</strong></p>
+      <p style="margin:0.3rem 0"><input type="checkbox"> I can write a <strong>polymorphic driver</strong> with base pointer array</p>
+      <p style="margin:0.3rem 0"><input type="checkbox"> I know when to use <strong>virtual destructor</strong></p>
+      <p style="margin:0.3rem 0"><input type="checkbox"> I can chain constructors with <strong>initializer list</strong></p>
+      <p style="margin:0.3rem 0"><input type="checkbox"> I can write <strong>try/throw/catch</strong> with custom exceptions</p>
+      <p style="margin:0.3rem 0"><input type="checkbox"> I can <strong>read and write files</strong> with ofstream/ifstream</p>
+      <p style="margin:0.3rem 0"><input type="checkbox"> I can write a <strong>class template</strong> with outside member functions</p>
+      <p style="margin:0.3rem 0"><input type="checkbox"> I can <strong>trace STL vector output</strong> step by step</p>
+      <p style="margin:0.3rem 0"><input type="checkbox"> I know which operators <strong>must be member vs friend</strong></p>
+    </div>
+    <div class="highlight-box" style="margin-top:1.5rem">
+      <strong>All checked?</strong> You're going to do great. <strong>Some unchecked?</strong> Go back to that section on this website and review it one more time. You've got the tools — use them.
+    </div>
+  </div>
+</div>
+
+<hr class="section-divider">
 <!-- ==================== CHEAT SHEET GUIDE ==================== -->
 <div class="part-header" id="cheatsheet-guide">
   <div class="part-label">Bonus</div>
@@ -3950,6 +4234,7 @@ in.<span class="fn">seekg</span>(<span class="nm">0</span>);</pre>
   </div>
 </div>
 
+<hr class="section-divider">
 <!-- ==================== EXTRA PRACTICE ==================== -->
 <div class="part-header" id="extra">
   <div class="part-label">Extra Practice</div>
@@ -4260,13 +4545,25 @@ Back: 9</pre>
   Crash Course &mdash; Concordia University &mdash; Built for students, by students
 </footer>
 
+<!-- Back to Top Button -->
+<button id="back-to-top" title="Back to top">&uarr;</button>
+
 <!-- ==================== JS ==================== -->
 <script>
-// Progress bar
+// Progress bar + back to top visibility
 window.addEventListener('scroll', () => {
   const h = document.documentElement;
   const pct = (h.scrollTop / (h.scrollHeight - h.clientHeight)) * 100;
   document.getElementById('progress-bar').style.width = pct + '%';
+
+  const btn = document.getElementById('back-to-top');
+  if (h.scrollTop > 600) btn.classList.add('visible');
+  else btn.classList.remove('visible');
+});
+
+// Back to top click
+document.getElementById('back-to-top').addEventListener('click', () => {
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 });
 
 // Active nav link
@@ -4283,6 +4580,22 @@ const observer = new IntersectionObserver(entries => {
   });
 }, { rootMargin: '-30% 0px -60% 0px' });
 sections.forEach(s => { if (s.id) observer.observe(s); });
+
+// Copy buttons on all code blocks
+document.querySelectorAll('pre').forEach(block => {
+  const btn = document.createElement('button');
+  btn.className = 'copy-btn';
+  btn.textContent = 'COPY';
+  btn.addEventListener('click', () => {
+    const code = block.textContent.replace('COPY', '').trim();
+    navigator.clipboard.writeText(code).then(() => {
+      btn.textContent = 'COPIED!';
+      btn.classList.add('copied');
+      setTimeout(() => { btn.textContent = 'COPY'; btn.classList.remove('copied'); }, 2000);
+    });
+  });
+  block.appendChild(btn);
+});
 </script>
 </body>
 </html>
