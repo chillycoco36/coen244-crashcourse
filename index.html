@@ -3586,6 +3586,245 @@ inFile.<span class="fn">seekg</span>(<span class="nm">0</span>);     <span class
 cout &lt;&lt; <span class="tp">MyClass</span>::<span class="fn">getCount</span>();</pre>
   </div>
 
+  <!-- STRUCTURE 10: Function Template -->
+  <div class="theory-section" style="border:1px solid rgba(56,189,248,0.3);">
+    <h4 style="color:var(--accent);">Structure 10: Function Template</h4>
+<pre><span class="kw">template</span>&lt;<span class="kw">class</span> <span class="tp">T</span>&gt;
+<span class="tp">T</span> <span class="fn">findMax</span>(<span class="kw">const</span> <span class="tp">T</span> arr[], <span class="kw">int</span> size) {
+    <span class="tp">T</span> max = arr[<span class="nm">0</span>];
+    <span class="kw">for</span> (<span class="kw">int</span> i = <span class="nm">1</span>; i &lt; size; i++)
+        <span class="kw">if</span> (arr[i] &gt; max) max = arr[i];
+    <span class="kw">return</span> max;
+}
+<span class="cm">// Usage — compiler deduces T from arguments:</span>
+<span class="kw">int</span> a[] = {<span class="nm">3</span>,<span class="nm">7</span>,<span class="nm">1</span>};
+cout &lt;&lt; <span class="fn">findMax</span>(a, <span class="nm">3</span>);  <span class="cm">// T=int, returns 7</span></pre>
+  </div>
+
+  <!-- STRUCTURE 11: Copy Constructor vs operator= -->
+  <div class="theory-section" style="border:1px solid rgba(251,146,60,0.3);">
+    <h4 style="color:var(--accent4);">Structure 11: When Copy Constructor vs operator= Gets Called</h4>
+<pre><span class="tp">Student</span> s1(<span class="st">"Alice"</span>, <span class="nm">3.8</span>);
+
+<span class="cm">// COPY CONSTRUCTOR is called (creating a NEW object):</span>
+<span class="tp">Student</span> s2(s1);          <span class="cm">// explicit copy</span>
+<span class="tp">Student</span> s3 = s1;         <span class="cm">// initialization (NOT assignment!)</span>
+<span class="fn">func</span>(s1);                <span class="cm">// pass by value (copy made for the parameter)</span>
+<span class="kw">return</span> s1;               <span class="cm">// return by value</span>
+
+<span class="cm">// OPERATOR= is called (object ALREADY exists, being reassigned):</span>
+<span class="tp">Student</span> s4;              <span class="cm">// already constructed (default constructor)</span>
+s4 = s1;                 <span class="cm">// NOW operator= is called — s4 exists, being overwritten</span>
+
+<span class="cm">// KEY: if the object is being CREATED → copy constructor</span>
+<span class="cm">//      if the object ALREADY EXISTS → operator=</span></pre>
+  </div>
+
+  <!-- STRUCTURE 12: Passing Objects -->
+  <div class="theory-section" style="border:1px solid rgba(244,114,182,0.3);">
+    <h4 style="color:var(--accent5);">Structure 12: Three Ways to Pass Objects to Functions</h4>
+<pre><span class="cm">// 1. BY VALUE — gets a COPY (expensive, triggers copy constructor)</span>
+<span class="kw">void</span> <span class="fn">func1</span>(<span class="tp">Student</span> s) { }  <span class="cm">// s is a copy. Changes don't affect original.</span>
+
+<span class="cm">// 2. BY REFERENCE — direct access (fast, can modify original)</span>
+<span class="kw">void</span> <span class="fn">func2</span>(<span class="tp">Student</span>&amp; s) { }  <span class="cm">// s IS the original. Changes affect it.</span>
+
+<span class="cm">// 3. BY CONST REFERENCE — direct access but read-only (fast + safe)</span>
+<span class="kw">void</span> <span class="fn">func3</span>(<span class="kw">const</span> <span class="tp">Student</span>&amp; s) { }  <span class="cm">// s IS the original, but can't modify.</span>
+
+<span class="cm">// RULE: Almost always use const reference for objects.</span>
+<span class="cm">// Only use value when you NEED a copy. Only use non-const ref when you NEED to modify.</span>
+
+<span class="cm">// 4. BY POINTER — same as reference but with pointer syntax</span>
+<span class="kw">void</span> <span class="fn">func4</span>(<span class="tp">Student</span>* s) { s-><span class="fn">print</span>(); }  <span class="cm">// use -> instead of .</span>
+<span class="fn">func4</span>(&amp;myStudent);  <span class="cm">// pass address</span></pre>
+  </div>
+
+  <!-- STRUCTURE 13: operator[] const and non-const -->
+  <div class="theory-section" style="border:1px solid rgba(52,211,153,0.3);">
+    <h4 style="color:var(--accent3);">Structure 13: operator[] — Two Versions (const + non-const)</h4>
+<pre><span class="kw">class</span> <span class="tp">IntArray</span> {
+<span class="kw">public</span>:
+    <span class="cm">// Non-const version — for WRITING: arr[2] = 5;</span>
+    <span class="kw">int</span>&amp; <span class="kw">operator</span>[](<span class="kw">int</span> index) {
+        <span class="kw">if</span> (index &lt; <span class="nm">0</span> || index >= size) { cout &lt;&lt; <span class="st">"Error"</span>; <span class="fn">exit</span>(<span class="nm">1</span>); }
+        <span class="kw">return</span> data[index];  <span class="cm">// returns REFERENCE — can be assigned to</span>
+    }
+
+    <span class="cm">// Const version — for READING on const objects: cout &lt;&lt; arr[2];</span>
+    <span class="kw">int</span> <span class="kw">operator</span>[](<span class="kw">int</span> index) <span class="kw">const</span> {
+        <span class="kw">if</span> (index &lt; <span class="nm">0</span> || index >= size) { cout &lt;&lt; <span class="st">"Error"</span>; <span class="fn">exit</span>(<span class="nm">1</span>); }
+        <span class="kw">return</span> data[index];  <span class="cm">// returns VALUE — read only</span>
+    }
+<span class="kw">private</span>:
+    <span class="kw">int</span>* data;
+    <span class="kw">int</span> size;
+};</pre>
+  </div>
+
+  <!-- STRUCTURE 14: Dynamic Cast -->
+  <div class="theory-section" style="border:1px solid rgba(129,140,248,0.3);">
+    <h4 style="color:var(--accent2);">Structure 14: Dynamic Casting (Downcasting safely)</h4>
+<pre><span class="cm">// You have a base pointer, but need to access derived-class-specific functions</span>
+<span class="tp">Shape</span>* shapes[<span class="nm">3</span>];
+shapes[<span class="nm">0</span>] = <span class="kw">new</span> <span class="tp">Circle</span>(<span class="nm">5.0</span>);
+shapes[<span class="nm">1</span>] = <span class="kw">new</span> <span class="tp">Rectangle</span>(<span class="nm">4.0</span>, <span class="nm">6.0</span>);
+shapes[<span class="nm">2</span>] = <span class="kw">new</span> <span class="tp">Circle</span>(<span class="nm">3.0</span>);
+
+<span class="cm">// Want to call setRadius() but it's only in Circle, not in Shape</span>
+<span class="kw">for</span> (<span class="kw">int</span> i = <span class="nm">0</span>; i &lt; <span class="nm">3</span>; i++) {
+    <span class="tp">Circle</span>* c = <span class="kw">dynamic_cast</span>&lt;<span class="tp">Circle</span>*&gt;(shapes[i]);  <span class="cm">// try to cast</span>
+    <span class="kw">if</span> (c != <span class="kw">nullptr</span>) {   <span class="cm">// if it IS a Circle, cast succeeds</span>
+        c-><span class="fn">setRadius</span>(<span class="nm">99</span>);  <span class="cm">// safe to call Circle-specific function</span>
+    }
+    <span class="cm">// if it's a Rectangle, cast returns nullptr — we skip it</span>
+}</pre>
+  </div>
+
+  <!-- STRUCTURE 15: 3-Level Inheritance -->
+  <div class="theory-section" style="border:1px solid rgba(239,68,68,0.3);">
+    <h4 style="color:var(--red);">Structure 15: Three-Level Inheritance Chain</h4>
+<pre><span class="kw">class</span> <span class="tp">A</span> {
+<span class="kw">public</span>:
+    <span class="fn">A</span>(<span class="kw">int</span> x) : dataA(x) {}
+    <span class="kw">virtual</span> ~<span class="fn">A</span>() {}
+<span class="kw">protected</span>:
+    <span class="kw">int</span> dataA;
+};
+
+<span class="kw">class</span> <span class="tp">B</span> : <span class="kw">public</span> <span class="tp">A</span> {
+<span class="kw">public</span>:
+    <span class="fn">B</span>(<span class="kw">int</span> x, <span class="kw">int</span> y) : <span class="fn">A</span>(x), dataB(y) {}  <span class="cm">// calls A's constructor</span>
+<span class="kw">protected</span>:
+    <span class="kw">int</span> dataB;
+};
+
+<span class="kw">class</span> <span class="tp">C</span> : <span class="kw">public</span> <span class="tp">B</span> {
+<span class="kw">public</span>:
+    <span class="fn">C</span>(<span class="kw">int</span> x, <span class="kw">int</span> y, <span class="kw">int</span> z) : <span class="fn">B</span>(x, y), dataC(z) {}  <span class="cm">// calls B's (which calls A's)</span>
+<span class="kw">private</span>:
+    <span class="kw">int</span> dataC;
+};
+
+<span class="cm">// Construction order: A → B → C</span>
+<span class="cm">// Destruction order: C → B → A</span>
+<span class="cm">// C only calls B's constructor directly. B calls A's. Chain reaction.</span></pre>
+  </div>
+
+  <!-- STRUCTURE 16: Overriding vs Overloading -->
+  <div class="theory-section" style="border:1px solid rgba(56,189,248,0.3);">
+    <h4 style="color:var(--accent);">Structure 16: Overriding vs Overloading — Don't Mix Them Up!</h4>
+    <table>
+      <tr><th></th><th>Function Overloading</th><th>Function Overriding</th></tr>
+      <tr><td><strong>What</strong></td><td>Same name, DIFFERENT parameters</td><td>Same name, SAME parameters, in base + derived</td></tr>
+      <tr><td><strong>Where</strong></td><td>Inside ONE class</td><td>Between base and derived classes</td></tr>
+      <tr><td><strong>Keyword</strong></td><td>None needed</td><td><span class="inline-code">virtual</span> in base class</td></tr>
+      <tr><td><strong>Binding</strong></td><td>Always static (compile time)</td><td>Dynamic if virtual + pointer/ref</td></tr>
+      <tr><td><strong>Example</strong></td><td><span class="inline-code">add(int,int)</span> and <span class="inline-code">add(double,double)</span></td><td>Base::print() and Derived::print()</td></tr>
+    </table>
+<pre><span class="cm">// OVERLOADING — same name, different parameters (within one class)</span>
+<span class="kw">int</span> <span class="fn">add</span>(<span class="kw">int</span> a, <span class="kw">int</span> b) { <span class="kw">return</span> a + b; }
+<span class="kw">double</span> <span class="fn">add</span>(<span class="kw">double</span> a, <span class="kw">double</span> b) { <span class="kw">return</span> a + b; }
+
+<span class="cm">// OVERRIDING — same name AND parameters, in derived class (replaces base version)</span>
+<span class="kw">class</span> <span class="tp">Base</span> { <span class="kw">virtual</span> <span class="kw">void</span> <span class="fn">show</span>() { cout &lt;&lt; <span class="st">"Base"</span>; } };
+<span class="kw">class</span> <span class="tp">Derived</span> : <span class="kw">public</span> <span class="tp">Base</span> { <span class="kw">void</span> <span class="fn">show</span>() { cout &lt;&lt; <span class="st">"Derived"</span>; } }; <span class="cm">// overrides!</span></pre>
+  </div>
+
+  <!-- STRUCTURE 17: Composition vs Inheritance Decision -->
+  <div class="theory-section" style="border:1px solid rgba(244,114,182,0.3);">
+    <h4 style="color:var(--accent5);">Structure 17: Composition vs Inheritance — How to Decide</h4>
+    <table>
+      <tr><th></th><th>Composition (has-a)</th><th>Inheritance (is-a)</th></tr>
+      <tr><td><strong>Relationship</strong></td><td>A Car HAS-A Engine</td><td>A Student IS-A Person</td></tr>
+      <tr><td><strong>Syntax</strong></td><td><span class="inline-code">Engine engine;</span> as data member</td><td><span class="inline-code">class Student : public Person</span></td></tr>
+      <tr><td><strong>Access</strong></td><td>Only through component's public functions</td><td>Can access base's protected members</td></tr>
+      <tr><td><strong>Polymorphism</strong></td><td>Not possible</td><td>Yes &mdash; base pointer can point to derived</td></tr>
+      <tr><td><strong>Use when</strong></td><td>One object CONTAINS another</td><td>One object IS A specialized version of another</td></tr>
+    </table>
+    <div class="highlight-box">
+      <strong>Quick test:</strong> Can you say "X is a Y"? If yes &rarr; inheritance. Can you say "X has a Y"? If yes &rarr; composition. A Student IS-A Person (inheritance). A Car HAS-A Engine (composition). Don't use inheritance for has-a relationships!
+    </div>
+  </div>
+
+  <!-- STRUCTURE 18: File with exceptions combined -->
+  <div class="theory-section" style="border:1px solid rgba(251,146,60,0.3);">
+    <h4 style="color:var(--accent4);">Structure 18: File I/O + Exceptions Combined Pattern</h4>
+<pre><span class="kw">class</span> <span class="tp">FileException</span> {
+<span class="kw">public</span>:
+    <span class="fn">FileException</span>(<span class="kw">const</span> <span class="tp">string</span>&amp; f) : filename(f) {}
+    <span class="tp">string</span> <span class="fn">what</span>() <span class="kw">const</span> { <span class="kw">return</span> <span class="st">"Cannot open: "</span> + filename; }
+<span class="kw">private</span>:
+    <span class="tp">string</span> filename;
+};
+
+<span class="kw">void</span> <span class="fn">saveData</span>(<span class="kw">const</span> <span class="tp">string</span>&amp; filename, <span class="tp">Base</span>* arr[], <span class="kw">int</span> count) {
+    <span class="tp">ofstream</span> out(filename);
+    <span class="kw">if</span> (!out) <span class="kw">throw</span> <span class="tp">FileException</span>(filename);  <span class="cm">// throw if can't open</span>
+    <span class="kw">for</span> (<span class="kw">int</span> i = <span class="nm">0</span>; i &lt; count; i++)
+        out &lt;&lt; arr[i]-><span class="fn">getData</span>() &lt;&lt; endl;      <span class="cm">// polymorphic call</span>
+    out.<span class="fn">close</span>();
+}
+
+<span class="kw">void</span> <span class="fn">loadData</span>(<span class="kw">const</span> <span class="tp">string</span>&amp; filename) {
+    <span class="tp">ifstream</span> in(filename);
+    <span class="kw">if</span> (!in) <span class="kw">throw</span> <span class="tp">FileException</span>(filename);
+    <span class="tp">string</span> line;
+    <span class="kw">while</span> (<span class="fn">getline</span>(in, line)) { cout &lt;&lt; line &lt;&lt; endl; }
+    in.<span class="fn">close</span>();
+}
+
+<span class="cm">// Driver:</span>
+<span class="kw">try</span> {
+    <span class="fn">saveData</span>(<span class="st">"output.txt"</span>, myArray, size);
+    <span class="fn">loadData</span>(<span class="st">"output.txt"</span>);
+} <span class="kw">catch</span> (<span class="tp">FileException</span>&amp; e) {
+    cout &lt;&lt; e.<span class="fn">what</span>() &lt;&lt; endl;
+}</pre>
+  </div>
+
+  <!-- STRUCTURE 19: STL Vector Complete Operations -->
+  <div class="theory-section" style="border:1px solid rgba(52,211,153,0.3);">
+    <h4 style="color:var(--accent3);">Structure 19: STL Vector — All Operations You Need</h4>
+<pre><span class="kw">#include</span> <span class="st">&lt;vector&gt;</span>
+<span class="kw">#include</span> <span class="st">&lt;algorithm&gt;</span>
+
+<span class="tp">vector</span>&lt;<span class="kw">int</span>&gt; v;                  <span class="cm">// create empty vector</span>
+<span class="tp">vector</span>&lt;<span class="kw">int</span>&gt; v2(<span class="nm">5</span>, <span class="nm">0</span>);          <span class="cm">// 5 elements, all 0</span>
+
+<span class="cm">// Adding elements:</span>
+v.<span class="fn">push_back</span>(<span class="nm">10</span>);                <span class="cm">// add to END</span>
+v.<span class="fn">insert</span>(v.<span class="fn">begin</span>()+<span class="nm">2</span>, <span class="nm">99</span>);     <span class="cm">// insert 99 at index 2</span>
+
+<span class="cm">// Removing elements:</span>
+v.<span class="fn">pop_back</span>();                    <span class="cm">// remove LAST element</span>
+v.<span class="fn">erase</span>(v.<span class="fn">begin</span>()+<span class="nm">1</span>);           <span class="cm">// remove at index 1</span>
+v.<span class="fn">clear</span>();                       <span class="cm">// remove ALL elements</span>
+
+<span class="cm">// Accessing elements:</span>
+v.<span class="fn">front</span>();                       <span class="cm">// first element</span>
+v.<span class="fn">back</span>();                        <span class="cm">// last element</span>
+v[<span class="nm">2</span>];                            <span class="cm">// element at index 2 (no bounds check)</span>
+v.<span class="fn">at</span>(<span class="nm">2</span>);                         <span class="cm">// element at index 2 (WITH bounds check)</span>
+
+<span class="cm">// Info:</span>
+v.<span class="fn">size</span>();                        <span class="cm">// number of elements</span>
+v.<span class="fn">empty</span>();                       <span class="cm">// true if size == 0</span>
+
+<span class="cm">// Sorting:</span>
+<span class="fn">sort</span>(v.<span class="fn">begin</span>(), v.<span class="fn">end</span>());        <span class="cm">// ascending order</span>
+
+<span class="cm">// Iterating:</span>
+<span class="tp">vector</span>&lt;<span class="kw">int</span>&gt;::<span class="tp">iterator</span> it;
+<span class="kw">for</span> (it = v.<span class="fn">begin</span>(); it != v.<span class="fn">end</span>(); it++)
+    cout &lt;&lt; *it &lt;&lt; <span class="st">" "</span>;         <span class="cm">// dereference iterator like a pointer</span>
+
+<span class="cm">// Const iterator (read-only):</span>
+<span class="tp">vector</span>&lt;<span class="kw">int</span>&gt;::<span class="tp">const_iterator</span> cit;
+<span class="kw">for</span> (cit = v.<span class="fn">begin</span>(); cit != v.<span class="fn">end</span>(); cit++)
+    cout &lt;&lt; *cit &lt;&lt; <span class="st">" "</span>;</pre>
+  </div>
+
   <!-- RULES QUICK REFERENCE -->
   <div class="theory-section" style="border:1px solid rgba(129,140,248,0.4); background:linear-gradient(135deg, rgba(129,140,248,0.06), transparent);">
     <h4 style="color:var(--accent2);">Rules Quick Reference</h4>
