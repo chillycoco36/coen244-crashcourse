@@ -581,6 +581,7 @@ table { border-radius: 12px; overflow: hidden; }
     <a href="#exceptions">Exceptions</a>
     <a href="#fileio">File I/O</a>
     <a href="#templates">Templates</a>
+    <a href="#full-example">Full Example</a>
     <a href="#code-structures">Code Structures</a>
     <a href="#mockfinal">Mock Final</a>
     <a href="#cheatsheet-guide">Cheat Sheet</a>
@@ -2541,6 +2542,359 @@ Back: 50</pre>
 </section>
 
 </div><!-- end container -->
+
+<!-- ==================== FULL WORKED EXAMPLE ==================== -->
+<div class="part-header" id="full-example">
+  <div class="part-label">Full Worked Example</div>
+  <h2>Airline Ticket System &mdash; Every Concept in One Problem</h2>
+  <p class="part-desc">This is exactly how an exam question works. One scenario, every concept. Follow the thinking process step by step.</p>
+</div>
+
+<div class="container">
+
+  <!-- STEP 0: HOW TO THINK -->
+  <div class="theory-section" style="border:1px solid rgba(99,102,241,0.4); background:linear-gradient(135deg, rgba(99,102,241,0.08), transparent);">
+    <h4 style="color:var(--accent2); font-size:1.3rem;">Step 0: How to Analyze an Exam Question</h4>
+    <p>When you see a big question on the exam, follow this thinking process:</p>
+    <div class="concept-grid">
+      <div class="concept-card">
+        <div class="concept-title" style="color:var(--accent);">1. Identify the Hierarchy</div>
+        <p>What's the base class? What derives from it? Draw a tree on scrap paper. Look for "is-a" relationships.</p>
+      </div>
+      <div class="concept-card">
+        <div class="concept-title" style="color:var(--accent2);">2. Spot Dynamic Memory</div>
+        <p>Any <span class="inline-code">char*</span> or dynamic arrays? If yes &rarr; you need Rule of Three (constructor, copy constructor, destructor, operator=).</p>
+      </div>
+      <div class="concept-card">
+        <div class="concept-title" style="color:var(--accent3);">3. Find Pure Virtual</div>
+        <p>Which function makes NO sense in the base class? That's your <span class="inline-code">= 0</span>. It makes the base abstract.</p>
+      </div>
+      <div class="concept-card">
+        <div class="concept-title" style="color:var(--accent4);">4. Plan the Driver</div>
+        <p>Array of base pointers &rarr; fill with derived objects &rarr; polymorphic loop &rarr; delete. This is always the last part.</p>
+      </div>
+    </div>
+    <div class="highlight-box">
+      <strong>Let's apply this to a real scenario now.</strong> Read the problem below as if it's on your exam. Then follow along as we build the solution step by step.
+    </div>
+  </div>
+
+  <!-- THE PROBLEM -->
+  <div class="theory-section" style="border:1px solid rgba(251,146,60,0.4); background:linear-gradient(135deg, rgba(251,146,60,0.06), transparent);">
+    <h4 style="color:var(--accent4); font-size:1.2rem;">The Problem: Airline Ticket System</h4>
+    <p>An airline manages different types of tickets. All tickets share a passenger name, a flight number, and a base price. But the total cost is calculated differently for each type:</p>
+    <ul>
+      <li><strong>EconomyTicket</strong> &mdash; total cost = base price (no extras)</li>
+      <li><strong>BusinessTicket</strong> &mdash; total cost = base price &times; 1.5 + lounge fee</li>
+      <li><strong>FirstClassTicket</strong> &mdash; total cost = base price &times; 3.0 + suite fee + meal plan cost</li>
+    </ul>
+    <p>The system must:</p>
+    <ul>
+      <li>Track total tickets created (static counter)</li>
+      <li>Support <span class="inline-code">operator&lt;&lt;</span> to print ticket info</li>
+      <li>Support <span class="inline-code">operator&gt;</span> to compare tickets by total cost</li>
+      <li>Throw an exception if base price is negative</li>
+      <li>Save ticket data to a file</li>
+      <li>Use an array of base-class pointers for polymorphic processing</li>
+    </ul>
+  </div>
+
+  <!-- STEP 1: HIERARCHY -->
+  <div class="theory-section">
+    <h4>Step 1: Identify the Hierarchy</h4>
+    <p><strong>Think:</strong> "What is-a what?" EconomyTicket IS-A Ticket. BusinessTicket IS-A Ticket. FirstClassTicket IS-A Ticket.</p>
+<pre><span class="cm">//         Ticket (abstract base)</span>
+<span class="cm">//        /        |           \</span>
+<span class="cm">// Economy    Business    FirstClass</span></pre>
+    <p><strong>Think:</strong> "Which function is different for each type?" &rarr; <span class="inline-code">calculateCost()</span>. An Economy calculates differently from Business which calculates differently from FirstClass. So <span class="inline-code">calculateCost()</span> should be <strong>pure virtual</strong> in the base.</p>
+    <p><strong>Think:</strong> "Which function CAN have a default?" &rarr; <span class="inline-code">print()</span>. Every ticket has a name and flight number, so the base can print those. Derived classes can override to add more info.</p>
+  </div>
+
+  <!-- STEP 2: EXCEPTION CLASS -->
+  <div class="theory-section">
+    <h4>Step 2: Define the Exception Class</h4>
+    <p><strong>Think:</strong> "What can go wrong?" &rarr; Negative price. Define a custom exception before the main classes.</p>
+<pre><span class="kw">class</span> <span class="tp">InvalidPriceException</span> {
+<span class="kw">public</span>:
+    <span class="fn">InvalidPriceException</span>(<span class="kw">double</span> p) : price(p) {}
+    <span class="tp">string</span> <span class="fn">what</span>() <span class="kw">const</span> {
+        <span class="kw">return</span> <span class="st">"Invalid price: "</span> + <span class="fn">to_string</span>(price) + <span class="st">". Must be >= 0."</span>;
+    }
+<span class="kw">private</span>:
+    <span class="kw">double</span> price;
+};</pre>
+  </div>
+
+  <!-- STEP 3: BASE CLASS -->
+  <div class="theory-section">
+    <h4>Step 3: Build the Base Class (Ticket)</h4>
+    <p><strong>Think:</strong> "What does EVERY ticket have?" &rarr; passenger name (char* for dynamic memory!), flight number, base price, static counter.</p>
+    <p><strong>Think:</strong> "char* means I need Rule of Three" &rarr; constructor with deep copy, copy constructor, destructor, operator=.</p>
+    <p><strong>Think:</strong> "virtual destructor because we'll delete through base pointers."</p>
+
+<pre><span class="kw">class</span> <span class="tp">Ticket</span> {
+<span class="kw">public</span>:
+    <span class="cm">// Constructor — throws if price negative</span>
+    <span class="fn">Ticket</span>(<span class="kw">const</span> <span class="kw">char</span>* name, <span class="kw">int</span> flight, <span class="kw">double</span> price) : flightNo(flight) {
+        <span class="kw">if</span> (price &lt; <span class="nm">0</span>) <span class="kw">throw</span> <span class="tp">InvalidPriceException</span>(price);  <span class="cm">// validate!</span>
+        basePrice = price;
+        passengerName = <span class="kw">new</span> <span class="kw">char</span>[<span class="fn">strlen</span>(name) + <span class="nm">1</span>];  <span class="cm">// deep copy</span>
+        <span class="fn">strcpy</span>(passengerName, name);
+        ticketCount++;
+    }
+
+    <span class="cm">// Copy Constructor — deep copy</span>
+    <span class="fn">Ticket</span>(<span class="kw">const</span> <span class="tp">Ticket</span>&amp; other)
+        : flightNo(other.flightNo), basePrice(other.basePrice) {
+        passengerName = <span class="kw">new</span> <span class="kw">char</span>[<span class="fn">strlen</span>(other.passengerName) + <span class="nm">1</span>];
+        <span class="fn">strcpy</span>(passengerName, other.passengerName);
+        ticketCount++;
+    }
+
+    <span class="cm">// Virtual Destructor — MUST be virtual for polymorphism</span>
+    <span class="kw">virtual</span> ~<span class="fn">Ticket</span>() {
+        <span class="kw">delete</span>[] passengerName;
+        ticketCount--;
+    }
+
+    <span class="cm">// Pure Virtual — each ticket type calculates differently</span>
+    <span class="kw">virtual</span> <span class="kw">double</span> <span class="fn">calculateCost</span>() <span class="kw">const</span> = <span class="nm">0</span>;
+
+    <span class="cm">// Virtual print — has a default, derived classes can override</span>
+    <span class="kw">virtual</span> <span class="kw">void</span> <span class="fn">print</span>() <span class="kw">const</span> {
+        cout &lt;&lt; passengerName &lt;&lt; <span class="st">" | Flight "</span> &lt;&lt; flightNo
+             &lt;&lt; <span class="st">" | Base: $"</span> &lt;&lt; basePrice;
+    }
+
+    <span class="cm">// operator> — compare by total cost (MEMBER: left side is our class)</span>
+    <span class="kw">bool</span> <span class="kw">operator</span>&gt;(<span class="kw">const</span> <span class="tp">Ticket</span>&amp; other) <span class="kw">const</span> {
+        <span class="kw">return</span> <span class="fn">calculateCost</span>() &gt; other.<span class="fn">calculateCost</span>();
+    }
+
+    <span class="cm">// operator&lt;&lt; — FRIEND because left side is ostream</span>
+    <span class="kw">friend</span> <span class="tp">ostream</span>&amp; <span class="kw">operator</span>&lt;&lt;(<span class="tp">ostream</span>&amp; out, <span class="kw">const</span> <span class="tp">Ticket</span>&amp; t) {
+        t.<span class="fn">print</span>();  <span class="cm">// calls the correct virtual print!</span>
+        out &lt;&lt; <span class="st">" | Total: $"</span> &lt;&lt; t.<span class="fn">calculateCost</span>();
+        <span class="kw">return</span> out;
+    }
+
+    <span class="cm">// Getters</span>
+    <span class="kw">const</span> <span class="kw">char</span>* <span class="fn">getName</span>() <span class="kw">const</span> { <span class="kw">return</span> passengerName; }
+    <span class="kw">int</span> <span class="fn">getFlightNo</span>() <span class="kw">const</span> { <span class="kw">return</span> flightNo; }
+    <span class="kw">double</span> <span class="fn">getBasePrice</span>() <span class="kw">const</span> { <span class="kw">return</span> basePrice; }
+    <span class="kw">static</span> <span class="kw">int</span> <span class="fn">getTicketCount</span>() { <span class="kw">return</span> ticketCount; }
+
+<span class="kw">protected</span>:                          <span class="cm">// protected so derived classes can access</span>
+    <span class="kw">char</span>* passengerName;
+    <span class="kw">int</span> flightNo;
+    <span class="kw">double</span> basePrice;
+    <span class="kw">static</span> <span class="kw">int</span> ticketCount;
+};
+
+<span class="kw">int</span> <span class="tp">Ticket</span>::ticketCount = <span class="nm">0</span>;         <span class="cm">// static init OUTSIDE class</span></pre>
+
+    <div class="highlight-box">
+      <strong>Checklist for the base class:</strong><br>
+      &check; Dynamic memory (char*) &rarr; deep copy in constructor + copy constructor<br>
+      &check; Virtual destructor &rarr; for safe polymorphic deletion<br>
+      &check; Pure virtual calculateCost() = 0 &rarr; makes class abstract<br>
+      &check; Virtual print() with default body &rarr; derived can override<br>
+      &check; Static counter &rarr; initialized outside class<br>
+      &check; Protected members &rarr; derived classes can access<br>
+      &check; operator> as member &rarr; left side is our class<br>
+      &check; operator&lt;&lt; as friend &rarr; left side is ostream
+    </div>
+  </div>
+
+  <!-- STEP 4: DERIVED CLASSES -->
+  <div class="theory-section">
+    <h4>Step 4: Build the Derived Classes</h4>
+    <p><strong>Think:</strong> "Each derived class adds its own data and overrides calculateCost()."</p>
+
+<pre><span class="cm">// ==================== EconomyTicket ====================</span>
+<span class="kw">class</span> <span class="tp">EconomyTicket</span> : <span class="kw">public</span> <span class="tp">Ticket</span> {
+<span class="kw">public</span>:
+    <span class="fn">EconomyTicket</span>(<span class="kw">const</span> <span class="kw">char</span>* name, <span class="kw">int</span> flight, <span class="kw">double</span> price)
+        : <span class="fn">Ticket</span>(name, flight, price) {}  <span class="cm">// call base constructor</span>
+
+    <span class="kw">double</span> <span class="fn">calculateCost</span>() <span class="kw">const</span> {
+        <span class="kw">return</span> basePrice;  <span class="cm">// no extras</span>
+    }
+
+    <span class="kw">void</span> <span class="fn">print</span>() <span class="kw">const</span> {
+        <span class="tp">Ticket</span>::<span class="fn">print</span>();   <span class="cm">// call base print first</span>
+        cout &lt;&lt; <span class="st">" [ECONOMY]"</span>;
+    }
+};
+
+<span class="cm">// ==================== BusinessTicket ====================</span>
+<span class="kw">class</span> <span class="tp">BusinessTicket</span> : <span class="kw">public</span> <span class="tp">Ticket</span> {
+<span class="kw">public</span>:
+    <span class="fn">BusinessTicket</span>(<span class="kw">const</span> <span class="kw">char</span>* name, <span class="kw">int</span> flight, <span class="kw">double</span> price, <span class="kw">double</span> lounge)
+        : <span class="fn">Ticket</span>(name, flight, price), loungeFee(lounge) {}
+
+    <span class="kw">double</span> <span class="fn">calculateCost</span>() <span class="kw">const</span> {
+        <span class="kw">return</span> basePrice * <span class="nm">1.5</span> + loungeFee;
+    }
+
+    <span class="kw">void</span> <span class="fn">print</span>() <span class="kw">const</span> {
+        <span class="tp">Ticket</span>::<span class="fn">print</span>();
+        cout &lt;&lt; <span class="st">" | Lounge: $"</span> &lt;&lt; loungeFee &lt;&lt; <span class="st">" [BUSINESS]"</span>;
+    }
+<span class="kw">private</span>:
+    <span class="kw">double</span> loungeFee;
+};
+
+<span class="cm">// ==================== FirstClassTicket ====================</span>
+<span class="kw">class</span> <span class="tp">FirstClassTicket</span> : <span class="kw">public</span> <span class="tp">Ticket</span> {
+<span class="kw">public</span>:
+    <span class="fn">FirstClassTicket</span>(<span class="kw">const</span> <span class="kw">char</span>* name, <span class="kw">int</span> flight, <span class="kw">double</span> price,
+                     <span class="kw">double</span> suite, <span class="kw">double</span> meal)
+        : <span class="fn">Ticket</span>(name, flight, price), suiteFee(suite), mealCost(meal) {}
+
+    <span class="kw">double</span> <span class="fn">calculateCost</span>() <span class="kw">const</span> {
+        <span class="kw">return</span> basePrice * <span class="nm">3.0</span> + suiteFee + mealCost;
+    }
+
+    <span class="kw">void</span> <span class="fn">print</span>() <span class="kw">const</span> {
+        <span class="tp">Ticket</span>::<span class="fn">print</span>();
+        cout &lt;&lt; <span class="st">" | Suite: $"</span> &lt;&lt; suiteFee &lt;&lt; <span class="st">" | Meals: $"</span> &lt;&lt; mealCost
+             &lt;&lt; <span class="st">" [FIRST CLASS]"</span>;
+    }
+<span class="kw">private</span>:
+    <span class="kw">double</span> suiteFee;
+    <span class="kw">double</span> mealCost;
+};</pre>
+
+    <div class="highlight-box">
+      <strong>Pattern for EVERY derived class:</strong><br>
+      1. <span class="inline-code">: public Base</span> &mdash; public inheritance<br>
+      2. Constructor calls <span class="inline-code">Base(args)</span> in initializer list<br>
+      3. Override <span class="inline-code">calculateCost()</span> &mdash; the pure virtual function<br>
+      4. Override <span class="inline-code">print()</span> &mdash; call <span class="inline-code">Ticket::print()</span> first, then add own info<br>
+      5. No destructor needed if no new dynamic memory in the derived class
+    </div>
+  </div>
+
+  <!-- STEP 5: FILE I/O -->
+  <div class="theory-section">
+    <h4>Step 5: File I/O &mdash; Save Tickets to a File</h4>
+    <p><strong>Think:</strong> "I need to write ticket data to a file. Use ofstream. Throw exception if file can't open."</p>
+
+<pre><span class="kw">void</span> <span class="fn">saveTickets</span>(<span class="tp">Ticket</span>* tickets[], <span class="kw">int</span> count, <span class="kw">const</span> <span class="tp">string</span>&amp; filename) {
+    <span class="tp">ofstream</span> outFile(filename);
+    <span class="kw">if</span> (!outFile) {
+        <span class="kw">throw</span> <span class="tp">string</span>(<span class="st">"Cannot open file: "</span> + filename);  <span class="cm">// throw!</span>
+    }
+    <span class="kw">for</span> (<span class="kw">int</span> i = <span class="nm">0</span>; i &lt; count; i++) {
+        outFile &lt;&lt; tickets[i]-><span class="fn">getName</span>() &lt;&lt; <span class="st">" "</span>
+                &lt;&lt; tickets[i]-><span class="fn">getFlightNo</span>() &lt;&lt; <span class="st">" "</span>
+                &lt;&lt; tickets[i]-><span class="fn">calculateCost</span>() &lt;&lt; endl;  <span class="cm">// polymorphic!</span>
+    }
+    outFile.<span class="fn">close</span>();
+}</pre>
+    <p><strong>Notice:</strong> <span class="inline-code">tickets[i]->calculateCost()</span> uses dynamic binding even inside the file function. Each ticket type writes its own correct total cost.</p>
+  </div>
+
+  <!-- STEP 6: THE DRIVER -->
+  <div class="theory-section" style="border:1px solid rgba(52,211,153,0.4); background:linear-gradient(135deg, rgba(52,211,153,0.06), transparent);">
+    <h4 style="color:var(--accent3); font-size:1.2rem;">Step 6: The Driver Program &mdash; Putting It ALL Together</h4>
+    <p><strong>This is the pattern. Read every comment carefully.</strong></p>
+
+<pre><span class="kw">int</span> <span class="fn">main</span>() {
+    <span class="kw">const</span> <span class="kw">int</span> SIZE = <span class="nm">4</span>;
+    <span class="tp">Ticket</span>* tickets[SIZE];    <span class="cm">// ARRAY OF BASE CLASS POINTERS</span>
+
+    <span class="cm">// ---- Create tickets with exception handling ----</span>
+    <span class="kw">try</span> {
+        tickets[<span class="nm">0</span>] = <span class="kw">new</span> <span class="tp">EconomyTicket</span>(<span class="st">"Alice"</span>, <span class="nm">101</span>, <span class="nm">300.0</span>);
+        tickets[<span class="nm">1</span>] = <span class="kw">new</span> <span class="tp">BusinessTicket</span>(<span class="st">"Bob"</span>, <span class="nm">101</span>, <span class="nm">300.0</span>, <span class="nm">50.0</span>);
+        tickets[<span class="nm">2</span>] = <span class="kw">new</span> <span class="tp">FirstClassTicket</span>(<span class="st">"Carol"</span>, <span class="nm">202</span>, <span class="nm">300.0</span>, <span class="nm">200.0</span>, <span class="nm">80.0</span>);
+        tickets[<span class="nm">3</span>] = <span class="kw">new</span> <span class="tp">EconomyTicket</span>(<span class="st">"Dave"</span>, <span class="nm">202</span>, <span class="nm">250.0</span>);
+
+        <span class="cm">// Uncomment to test exception:</span>
+        <span class="cm">// tickets[3] = new EconomyTicket("Eve", 303, -100.0); // THROWS!</span>
+    }
+    <span class="kw">catch</span> (<span class="tp">InvalidPriceException</span>&amp; e) {
+        cout &lt;&lt; <span class="st">"Error: "</span> &lt;&lt; e.<span class="fn">what</span>() &lt;&lt; endl;
+        <span class="kw">return</span> <span class="nm">1</span>;
+    }
+
+    <span class="cm">// ---- Static member: how many tickets exist? ----</span>
+    cout &lt;&lt; <span class="st">"Total tickets: "</span> &lt;&lt; <span class="tp">Ticket</span>::<span class="fn">getTicketCount</span>() &lt;&lt; endl;
+    <span class="cm">// Output: Total tickets: 4</span>
+
+    <span class="cm">// ---- POLYMORPHIC LOOP — dynamic binding ----</span>
+    cout &lt;&lt; <span class="st">"\n--- All Tickets ---"</span> &lt;&lt; endl;
+    <span class="kw">for</span> (<span class="kw">int</span> i = <span class="nm">0</span>; i &lt; SIZE; i++) {
+        cout &lt;&lt; *tickets[i] &lt;&lt; endl;  <span class="cm">// calls operator&lt;&lt;, which calls virtual print()</span>
+    }
+    <span class="cm">// Alice | Flight 101 | Base: $300 [ECONOMY] | Total: $300</span>
+    <span class="cm">// Bob | Flight 101 | Base: $300 | Lounge: $50 [BUSINESS] | Total: $500</span>
+    <span class="cm">// Carol | Flight 202 | Base: $300 | Suite: $200 | Meals: $80 [FIRST CLASS] | Total: $1180</span>
+    <span class="cm">// Dave | Flight 202 | Base: $250 [ECONOMY] | Total: $250</span>
+
+    <span class="cm">// ---- operator> — compare tickets ----</span>
+    <span class="kw">if</span> (*tickets[<span class="nm">2</span>] &gt; *tickets[<span class="nm">0</span>])
+        cout &lt;&lt; <span class="st">"\nCarol's ticket costs more than Alice's"</span> &lt;&lt; endl;
+
+    <span class="cm">// ---- File I/O — save to file with exception handling ----</span>
+    <span class="kw">try</span> {
+        <span class="fn">saveTickets</span>(tickets, SIZE, <span class="st">"tickets.txt"</span>);
+        cout &lt;&lt; <span class="st">"Tickets saved to file."</span> &lt;&lt; endl;
+    }
+    <span class="kw">catch</span> (<span class="tp">string</span>&amp; e) {
+        cout &lt;&lt; <span class="st">"File Error: "</span> &lt;&lt; e &lt;&lt; endl;
+    }
+
+    <span class="cm">// ---- CLEANUP — virtual destructor ensures correct deletion ----</span>
+    <span class="kw">for</span> (<span class="kw">int</span> i = <span class="nm">0</span>; i &lt; SIZE; i++) {
+        <span class="kw">delete</span> tickets[i];   <span class="cm">// calls ~FirstClassTicket, ~BusinessTicket, etc.</span>
+    }
+
+    cout &lt;&lt; <span class="st">"Tickets after delete: "</span> &lt;&lt; <span class="tp">Ticket</span>::<span class="fn">getTicketCount</span>() &lt;&lt; endl;
+    <span class="cm">// Output: Tickets after delete: 0</span>
+
+    <span class="kw">return</span> <span class="nm">0</span>;
+}</pre>
+  </div>
+
+  <!-- CONCEPT MAP -->
+  <div class="theory-section" style="border:1px solid rgba(244,114,182,0.3); background:linear-gradient(135deg, rgba(244,114,182,0.06), transparent);">
+    <h4 style="color:var(--accent5); font-size:1.15rem;">Every Concept Used &mdash; Mapped to the Code</h4>
+    <table>
+      <tr><th>Concept</th><th>Where in the Code</th><th>Why</th></tr>
+      <tr><td><strong>Class with char*</strong></td><td>Ticket has <span class="inline-code">char* passengerName</span></td><td>Forces deep copy pattern</td></tr>
+      <tr><td><strong>Deep Copy</strong></td><td>Constructor: <span class="inline-code">new char[strlen+1], strcpy</span></td><td>Avoid shallow copy disaster</td></tr>
+      <tr><td><strong>Copy Constructor</strong></td><td><span class="inline-code">Ticket(const Ticket&amp;)</span></td><td>Rule of Three</td></tr>
+      <tr><td><strong>Destructor</strong></td><td><span class="inline-code">~Ticket() { delete[] passengerName; }</span></td><td>Free dynamic memory</td></tr>
+      <tr><td><strong>Static Member</strong></td><td><span class="inline-code">static int ticketCount</span></td><td>Track total objects</td></tr>
+      <tr><td><strong>Inheritance</strong></td><td>Economy/Business/FirstClass : public Ticket</td><td>"is-a" relationship</td></tr>
+      <tr><td><strong>Constructor Chain</strong></td><td><span class="inline-code">: Ticket(name, flight, price)</span></td><td>Base constructor in initializer list</td></tr>
+      <tr><td><strong>Pure Virtual</strong></td><td><span class="inline-code">calculateCost() = 0</span></td><td>Makes Ticket abstract</td></tr>
+      <tr><td><strong>Virtual Print</strong></td><td><span class="inline-code">virtual void print()</span> with body</td><td>Default exists, derived can override</td></tr>
+      <tr><td><strong>Virtual Destructor</strong></td><td><span class="inline-code">virtual ~Ticket()</span></td><td>Safe delete through base pointers</td></tr>
+      <tr><td><strong>Polymorphism</strong></td><td>Loop: <span class="inline-code">tickets[i]->print()</span></td><td>Dynamic binding calls correct version</td></tr>
+      <tr><td><strong>Array of Base Ptrs</strong></td><td><span class="inline-code">Ticket* tickets[4]</span></td><td>Hold different derived types</td></tr>
+      <tr><td><strong>operator&gt; (member)</strong></td><td><span class="inline-code">*tickets[2] > *tickets[0]</span></td><td>Left side is our class</td></tr>
+      <tr><td><strong>operator&lt;&lt; (friend)</strong></td><td><span class="inline-code">cout &lt;&lt; *tickets[i]</span></td><td>Left side is ostream</td></tr>
+      <tr><td><strong>Exception</strong></td><td>Constructor throws if price &lt; 0</td><td>Validate input</td></tr>
+      <tr><td><strong>try/catch</strong></td><td>Wraps ticket creation and file I/O</td><td>Graceful error handling</td></tr>
+      <tr><td><strong>File I/O</strong></td><td><span class="inline-code">ofstream</span> in saveTickets()</td><td>Persist data to disk</td></tr>
+      <tr><td><strong>Protected</strong></td><td>Ticket's data members</td><td>Derived classes need access</td></tr>
+    </table>
+  </div>
+
+  <div class="takeaways">
+    <h5>&#x1f4a1; Key Lesson</h5>
+    <ul>
+      <li>On the exam, <strong>every big question is a variation of this exact pattern</strong>. Different class names, different data members, but the STRUCTURE is identical.</li>
+      <li>Change "Ticket" to "Employee" or "Shape" or "Package" &mdash; the code structure stays the same.</li>
+      <li>If you can write this Airline example from memory, you can write ANY exam question.</li>
+    </ul>
+  </div>
+
+</div>
 
 <!-- ==================== ALL CODE STRUCTURES ==================== -->
 <div class="part-header" id="code-structures">
