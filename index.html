@@ -691,6 +691,19 @@ table { border-radius: 12px; overflow: hidden; }
   details summary { padding: 1.1rem 1.25rem; }
 }
 
+/* ============ TLDR BOX ============ */
+.tldr {
+  background: rgba(99,102,241,0.05);
+  border: 1px solid rgba(99,102,241,0.2);
+  border-radius: 12px;
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.5rem;
+  font-size: 0.85rem;
+}
+.tldr strong { color: var(--accent2); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.06em; }
+.tldr ul { padding-left: 1.25rem; margin: 0.5rem 0 0; }
+.tldr li { margin-bottom: 0.2rem; color: var(--text); }
+
 /* ============ BACK TO TOP ============ */
 #back-to-top {
   position: fixed; bottom: 2rem; right: 2rem;
@@ -1384,6 +1397,17 @@ p1 = p2;      <span class="cm">// p1 now points to y (not x anymore)</span>
     <span class="topic-time">~12 min</span>
   </div>
 
+  <div class="tldr">
+    <strong>TL;DR &mdash; Classes in 30 seconds:</strong>
+    <ul>
+      <li>A class bundles data (private) + functions (public) into one unit</li>
+      <li>Constructor initializes, destructor cleans up (delete dynamic memory)</li>
+      <li>If class has <span class="inline-code">char*</span> &rarr; you NEED copy constructor + destructor + operator= (Rule of Three)</li>
+      <li>Deep copy = <span class="inline-code">new char[strlen+1]</span>, <span class="inline-code">strcpy</span>. Shallow copy = disaster.</li>
+      <li>Static members shared by ALL objects. Init outside: <span class="inline-code">int MyClass::count = 0;</span></li>
+    </ul>
+  </div>
+
   <div class="theory-section" style="border:1px solid rgba(251,146,60,0.3); background:linear-gradient(135deg, rgba(251,146,60,0.06), transparent);">
     <h4 style="color:var(--accent4);">EXAM ALERT &mdash; The building block of everything</h4>
     <p>You won't get a standalone "write a simple class" question. But classes are the <strong>foundation</strong> of every exam question. You MUST know:</p>
@@ -1586,6 +1610,17 @@ cout &lt;&lt; <span class="tp">Account</span>::<span class="fn">getInterestRate<
     <span class="topic-time">~8 min</span>
   </div>
 
+  <div class="tldr">
+    <strong>TL;DR &mdash; Composition in 30 seconds:</strong>
+    <ul>
+      <li>"Has-a" relationship: a Car HAS-A Engine (vs inheritance = "is-a")</li>
+      <li>Construction order: member objects first, then composite body</li>
+      <li>Destruction: REVERSE order</li>
+      <li>Must use <strong>initializer list</strong> when member has no default constructor</li>
+      <li>Array of pointers: <span class="inline-code">Type** arr = new Type*[size];</span> — used for polymorphism</li>
+    </ul>
+  </div>
+
   <div class="theory-section">
     <h4>What is Composition?</h4>
     <p><strong>Composition</strong> means a class contains objects (or arrays of objects) of a different class as data members. This is a <strong>"has-a"</strong> relationship.</p>
@@ -1773,6 +1808,17 @@ ptrArray[<span class="nm">1</span>] = <span class="kw">nullptr</span>;</pre>
     <span class="topic-time">~12 min</span>
   </div>
 
+  <div class="tldr">
+    <strong>TL;DR &mdash; Inheritance in 30 seconds:</strong>
+    <ul>
+      <li>"Is-a" relationship: Student IS-A Person. Derived inherits all base members.</li>
+      <li>Construction: base first &rarr; derived. Destruction: derived first &rarr; base.</li>
+      <li>Derived constructor MUST call base constructor in initializer list (if no default exists)</li>
+      <li>Base pointer CAN point to derived object (upcasting) &mdash; enables polymorphism</li>
+      <li>Derived pointer CANNOT point to base object &mdash; compile error</li>
+    </ul>
+  </div>
+
   <div class="theory-section" style="border:1px solid rgba(251,146,60,0.3); background:linear-gradient(135deg, rgba(251,146,60,0.06), transparent);">
     <h4 style="color:var(--accent4);">EXAM ALERT &mdash; Foundation of the big question</h4>
     <p>Inheritance is never tested alone &mdash; it's always <strong>combined with polymorphism</strong> in the big 25-30 mark question. You'll need to:</p>
@@ -1880,6 +1926,18 @@ ptrArray[<span class="nm">1</span>] = <span class="kw">nullptr</span>;</pre>
     <span class="topic-num c4">04</span>
     <h3>Polymorphism</h3>
     <span class="topic-time">~18 min &bull; MOST TESTED</span>
+  </div>
+
+  <div class="tldr">
+    <strong>TL;DR &mdash; Polymorphism in 30 seconds:</strong>
+    <ul>
+      <li>Same function call, different behavior depending on object type</li>
+      <li><span class="inline-code">virtual</span> keyword enables it. Derived classes override virtual functions.</li>
+      <li><strong>Dynamic binding</strong> = virtual + pointer/reference. Everything else = static.</li>
+      <li><strong>Pure virtual</strong> (<span class="inline-code">= 0</span>) makes class abstract &mdash; can't instantiate, CAN have pointers</li>
+      <li><strong>Virtual destructor</strong> &mdash; ALWAYS in base classes. Without it = memory leak on delete.</li>
+      <li>The exam pattern: <span class="inline-code">Base* arr[] → fill with derived → loop calling virtual func → delete</span></li>
+    </ul>
   </div>
 
   <div class="theory-section" style="border:1px solid rgba(239,68,68,0.3); background:linear-gradient(135deg, rgba(239,68,68,0.06), transparent);">
@@ -2021,6 +2079,18 @@ sPtr-><span class="fn">print</span>();  <span class="cm">// dynamic binding &rar
     <span class="topic-num c5">05</span>
     <h3>Operator Overloading</h3>
     <span class="topic-time">~12 min</span>
+  </div>
+
+  <div class="tldr">
+    <strong>TL;DR &mdash; Operator Overloading in 30 seconds:</strong>
+    <ul>
+      <li>Define what operators (+, ==, &lt;&lt;, =, []) mean for your class</li>
+      <li>Left operand is your class &rarr; <strong>member function</strong>. Left operand is NOT your class &rarr; <strong>friend</strong>.</li>
+      <li>Must be member: <span class="inline-code">= () [] -></span>. Must be friend: <span class="inline-code">&lt;&lt; &gt;&gt;</span></li>
+      <li><span class="inline-code">operator=</span> needs: self-check, delete old, deep copy, return *this</li>
+      <li><span class="inline-code">operator&lt;&lt;</span>: <span class="inline-code">friend ostream&amp; operator&lt;&lt;(ostream&amp; out, const MyClass&amp; obj)</span></li>
+      <li><span class="inline-code">operator[]</span> returns <span class="inline-code">int&amp;</span> (reference) so you can write <span class="inline-code">obj[2] = 5</span></li>
+    </ul>
   </div>
 
   <div class="theory-section" style="border:1px solid rgba(239,68,68,0.3); background:linear-gradient(135deg, rgba(239,68,68,0.06), transparent);">
@@ -2211,6 +2281,17 @@ sPtr-><span class="fn">print</span>();  <span class="cm">// dynamic binding &rar
     <span class="topic-time">~8 min</span>
   </div>
 
+  <div class="tldr">
+    <strong>TL;DR &mdash; Exceptions in 30 seconds:</strong>
+    <ul>
+      <li><span class="inline-code">try</span> = watch this code. <span class="inline-code">throw</span> = problem! <span class="inline-code">catch</span> = handle it.</li>
+      <li>After throw, EVERYTHING remaining in try block is SKIPPED</li>
+      <li>Only the FIRST matching catch runs. Program continues after catch.</li>
+      <li>Custom exception = simple class with constructor + <span class="inline-code">what()</span> method</li>
+      <li>Typical pattern: constructor validates, throws if invalid input</li>
+    </ul>
+  </div>
+
   <div class="theory-section" style="border:1px solid rgba(56,189,248,0.3); background:linear-gradient(135deg, rgba(56,189,248,0.06), transparent);">
     <h4 style="color:var(--red);">EXAM ALERT &mdash; POST-MIDTERM &bull; Expect more weight on the final</h4>
     <p>Exception handling rarely gets its own standalone question. Instead, it's <strong>woven into</strong> other questions:</p>
@@ -2379,6 +2460,17 @@ sPtr-><span class="fn">print</span>();  <span class="cm">// dynamic binding &rar
     <span class="topic-time">~8 min</span>
   </div>
 
+  <div class="tldr">
+    <strong>TL;DR &mdash; File I/O in 30 seconds:</strong>
+    <ul>
+      <li><span class="inline-code">ofstream</span> = write (like cout). <span class="inline-code">ifstream</span> = read (like cin). <span class="inline-code">fstream</span> = both.</li>
+      <li>ALWAYS check if file opened: <span class="inline-code">if (!file) { exit(1); }</span></li>
+      <li>ALWAYS <span class="inline-code">close()</span> when done</li>
+      <li>To re-read a file: <span class="inline-code">file.clear(); file.seekg(0);</span> &mdash; need BOTH</li>
+      <li>Pass file streams by REFERENCE, never by value</li>
+    </ul>
+  </div>
+
   <div class="theory-section" style="border:1px solid rgba(56,189,248,0.3); background:linear-gradient(135deg, rgba(56,189,248,0.06), transparent);">
     <h4 style="color:var(--red);">EXAM ALERT &mdash; POST-MIDTERM &bull; Expect more weight on the final</h4>
     <p>File I/O questions usually ask you to:</p>
@@ -2493,6 +2585,17 @@ inFile.<span class="fn">close</span>();                               <span clas
     <span class="topic-num c8">08</span>
     <h3>Templates &amp; STL</h3>
     <span class="topic-time">~8 min</span>
+  </div>
+
+  <div class="tldr">
+    <strong>TL;DR &mdash; Templates &amp; STL in 30 seconds:</strong>
+    <ul>
+      <li>Templates = write once, works for any type. <span class="inline-code">template&lt;class T&gt;</span> before function/class.</li>
+      <li>Outside member functions: need BOTH <span class="inline-code">template&lt;class T&gt;</span> AND <span class="inline-code">ClassName&lt;T&gt;::</span></li>
+      <li>STL vector: <span class="inline-code">push_back</span>, <span class="inline-code">pop_back</span>, <span class="inline-code">front</span>, <span class="inline-code">back</span>, <span class="inline-code">size</span>, <span class="inline-code">erase</span></li>
+      <li>Sort: <span class="inline-code">sort(v.begin(), v.end())</span>. Iterators: <span class="inline-code">vector&lt;int&gt;::iterator it</span></li>
+      <li>Exam Q: "determine the output" &mdash; trace step by step on paper</li>
+    </ul>
   </div>
 
   <div class="theory-section" style="border:1px solid rgba(56,189,248,0.3); background:linear-gradient(135deg, rgba(56,189,248,0.06), transparent);">
@@ -4277,9 +4380,53 @@ Last: ELEC275</pre>
     </details>
   </div>
 
-  <!-- Tracing 4: STL -->
+  <!-- Tracing 4: Polymorphism with mixed objects -->
   <div class="mock-question">
-    <h4>Trace 4 &mdash; STL Vector Operations</h4>
+    <h4>Trace 4 &mdash; Polymorphism: "What Does This Print?"</h4>
+<pre><span class="kw">class</span> <span class="tp">Vehicle</span> {
+<span class="kw">public</span>:
+    <span class="kw">virtual</span> <span class="kw">void</span> <span class="fn">type</span>() { cout &lt;&lt; <span class="st">"Vehicle "</span>; }
+    <span class="kw">virtual</span> <span class="kw">double</span> <span class="fn">cost</span>() = <span class="nm">0</span>;
+    <span class="kw">virtual</span> ~<span class="fn">Vehicle</span>() {}
+};
+<span class="kw">class</span> <span class="tp">Car</span> : <span class="kw">public</span> <span class="tp">Vehicle</span> {
+<span class="kw">public</span>:
+    <span class="kw">void</span> <span class="fn">type</span>() { cout &lt;&lt; <span class="st">"Car "</span>; }
+    <span class="kw">double</span> <span class="fn">cost</span>() { <span class="kw">return</span> <span class="nm">30000</span>; }
+};
+<span class="kw">class</span> <span class="tp">Truck</span> : <span class="kw">public</span> <span class="tp">Vehicle</span> {
+<span class="kw">public</span>:
+    <span class="kw">void</span> <span class="fn">type</span>() { cout &lt;&lt; <span class="st">"Truck "</span>; }
+    <span class="kw">double</span> <span class="fn">cost</span>() { <span class="kw">return</span> <span class="nm">55000</span>; }
+};
+<span class="kw">int</span> <span class="fn">main</span>() {
+    <span class="tp">Vehicle</span>* fleet[<span class="nm">4</span>];
+    fleet[<span class="nm">0</span>] = <span class="kw">new</span> <span class="tp">Car</span>(); fleet[<span class="nm">1</span>] = <span class="kw">new</span> <span class="tp">Truck</span>();
+    fleet[<span class="nm">2</span>] = <span class="kw">new</span> <span class="tp">Car</span>(); fleet[<span class="nm">3</span>] = <span class="kw">new</span> <span class="tp">Truck</span>();
+    <span class="kw">double</span> total = <span class="nm">0</span>;
+    <span class="kw">for</span> (<span class="kw">int</span> i = <span class="nm">0</span>; i &lt; <span class="nm">4</span>; i++) {
+        fleet[i]-><span class="fn">type</span>();
+        total += fleet[i]-><span class="fn">cost</span>();
+    }
+    cout &lt;&lt; endl &lt;&lt; <span class="st">"Total: "</span> &lt;&lt; total;
+    <span class="kw">for</span> (<span class="kw">int</span> i = <span class="nm">0</span>; i &lt; <span class="nm">4</span>; i++) <span class="kw">delete</span> fleet[i];
+}</pre>
+    <details>
+      <summary><span style="color:var(--accent3)">Show Answer</span></summary>
+      <div class="details-body">
+<pre>Car Truck Car Truck
+Total: 170000</pre>
+        <p>fleet[0] is a Car &rarr; type() prints "Car ". fleet[1] is a Truck &rarr; "Truck ".<br>
+        fleet[2] Car &rarr; "Car ". fleet[3] Truck &rarr; "Truck ".<br>
+        Total: 30000 + 55000 + 30000 + 55000 = 170000.<br>
+        <strong>Why?</strong> Both type() and cost() are virtual, called through base pointers &rarr; dynamic binding. Each object calls its OWN version.</p>
+      </div>
+    </details>
+  </div>
+
+  <!-- Tracing 5: STL -->
+  <div class="mock-question">
+    <h4>Trace 5 &mdash; STL Vector Operations</h4>
 <pre><span class="tp">vector</span>&lt;<span class="kw">int</span>&gt; v;
 v.<span class="fn">push_back</span>(<span class="nm">5</span>); v.<span class="fn">push_back</span>(<span class="nm">2</span>); v.<span class="fn">push_back</span>(<span class="nm">8</span>); v.<span class="fn">push_back</span>(<span class="nm">1</span>);
 <span class="fn">sort</span>(v.<span class="fn">begin</span>(), v.<span class="fn">end</span>());
@@ -4470,6 +4617,83 @@ in.<span class="fn">seekg</span>(<span class="nm">0</span>);</pre>
     <div class="highlight-box">
       <strong>Pro tip:</strong> On the exam, you'll essentially be writing variations of the same patterns. If you have a full worked example on your cheat sheet, you can adapt it to whatever scenario they give you. Change the class names and data members, keep the structure.
     </div>
+  </div>
+</div>
+
+<hr class="section-divider">
+
+<!-- ==================== GLOSSARY ==================== -->
+<div class="part-header" id="glossary">
+  <div class="part-label">Quick Lookup</div>
+  <h2>Glossary &mdash; Key Terms A-Z</h2>
+  <p class="part-desc">Quick definitions for last-minute review. Ctrl+F to find any term.</p>
+</div>
+
+<div class="container">
+  <div class="theory-section">
+    <h4 style="color:var(--accent2);">A - D</h4>
+    <table>
+      <tr><td style="width:180px;font-weight:700;color:var(--accent)">Abstract class</td><td>A class with at least one pure virtual function. Cannot create objects of it. CAN have pointers.</td></tr>
+      <tr><td style="font-weight:700;color:var(--accent)">Access specifiers</td><td><span class="inline-code">public</span> (anyone), <span class="inline-code">private</span> (only class), <span class="inline-code">protected</span> (class + derived)</td></tr>
+      <tr><td style="font-weight:700;color:var(--accent)">Arrow operator (->)</td><td>Access members through a pointer: <span class="inline-code">ptr->func()</span> = <span class="inline-code">(*ptr).func()</span></td></tr>
+      <tr><td style="font-weight:700;color:var(--accent)">Composition</td><td>"Has-a" relationship. A class contains objects of another class as data members.</td></tr>
+      <tr><td style="font-weight:700;color:var(--accent)">Concrete class</td><td>A class where all functions are implemented. CAN create objects.</td></tr>
+      <tr><td style="font-weight:700;color:var(--accent)">Constructor</td><td>Function that initializes an object. Same name as class, no return type. Called on creation.</td></tr>
+      <tr><td style="font-weight:700;color:var(--accent)">Copy constructor</td><td>Creates new object as copy of existing. Signature: <span class="inline-code">MyClass(const MyClass&amp;)</span></td></tr>
+      <tr><td style="font-weight:700;color:var(--accent)">Dangling pointer</td><td>Pointer to memory that's been freed. Using it = undefined behavior.</td></tr>
+      <tr><td style="font-weight:700;color:var(--accent)">Deep copy</td><td>Allocates NEW memory and copies actual data. Required when class has pointers.</td></tr>
+      <tr><td style="font-weight:700;color:var(--accent)">Dereference (*)</td><td>Follow a pointer to get the value at that address: <span class="inline-code">*ptr</span></td></tr>
+      <tr><td style="font-weight:700;color:var(--accent)">Destructor</td><td>Cleanup function when object dies. <span class="inline-code">~ClassName()</span>. Frees dynamic memory.</td></tr>
+      <tr><td style="font-weight:700;color:var(--accent)">Dynamic binding</td><td>Function call decided at RUNTIME. Requires: virtual + pointer/reference.</td></tr>
+      <tr><td style="font-weight:700;color:var(--accent)">Dynamic memory</td><td>Memory allocated at runtime with <span class="inline-code">new</span>. Lives on the heap. Must <span class="inline-code">delete</span>.</td></tr>
+    </table>
+  </div>
+
+  <div class="theory-section">
+    <h4 style="color:var(--accent2);">E - M</h4>
+    <table>
+      <tr><td style="width:180px;font-weight:700;color:var(--accent)">Encapsulation</td><td>Hiding data members (private) and exposing controlled access (public functions).</td></tr>
+      <tr><td style="font-weight:700;color:var(--accent)">Exception</td><td>An error condition handled by try/throw/catch instead of crashing.</td></tr>
+      <tr><td style="font-weight:700;color:var(--accent)">Friend function</td><td>Non-member function with access to private members. Used for <span class="inline-code">&lt;&lt;</span> and <span class="inline-code">&gt;&gt;</span>.</td></tr>
+      <tr><td style="font-weight:700;color:var(--accent)">fstream</td><td>File stream for both reading and writing. Combines ifstream + ofstream.</td></tr>
+      <tr><td style="font-weight:700;color:var(--accent)">Heap</td><td>Memory region for dynamic allocation (<span class="inline-code">new</span>/<span class="inline-code">delete</span>). You manage its lifetime.</td></tr>
+      <tr><td style="font-weight:700;color:var(--accent)">ifstream</td><td>Input file stream. Reads FROM a file. Like <span class="inline-code">cin</span> but from a file.</td></tr>
+      <tr><td style="font-weight:700;color:var(--accent)">Inheritance</td><td>"Is-a" relationship. Derived class gets all members of base class.</td></tr>
+      <tr><td style="font-weight:700;color:var(--accent)">Initializer list</td><td>Syntax after constructor <span class="inline-code">: member(val), base(args)</span>. Required for const, refs, and base constructors.</td></tr>
+      <tr><td style="font-weight:700;color:var(--accent)">Iterator</td><td>Object that walks through a container. Like a pointer: <span class="inline-code">*it</span> to get value.</td></tr>
+      <tr><td style="font-weight:700;color:var(--accent)">Memory leak</td><td>Allocated memory never freed. Happens when you lose the pointer before deleting.</td></tr>
+    </table>
+  </div>
+
+  <div class="theory-section">
+    <h4 style="color:var(--accent2);">O - S</h4>
+    <table>
+      <tr><td style="width:180px;font-weight:700;color:var(--accent)">ofstream</td><td>Output file stream. Writes TO a file. Like <span class="inline-code">cout</span> but to a file.</td></tr>
+      <tr><td style="font-weight:700;color:var(--accent)">Operator overloading</td><td>Defining what operators (+, &lt;&lt;, =, []) mean for your class.</td></tr>
+      <tr><td style="font-weight:700;color:var(--accent)">Overloading</td><td>Same function name, DIFFERENT parameters. Resolved at compile time.</td></tr>
+      <tr><td style="font-weight:700;color:var(--accent)">Overriding</td><td>Derived class replaces base class virtual function. Same name AND parameters.</td></tr>
+      <tr><td style="font-weight:700;color:var(--accent)">Pointer</td><td>Variable that stores a memory address. Declared with <span class="inline-code">*</span>: <span class="inline-code">int* ptr;</span></td></tr>
+      <tr><td style="font-weight:700;color:var(--accent)">Polymorphism</td><td>Same function call, different behavior depending on actual object type.</td></tr>
+      <tr><td style="font-weight:700;color:var(--accent)">Pure virtual</td><td>Function declared with <span class="inline-code">= 0</span>. No body. Derived MUST implement it.</td></tr>
+      <tr><td style="font-weight:700;color:var(--accent)">Rule of Three</td><td>If class has pointers &rarr; need: destructor + copy constructor + operator=</td></tr>
+      <tr><td style="font-weight:700;color:var(--accent)">Shallow copy</td><td>Copies pointer address only (not data). Both objects share same memory. Dangerous.</td></tr>
+      <tr><td style="font-weight:700;color:var(--accent)">Stack (memory)</td><td>Memory for local variables. Automatic — freed when scope ends.</td></tr>
+      <tr><td style="font-weight:700;color:var(--accent)">Static binding</td><td>Function call decided at COMPILE TIME. Default for non-virtual functions.</td></tr>
+      <tr><td style="font-weight:700;color:var(--accent)">Static member</td><td>Belongs to the CLASS, not objects. Shared by all instances. Init outside class.</td></tr>
+      <tr><td style="font-weight:700;color:var(--accent)">STL</td><td>Standard Template Library. Pre-built containers (vector, list) and algorithms (sort).</td></tr>
+    </table>
+  </div>
+
+  <div class="theory-section">
+    <h4 style="color:var(--accent2);">T - V</h4>
+    <table>
+      <tr><td style="width:180px;font-weight:700;color:var(--accent)">Template</td><td>Generic code using placeholder type <span class="inline-code">T</span>. Compiler generates type-specific versions.</td></tr>
+      <tr><td style="font-weight:700;color:var(--accent)">this</td><td>Hidden pointer to the current object. Available in all non-static member functions.</td></tr>
+      <tr><td style="font-weight:700;color:var(--accent)">Upcasting</td><td>Storing derived object in base pointer. <span class="inline-code">Base* p = new Derived();</span> Always safe.</td></tr>
+      <tr><td style="font-weight:700;color:var(--accent)">Vector</td><td>STL dynamic array. Grows automatically. <span class="inline-code">push_back</span>, <span class="inline-code">pop_back</span>, <span class="inline-code">size</span>, etc.</td></tr>
+      <tr><td style="font-weight:700;color:var(--accent)">Virtual</td><td>Keyword enabling dynamic binding. Derived classes can override virtual functions.</td></tr>
+      <tr><td style="font-weight:700;color:var(--accent)">Virtual destructor</td><td>Destructor declared <span class="inline-code">virtual</span>. Ensures correct derived cleanup on delete via base pointer.</td></tr>
+    </table>
   </div>
 </div>
 
