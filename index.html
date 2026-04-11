@@ -5,14 +5,14 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>COEN 244 Crash Course</title>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700;800;900&family=Sora:wght@300;400;500;600;700;800&display=swap');
 
 :root {
-  --bg: #0a0e17;
-  --bg-card: #111827;
-  --bg-code: #0d1117;
-  --bg-nav: rgba(10,14,23,0.92);
-  --border: #1e293b;
+  --bg: #08090d;
+  --bg-card: #10121a;
+  --bg-code: #0c0e16;
+  --bg-nav: rgba(8,9,13,0.85);
+  --border: #1a1d2e;
   --text: #e2e8f0;
   --text-dim: #94a3b8;
   --text-bright: #f8fafc;
@@ -35,34 +35,51 @@
 html { scroll-behavior: smooth; scroll-padding-top: 80px; }
 
 body {
-  font-family: 'Outfit', sans-serif;
+  font-family: 'Sora', 'Outfit', sans-serif;
   background: var(--bg);
   color: var(--text);
-  line-height: 1.7;
+  line-height: 1.75;
   overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 /* ============ SCROLLBAR ============ */
-::-webkit-scrollbar { width: 8px; }
-::-webkit-scrollbar-track { background: var(--bg); }
-::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
-::-webkit-scrollbar-thumb:hover { background: #475569; }
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #252836; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #3a3f54; }
+
+/* ============ ANIMATIONS ============ */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes glowPulse {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 1; }
+}
+.theory-section, details, .takeaways, .mock-question, .highlight-box {
+  animation: fadeInUp 0.5s ease both;
+}
 
 /* ============ NAV ============ */
 nav {
   position: fixed; top: 0; left: 0; right: 0; z-index: 100;
   background: var(--bg-nav);
-  backdrop-filter: blur(20px);
-  border-bottom: 1px solid var(--border);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border-bottom: 1px solid rgba(255,255,255,0.04);
   padding: 0 2rem;
   display: flex; align-items: center; gap: 1rem;
-  height: 64px;
+  height: 56px;
 }
 nav .logo {
-  font-weight: 800; font-size: 1.1rem;
-  color: var(--accent);
+  font-weight: 800; font-size: 1rem;
+  color: var(--text-bright);
   white-space: nowrap;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.03em;
+  font-family: 'Sora', sans-serif;
 }
 nav .nav-links {
   display: flex; gap: 0.25rem;
@@ -73,16 +90,20 @@ nav .nav-links::-webkit-scrollbar { display: none; }
 nav .nav-links a {
   color: var(--text-dim);
   text-decoration: none;
-  font-size: 0.78rem;
-  padding: 0.35rem 0.7rem;
+  font-size: 0.75rem;
+  padding: 0.3rem 0.65rem;
   border-radius: 6px;
   white-space: nowrap;
-  transition: all 0.2s;
+  transition: all 0.25s cubic-bezier(0.4,0,0.2,1);
   font-weight: 500;
 }
-nav .nav-links a:hover, nav .nav-links a.active {
-  background: rgba(56,189,248,0.1);
-  color: var(--accent);
+nav .nav-links a:hover {
+  background: rgba(255,255,255,0.06);
+  color: var(--text-bright);
+}
+nav .nav-links a.active {
+  background: rgba(99,102,241,0.15);
+  color: var(--accent2);
 }
 
 /* ============ PROGRESS BAR ============ */
@@ -110,33 +131,43 @@ nav .nav-links a:hover, nav .nav-links a.active {
   content: '';
   position: absolute; inset: 0;
   background:
-    radial-gradient(ellipse 600px 400px at 30% 40%, rgba(56,189,248,0.08), transparent),
-    radial-gradient(ellipse 500px 500px at 70% 60%, rgba(129,140,248,0.07), transparent),
-    radial-gradient(ellipse 400px 300px at 50% 80%, rgba(244,114,182,0.05), transparent);
+    radial-gradient(ellipse 800px 500px at 20% 30%, rgba(99,102,241,0.12), transparent),
+    radial-gradient(ellipse 600px 600px at 80% 50%, rgba(56,189,248,0.08), transparent),
+    radial-gradient(ellipse 500px 400px at 50% 90%, rgba(244,114,182,0.06), transparent);
+}
+.hero::after {
+  content: '';
+  position: absolute; inset: 0;
+  background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.015'%3E%3Ccircle cx='1' cy='1' r='1'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
 }
 .hero-badge {
   position: relative;
-  display: inline-block;
-  padding: 0.4rem 1.2rem;
-  font-size: 0.85rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 1rem;
+  font-size: 0.8rem;
   font-weight: 600;
-  border: 1px solid var(--accent);
+  border: 1px solid rgba(99,102,241,0.3);
   border-radius: 100px;
-  color: var(--accent);
+  color: var(--accent2);
   margin-bottom: 2rem;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.06em;
+  background: rgba(99,102,241,0.06);
+  backdrop-filter: blur(8px);
 }
 .hero h1 {
   position: relative;
   font-size: clamp(3rem, 7vw, 5.5rem);
-  font-weight: 900;
+  font-weight: 800;
   line-height: 1.05;
-  letter-spacing: -0.03em;
+  letter-spacing: -0.04em;
   margin-bottom: 1.5rem;
-  background: linear-gradient(135deg, var(--text-bright) 0%, var(--accent) 50%, var(--accent2) 100%);
+  background: linear-gradient(160deg, #f8fafc 0%, #a5b4fc 40%, #818cf8 60%, #38bdf8 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+  font-family: 'Sora', sans-serif;
 }
 .hero .subtitle {
   position: relative;
@@ -155,11 +186,17 @@ nav .nav-links a:hover, nav .nav-links a.active {
   width: 100%;
 }
 .hero-stat {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: 12px;
+  background: rgba(16,18,26,0.6);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 16px;
   padding: 1.5rem;
   text-align: center;
+  backdrop-filter: blur(12px);
+  transition: transform 0.3s cubic-bezier(0.4,0,0.2,1), border-color 0.3s;
+}
+.hero-stat:hover {
+  transform: translateY(-2px);
+  border-color: rgba(255,255,255,0.12);
 }
 .hero-stat .num {
   font-size: 2rem; font-weight: 800;
@@ -195,8 +232,9 @@ nav .nav-links a:hover, nav .nav-links a.active {
 .part-header h2 {
   font-size: 2.5rem;
   font-weight: 800;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.03em;
   color: var(--text-bright);
+  font-family: 'Sora', sans-serif;
 }
 .part-header .part-desc {
   color: var(--text-dim);
@@ -225,9 +263,11 @@ section.topic:first-of-type { border-top: none; }
   white-space: nowrap;
 }
 .topic-head h3 {
-  font-size: 1.6rem;
+  font-size: 1.5rem;
   font-weight: 700;
   color: var(--text-bright);
+  font-family: 'Sora', sans-serif;
+  letter-spacing: -0.02em;
 }
 .topic-time {
   font-size: 0.8rem;
@@ -252,11 +292,16 @@ section.topic:first-of-type { border-top: none; }
 
 /* ============ THEORY BOXES ============ */
 .theory-section {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: 12px;
+  background: rgba(16,18,26,0.5);
+  border: 1px solid rgba(255,255,255,0.05);
+  border-radius: 16px;
   padding: 2rem;
-  margin-bottom: 2rem;
+  margin-bottom: 1.5rem;
+  backdrop-filter: blur(8px);
+  transition: border-color 0.3s;
+}
+.theory-section:hover {
+  border-color: rgba(255,255,255,0.1);
 }
 .theory-section h4 {
   font-size: 1.15rem;
@@ -291,10 +336,16 @@ section.topic:first-of-type { border-top: none; }
   margin: 1rem 0;
 }
 .concept-card {
-  background: rgba(0,0,0,0.3);
-  border: 1px solid var(--border);
-  border-radius: 8px;
+  background: rgba(0,0,0,0.25);
+  border: 1px solid rgba(255,255,255,0.05);
+  border-radius: 12px;
   padding: 1.25rem;
+  transition: transform 0.25s, border-color 0.25s, box-shadow 0.25s;
+}
+.concept-card:hover {
+  transform: translateY(-1px);
+  border-color: rgba(255,255,255,0.1);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.3);
 }
 .concept-card .concept-title {
   font-weight: 700;
@@ -307,35 +358,37 @@ section.topic:first-of-type { border-top: none; }
 }
 
 .highlight-box {
-  background: rgba(56,189,248,0.06);
+  background: rgba(56,189,248,0.04);
   border-left: 3px solid var(--accent);
   padding: 1rem 1.25rem;
-  border-radius: 0 8px 8px 0;
+  border-radius: 0 12px 12px 0;
   margin: 1rem 0;
   font-size: 0.9rem;
+  backdrop-filter: blur(4px);
 }
 .highlight-box.warn {
   border-left-color: var(--accent4);
-  background: rgba(251,146,60,0.06);
+  background: rgba(251,146,60,0.04);
 }
 .highlight-box.important {
   border-left-color: var(--red);
-  background: rgba(239,68,68,0.06);
+  background: rgba(239,68,68,0.04);
 }
 
 /* ============ CODE BLOCKS ============ */
 pre {
-  background: var(--bg-code);
-  border: 1px solid var(--border);
-  border-radius: 8px;
+  background: #0c0e16;
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 12px;
   padding: 1.25rem;
   overflow-x: auto;
   margin: 1rem 0;
   font-family: 'JetBrains Mono', monospace;
-  font-size: 0.82rem;
-  line-height: 1.65;
+  font-size: 0.8rem;
+  line-height: 1.7;
   color: var(--text);
   position: relative;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.4);
 }
 pre .lang-label {
   position: absolute;
@@ -366,12 +419,15 @@ code { font-family: 'JetBrains Mono', monospace; }
 
 /* ============ COLLAPSIBLE ============ */
 details {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: 12px;
+  background: rgba(16,18,26,0.5);
+  border: 1px solid rgba(255,255,255,0.05);
+  border-radius: 14px;
   margin: 1.5rem 0;
   overflow: hidden;
+  backdrop-filter: blur(8px);
+  transition: border-color 0.3s;
 }
+details:hover { border-color: rgba(255,255,255,0.1); }
 details summary {
   padding: 1.25rem 1.5rem;
   cursor: pointer;
@@ -411,11 +467,12 @@ details summary::-webkit-details-marker { display: none; }
 
 /* ============ KEY TAKEAWAYS ============ */
 .takeaways {
-  background: linear-gradient(135deg, rgba(52,211,153,0.08), rgba(56,189,248,0.05));
-  border: 1px solid rgba(52,211,153,0.2);
-  border-radius: 12px;
+  background: linear-gradient(135deg, rgba(52,211,153,0.06), rgba(56,189,248,0.03));
+  border: 1px solid rgba(52,211,153,0.15);
+  border-radius: 14px;
   padding: 1.5rem;
   margin: 1.5rem 0;
+  backdrop-filter: blur(8px);
 }
 .takeaways h5 {
   color: var(--accent3);
@@ -449,15 +506,17 @@ th, td {
   border-bottom: 1px solid var(--border);
 }
 th {
-  background: rgba(56,189,248,0.08);
-  color: var(--accent);
+  background: rgba(99,102,241,0.08);
+  color: var(--accent2);
   font-weight: 600;
-  font-size: 0.8rem;
+  font-size: 0.78rem;
   text-transform: uppercase;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.05em;
+  border-bottom: 1px solid rgba(99,102,241,0.15);
 }
 td { color: var(--text); }
 tr:hover td { background: rgba(255,255,255,0.02); }
+table { border-radius: 12px; overflow: hidden; }
 
 /* ============ QUESTION BADGES ============ */
 .q-badge {
@@ -473,12 +532,15 @@ tr:hover td { background: rgba(255,255,255,0.02); }
 
 /* ============ MOCK FINAL ============ */
 .mock-question {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: 12px;
+  background: rgba(16,18,26,0.5);
+  border: 1px solid rgba(255,255,255,0.05);
+  border-radius: 16px;
   padding: 2rem;
-  margin-bottom: 2rem;
+  margin-bottom: 1.5rem;
+  backdrop-filter: blur(8px);
+  transition: border-color 0.3s;
 }
+.mock-question:hover { border-color: rgba(255,255,255,0.1); }
 .mock-question h4 {
   font-size: 1.2rem;
   font-weight: 700;
@@ -3623,8 +3685,9 @@ Back: 9</pre>
 </div>
 
 <!-- FOOTER -->
-<footer style="text-align:center; padding: 4rem 2rem; color: var(--text-dim); font-size: 0.85rem; border-top: 1px solid var(--border); margin-top: 4rem;">
-  COEN 244 Crash Course &mdash; Concordia University &mdash; Built for students, by students
+<footer style="text-align:center; padding: 5rem 2rem 3rem; color: var(--text-dim); font-size: 0.8rem; border-top: 1px solid rgba(255,255,255,0.04); margin-top: 4rem; letter-spacing: 0.02em;">
+  <div style="margin-bottom:0.5rem; font-size:1rem; font-weight:700; color:var(--text); font-family:'Sora',sans-serif;">COEN 244</div>
+  Crash Course &mdash; Concordia University &mdash; Built for students, by students
 </footer>
 
 <!-- ==================== JS ==================== -->
