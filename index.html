@@ -2119,118 +2119,322 @@ inFile.<span class="fn">close</span>();                               <span clas
     </ul>
   </div>
 
+  <!-- WHAT ARE TEMPLATES -->
   <div class="theory-section">
-    <h4>What Are Templates?</h4>
-    <p>Imagine writing a function that finds the maximum of two values. For integers, you write one function. For doubles, you write another. For strings, another. The logic is <strong>identical</strong> &mdash; only the type changes.</p>
-    <p>Templates let you write it <strong>ONCE</strong> using a placeholder type <span class="inline-code">T</span>. The compiler generates type-specific versions automatically when you use it.</p>
+    <h4>What Are Templates? &mdash; The Problem They Solve</h4>
+    <p>Imagine you need a function that finds the maximum of two values. Without templates, you'd write:</p>
+
+<pre><span class="cm">// WITHOUT templates — you write the SAME logic 3 times!</span>
+<span class="kw">int</span> <span class="fn">maxInt</span>(<span class="kw">int</span> a, <span class="kw">int</span> b) { <span class="kw">return</span> (a &gt; b) ? a : b; }
+<span class="kw">double</span> <span class="fn">maxDouble</span>(<span class="kw">double</span> a, <span class="kw">double</span> b) { <span class="kw">return</span> (a &gt; b) ? a : b; }
+<span class="tp">string</span> <span class="fn">maxString</span>(<span class="tp">string</span> a, <span class="tp">string</span> b) { <span class="kw">return</span> (a &gt; b) ? a : b; }
+<span class="cm">// Same logic, different types. This is code duplication!</span></pre>
+
+    <p>Templates fix this. You write the logic <strong>ONCE</strong> using a placeholder type called <span class="inline-code">T</span>. When you use it, the compiler replaces <span class="inline-code">T</span> with the actual type and generates the right version automatically.</p>
+
+<pre><span class="cm">// WITH templates — write it ONCE, works for ANY type</span>
+<span class="kw">template</span>&lt;<span class="kw">class</span> <span class="tp">T</span>&gt;
+<span class="tp">T</span> <span class="fn">findMax</span>(<span class="tp">T</span> a, <span class="tp">T</span> b) { <span class="kw">return</span> (a &gt; b) ? a : b; }
+
+<span class="cm">// The compiler generates versions for you:</span>
+<span class="fn">findMax</span>(<span class="nm">10</span>, <span class="nm">20</span>);             <span class="cm">// compiler sees int → generates int version → returns 20</span>
+<span class="fn">findMax</span>(<span class="nm">3.14</span>, <span class="nm">2.71</span>);         <span class="cm">// compiler sees double → generates double version → returns 3.14</span>
+<span class="fn">findMax</span>(<span class="tp">string</span>(<span class="st">"Zebra"</span>), <span class="tp">string</span>(<span class="st">"Apple"</span>)); <span class="cm">// string version → returns "Zebra"</span></pre>
+
+    <div class="highlight-box">
+      <strong>Think of it like a cookie cutter.</strong> The template is the cutter shape. <span class="inline-code">T</span> is the type of dough. When you use <span class="inline-code">int</span> dough, you get an int cookie. When you use <span class="inline-code">string</span> dough, you get a string cookie. Same shape, different flavors. You made one cutter, not three.
+    </div>
   </div>
 
+  <!-- FUNCTION TEMPLATES -->
   <div class="theory-section">
-    <h4>Function Templates</h4>
-    <p>Write <strong>one</strong> function that works with any type. The compiler generates type-specific versions.</p>
-<pre><span class="kw">template</span>&lt;<span class="kw">class</span> <span class="tp">T</span>&gt;
-<span class="kw">void</span> <span class="fn">printArray</span>(<span class="kw">const</span> <span class="tp">T</span>* array, <span class="kw">int</span> count) {
+    <h4>Function Templates &mdash; Step by Step</h4>
+    <p>A function template starts with <span class="inline-code">template&lt;class T&gt;</span> before the function. Then use <span class="inline-code">T</span> wherever you'd normally put a specific type.</p>
+
+    <p><strong>Example 1: Print any array</strong></p>
+<pre><span class="kw">template</span>&lt;<span class="kw">class</span> <span class="tp">T</span>&gt;                              <span class="cm">// T is a placeholder for ANY type</span>
+<span class="kw">void</span> <span class="fn">printArray</span>(<span class="kw">const</span> <span class="tp">T</span>* array, <span class="kw">int</span> count) {  <span class="cm">// T* = pointer to array of T</span>
     <span class="kw">for</span> (<span class="kw">int</span> i = <span class="nm">0</span>; i &lt; count; i++)
         cout &lt;&lt; array[i] &lt;&lt; <span class="st">" "</span>;
+    cout &lt;&lt; endl;
 }
 
-<span class="kw">int</span> a[] = {<span class="nm">1</span>,<span class="nm">2</span>,<span class="nm">3</span>};
-<span class="kw">double</span> b[] = {<span class="nm">1.1</span>,<span class="nm">2.2</span>};
-<span class="fn">printArray</span>(a, <span class="nm">3</span>);  <span class="cm">// generates int version</span>
-<span class="fn">printArray</span>(b, <span class="nm">2</span>);  <span class="cm">// generates double version</span></pre>
-  </div>
-
-  <div class="theory-section">
-    <h4>Class Templates &mdash; Full Stack Example</h4>
-    <p>Same idea but for a whole class. Use <span class="inline-code">T</span> as a placeholder type throughout.</p>
-
-<pre><span class="kw">template</span>&lt;<span class="kw">class</span> <span class="tp">T</span>&gt;
-<span class="kw">class</span> <span class="tp">Stack</span> {
-<span class="kw">private</span>:
-    <span class="kw">int</span> size;       <span class="cm">// max capacity</span>
-    <span class="kw">int</span> top;        <span class="cm">// index of top element (-1 = empty)</span>
-    <span class="tp">T</span>* stackPtr;   <span class="cm">// T* — if T=int, this is int*. If T=string, this is string*</span>
-<span class="kw">public</span>:
-    <span class="fn">Stack</span>(<span class="kw">int</span> s);
-    ~<span class="fn">Stack</span>();
-    <span class="kw">void</span> <span class="fn">push</span>(<span class="kw">const</span> <span class="tp">T</span>&amp; value);
-    <span class="tp">T</span> <span class="fn">pop</span>();
-    <span class="kw">bool</span> <span class="fn">isEmpty</span>() <span class="kw">const</span>;
-};
-
-<span class="cm">// IMPORTANT: Outside member functions need TWO things:</span>
-<span class="cm">// 1. template&lt;class T&gt;    on the line above</span>
-<span class="cm">// 2. Stack&lt;T&gt;::           not just Stack::</span>
-
-<span class="kw">template</span>&lt;<span class="kw">class</span> <span class="tp">T</span>&gt;
-<span class="tp">Stack</span>&lt;<span class="tp">T</span>&gt;::<span class="fn">Stack</span>(<span class="kw">int</span> s) {
-    size = s;
-    top = <span class="nm">-1</span>;                    <span class="cm">// -1 = empty stack</span>
-    stackPtr = <span class="kw">new</span> <span class="tp">T</span>[size];      <span class="cm">// allocate array of T</span>
-}
-
-<span class="kw">template</span>&lt;<span class="kw">class</span> <span class="tp">T</span>&gt;
-<span class="tp">Stack</span>&lt;<span class="tp">T</span>&gt;::~<span class="fn">Stack</span>() { <span class="kw">delete</span>[] stackPtr; }
-
-<span class="kw">template</span>&lt;<span class="kw">class</span> <span class="tp">T</span>&gt;
-<span class="kw">void</span> <span class="tp">Stack</span>&lt;<span class="tp">T</span>&gt;::<span class="fn">push</span>(<span class="kw">const</span> <span class="tp">T</span>&amp; value) {
-    <span class="kw">if</span> (top &lt; size - <span class="nm">1</span>)
-        stackPtr[++top] = value;   <span class="cm">// move top up, store value</span>
-    <span class="kw">else</span>
-        cout &lt;&lt; <span class="st">"Stack full!"</span> &lt;&lt; endl;
-}
-
-<span class="kw">template</span>&lt;<span class="kw">class</span> <span class="tp">T</span>&gt;
-<span class="tp">T</span> <span class="tp">Stack</span>&lt;<span class="tp">T</span>&gt;::<span class="fn">pop</span>() {
-    <span class="kw">if</span> (!<span class="fn">isEmpty</span>())
-        <span class="kw">return</span> stackPtr[top--];  <span class="cm">// return top value, move top down</span>
-    cout &lt;&lt; <span class="st">"Stack empty!"</span> &lt;&lt; endl;
-    <span class="kw">return</span> <span class="tp">T</span>();
-}
-
-<span class="kw">template</span>&lt;<span class="kw">class</span> <span class="tp">T</span>&gt;
-<span class="kw">bool</span> <span class="tp">Stack</span>&lt;<span class="tp">T</span>&gt;::<span class="fn">isEmpty</span>() <span class="kw">const</span> { <span class="kw">return</span> top == <span class="nm">-1</span>; }
-
-<span class="cm">// Usage — specify the type in angle brackets:</span>
 <span class="kw">int</span> <span class="fn">main</span>() {
-    <span class="tp">Stack</span>&lt;<span class="kw">int</span>&gt; intStack(<span class="nm">5</span>);         <span class="cm">// every T becomes int</span>
-    intStack.<span class="fn">push</span>(<span class="nm">10</span>);
-    intStack.<span class="fn">push</span>(<span class="nm">20</span>);
-    intStack.<span class="fn">push</span>(<span class="nm">30</span>);
-    cout &lt;&lt; intStack.<span class="fn">pop</span>() &lt;&lt; endl;  <span class="cm">// 30 (last in, first out)</span>
-    cout &lt;&lt; intStack.<span class="fn">pop</span>() &lt;&lt; endl;  <span class="cm">// 20</span>
+    <span class="kw">int</span> nums[] = {<span class="nm">1</span>, <span class="nm">2</span>, <span class="nm">3</span>, <span class="nm">4</span>, <span class="nm">5</span>};
+    <span class="kw">double</span> gpas[] = {<span class="nm">3.8</span>, <span class="nm">3.5</span>, <span class="nm">3.9</span>};
+    <span class="kw">char</span> letters[] = <span class="st">"HELLO"</span>;
 
-    <span class="tp">Stack</span>&lt;<span class="tp">string</span>&gt; strStack(<span class="nm">3</span>);       <span class="cm">// every T becomes string</span>
-    strStack.<span class="fn">push</span>(<span class="st">"Hello"</span>);
-    strStack.<span class="fn">push</span>(<span class="st">"World"</span>);
-    cout &lt;&lt; strStack.<span class="fn">pop</span>() &lt;&lt; endl;  <span class="cm">// World</span>
+    <span class="fn">printArray</span>(nums, <span class="nm">5</span>);      <span class="cm">// T = int    → prints: 1 2 3 4 5</span>
+    <span class="fn">printArray</span>(gpas, <span class="nm">3</span>);      <span class="cm">// T = double → prints: 3.8 3.5 3.9</span>
+    <span class="fn">printArray</span>(letters, <span class="nm">5</span>);   <span class="cm">// T = char   → prints: H E L L O</span>
 }</pre>
 
-    <div class="highlight-box important">
-      <strong>The syntax students always get wrong on exams:</strong><br>
-      WRONG: <span class="inline-code">Stack::Stack(int s) { ... }</span><br>
-      RIGHT: <span class="inline-code">template&lt;class T&gt; Stack&lt;T&gt;::Stack(int s) { ... }</span><br><br>
-      You need BOTH the <span class="inline-code">template&lt;class T&gt;</span> line AND <span class="inline-code">Stack&lt;T&gt;::</span> with the <span class="inline-code">&lt;T&gt;</span>. This was a direct question on the 2017 final (Q10-11).
+    <p><strong>Example 2: Two template parameters</strong></p>
+<pre><span class="kw">template</span>&lt;<span class="kw">class</span> <span class="tp">T1</span>, <span class="kw">class</span> <span class="tp">T2</span>&gt;           <span class="cm">// two different type placeholders</span>
+<span class="tp">T1</span> <span class="fn">f1</span>(<span class="tp">T1</span> value1, <span class="tp">T2</span> value2) {
+    <span class="kw">if</span> (value1 &lt; value2) <span class="kw">return</span> value1;
+    <span class="kw">else</span> <span class="kw">return</span> value1 * <span class="nm">2</span>;
+}
+
+<span class="fn">f1</span>(<span class="nm">2</span>, <span class="nm">5</span>);     <span class="cm">// T1=int, T2=int. 2 &lt; 5 → returns 2</span>
+<span class="fn">f1</span>(<span class="nm">2</span>, <span class="nm">1.1</span>);   <span class="cm">// T1=int, T2=double. 2 &lt; 1.1? NO → returns 2*2 = 4</span>
+<span class="cm">// NOTE: return type is T1 (int), so even though 1.1 is double, result is int!</span>
+<span class="cm">// This exact question was on the 2017 final Q2</span></pre>
+
+    <div class="highlight-box warn">
+      <strong>How does the compiler know what T is?</strong> It looks at the arguments you pass. If you call <span class="inline-code">findMax(10, 20)</span>, it sees two ints, so T = int. If you call <span class="inline-code">findMax(3.14, 2.71)</span>, it sees two doubles, so T = double. This is called <strong>type deduction</strong> &mdash; the compiler figures it out automatically.
+    </div>
+  </div>
+
+  <!-- CLASS TEMPLATES -->
+  <div class="theory-section">
+    <h4>Class Templates &mdash; What They Are</h4>
+    <p>Just like function templates, you can make an <strong>entire class</strong> generic. Every data member and member function can use the placeholder type <span class="inline-code">T</span>.</p>
+
+    <p><strong>Why?</strong> Imagine a Stack class. A Stack of integers, a Stack of doubles, a Stack of strings &mdash; the logic is identical. Only the data type changes. Instead of writing 3 separate Stack classes, you write ONE template.</p>
+
+    <div class="concept-grid">
+      <div class="concept-card">
+        <div class="concept-title" style="color:var(--accent)">Without Templates</div>
+        <p>You'd write <span class="inline-code">StackInt</span>, <span class="inline-code">StackDouble</span>, <span class="inline-code">StackString</span> &mdash; three classes with identical logic but different types. Terrible code duplication.</p>
+      </div>
+      <div class="concept-card">
+        <div class="concept-title" style="color:var(--accent3)">With Templates</div>
+        <p>You write <span class="inline-code">Stack&lt;T&gt;</span> ONCE. Then use <span class="inline-code">Stack&lt;int&gt;</span>, <span class="inline-code">Stack&lt;double&gt;</span>, <span class="inline-code">Stack&lt;string&gt;</span>. The compiler generates all three for you.</p>
+      </div>
     </div>
   </div>
 
   <div class="theory-section">
-    <h4>STL: vector Basics</h4>
+    <h4>Class Template: Full Stack&lt;T&gt; Example</h4>
+    <p><strong>What is a Stack?</strong> A data structure that follows <strong>LIFO</strong> &mdash; Last In, First Out. Like a pile of plates: you put plates on top (push) and take plates from the top (pop). The last plate you put on is the first one you take off.</p>
+
+    <p><strong>Step 1: The class declaration</strong></p>
+<pre><span class="kw">template</span>&lt;<span class="kw">class</span> <span class="tp">T</span>&gt;        <span class="cm">// T = placeholder type (will become int, double, string, etc.)</span>
+<span class="kw">class</span> <span class="tp">Stack</span> {
+<span class="kw">private</span>:
+    <span class="kw">int</span> size;              <span class="cm">// max capacity of the stack (always int)</span>
+    <span class="kw">int</span> top;               <span class="cm">// index of the top element (-1 means empty)</span>
+    <span class="tp">T</span>* stackPtr;          <span class="cm">// pointer to dynamic array of T</span>
+                           <span class="cm">// If T=int → this is int*</span>
+                           <span class="cm">// If T=string → this is string*</span>
+<span class="kw">public</span>:
+    <span class="fn">Stack</span>(<span class="kw">int</span> s);          <span class="cm">// constructor</span>
+    ~<span class="fn">Stack</span>();              <span class="cm">// destructor</span>
+    <span class="kw">void</span> <span class="fn">push</span>(<span class="kw">const</span> <span class="tp">T</span>&amp;);  <span class="cm">// add element to top</span>
+    <span class="tp">T</span> <span class="fn">pop</span>();               <span class="cm">// remove and return top element</span>
+    <span class="kw">bool</span> <span class="fn">isEmpty</span>() <span class="kw">const</span>; <span class="cm">// check if stack is empty</span>
+    <span class="kw">bool</span> <span class="fn">isFull</span>() <span class="kw">const</span>;  <span class="cm">// check if stack is full</span>
+};</pre>
+
+    <p><strong>Step 2: Implement member functions OUTSIDE the class</strong></p>
+    <div class="highlight-box important">
+      <strong>THE RULE:</strong> Every member function defined outside a class template needs TWO things:<br>
+      1. <span class="inline-code">template&lt;class T&gt;</span> on the line above<br>
+      2. <span class="inline-code">Stack&lt;T&gt;::</span> not just <span class="inline-code">Stack::</span> &mdash; you MUST include the <span class="inline-code">&lt;T&gt;</span><br><br>
+      WRONG: <span class="inline-code">Stack::Stack(int s) { ... }</span><br>
+      RIGHT: <span class="inline-code">template&lt;class T&gt; Stack&lt;T&gt;::Stack(int s) { ... }</span><br>
+      This was directly tested on the 2017 final (Q10-11).
+    </div>
+
+<pre><span class="cm">// Constructor</span>
+<span class="kw">template</span>&lt;<span class="kw">class</span> <span class="tp">T</span>&gt;               <span class="cm">// ← line 1: template declaration</span>
+<span class="tp">Stack</span>&lt;<span class="tp">T</span>&gt;::<span class="fn">Stack</span>(<span class="kw">int</span> s) {      <span class="cm">// ← line 2: Stack&lt;T&gt;:: (NOT Stack::)</span>
+    size = s;
+    top = <span class="nm">-1</span>;                   <span class="cm">// -1 means the stack is empty (no plates yet)</span>
+    stackPtr = <span class="kw">new</span> <span class="tp">T</span>[size];     <span class="cm">// allocate array of T on the heap</span>
+}
+
+<span class="cm">// Destructor</span>
+<span class="kw">template</span>&lt;<span class="kw">class</span> <span class="tp">T</span>&gt;
+<span class="tp">Stack</span>&lt;<span class="tp">T</span>&gt;::~<span class="fn">Stack</span>() {
+    <span class="kw">delete</span>[] stackPtr;          <span class="cm">// free the dynamic array (new[] → delete[])</span>
+}
+
+<span class="cm">// Push — add element to top of stack</span>
+<span class="kw">template</span>&lt;<span class="kw">class</span> <span class="tp">T</span>&gt;
+<span class="kw">void</span> <span class="tp">Stack</span>&lt;<span class="tp">T</span>&gt;::<span class="fn">push</span>(<span class="kw">const</span> <span class="tp">T</span>&amp; value) {
+    <span class="kw">if</span> (!<span class="fn">isFull</span>()) {
+        top++;                    <span class="cm">// move top index up by 1</span>
+        stackPtr[top] = value;    <span class="cm">// store the value at the new top</span>
+    } <span class="kw">else</span>
+        cout &lt;&lt; <span class="st">"Stack is full!"</span> &lt;&lt; endl;
+}
+
+<span class="cm">// Pop — remove and return top element</span>
+<span class="kw">template</span>&lt;<span class="kw">class</span> <span class="tp">T</span>&gt;
+<span class="tp">T</span> <span class="tp">Stack</span>&lt;<span class="tp">T</span>&gt;::<span class="fn">pop</span>() {
+    <span class="kw">if</span> (!<span class="fn">isEmpty</span>()) {
+        <span class="tp">T</span> value = stackPtr[top];  <span class="cm">// grab the value at the top</span>
+        top--;                    <span class="cm">// move top down by 1</span>
+        <span class="kw">return</span> value;             <span class="cm">// return what we grabbed</span>
+    }
+    cout &lt;&lt; <span class="st">"Stack is empty!"</span> &lt;&lt; endl;
+    <span class="kw">return</span> <span class="tp">T</span>();                  <span class="cm">// return default value (0 for int, "" for string)</span>
+}
+
+<span class="cm">// isEmpty — check if stack has no elements</span>
+<span class="kw">template</span>&lt;<span class="kw">class</span> <span class="tp">T</span>&gt;
+<span class="kw">bool</span> <span class="tp">Stack</span>&lt;<span class="tp">T</span>&gt;::<span class="fn">isEmpty</span>() <span class="kw">const</span> { <span class="kw">return</span> top == <span class="nm">-1</span>; }
+
+<span class="cm">// isFull — check if stack has reached capacity</span>
+<span class="kw">template</span>&lt;<span class="kw">class</span> <span class="tp">T</span>&gt;
+<span class="kw">bool</span> <span class="tp">Stack</span>&lt;<span class="tp">T</span>&gt;::<span class="fn">isFull</span>() <span class="kw">const</span> { <span class="kw">return</span> top == size - <span class="nm">1</span>; }</pre>
+
+    <p><strong>Step 3: Visual — what push and pop look like</strong></p>
+<pre><span class="cm">// Pushing 10, 20, 30 onto a Stack of size 5:</span>
+
+<span class="cm">push(10):       push(20):       push(30):</span>
+<span class="cm">[0] = 10 ← top  [0] = 10        [0] = 10</span>
+<span class="cm">[1] = ?         [1] = 20 ← top  [1] = 20</span>
+<span class="cm">[2] = ?         [2] = ?         [2] = 30 ← top</span>
+<span class="cm">[3] = ?         [3] = ?         [3] = ?</span>
+<span class="cm">[4] = ?         [4] = ?         [4] = ?</span>
+<span class="cm">top = 0         top = 1         top = 2</span>
+
+<span class="cm">// Popping from the stack (LIFO — last in, first out):</span>
+<span class="cm">pop() → 30      pop() → 20      pop() → 10</span>
+<span class="cm">top = 1         top = 0         top = -1 (empty)</span></pre>
+
+    <p><strong>Step 4: Using the template &mdash; this is where the magic happens</strong></p>
+<pre><span class="kw">int</span> <span class="fn">main</span>() {
+    <span class="cm">// Stack of integers — T becomes int everywhere</span>
+    <span class="tp">Stack</span>&lt;<span class="kw">int</span>&gt; intStack(<span class="nm">5</span>);
+    intStack.<span class="fn">push</span>(<span class="nm">10</span>);
+    intStack.<span class="fn">push</span>(<span class="nm">20</span>);
+    intStack.<span class="fn">push</span>(<span class="nm">30</span>);
+    cout &lt;&lt; intStack.<span class="fn">pop</span>() &lt;&lt; endl;  <span class="cm">// 30 (last in = first out)</span>
+    cout &lt;&lt; intStack.<span class="fn">pop</span>() &lt;&lt; endl;  <span class="cm">// 20</span>
+    cout &lt;&lt; intStack.<span class="fn">pop</span>() &lt;&lt; endl;  <span class="cm">// 10</span>
+
+    <span class="cm">// Stack of strings — SAME class, T becomes string</span>
+    <span class="tp">Stack</span>&lt;<span class="tp">string</span>&gt; nameStack(<span class="nm">3</span>);
+    nameStack.<span class="fn">push</span>(<span class="st">"Alice"</span>);
+    nameStack.<span class="fn">push</span>(<span class="st">"Bob"</span>);
+    nameStack.<span class="fn">push</span>(<span class="st">"Carol"</span>);
+    cout &lt;&lt; nameStack.<span class="fn">pop</span>() &lt;&lt; endl; <span class="cm">// Carol</span>
+    cout &lt;&lt; nameStack.<span class="fn">pop</span>() &lt;&lt; endl; <span class="cm">// Bob</span>
+
+    <span class="cm">// Stack of doubles — same class again!</span>
+    <span class="tp">Stack</span>&lt;<span class="kw">double</span>&gt; gpaStack(<span class="nm">10</span>);
+    gpaStack.<span class="fn">push</span>(<span class="nm">3.8</span>);
+    gpaStack.<span class="fn">push</span>(<span class="nm">3.5</span>);
+    cout &lt;&lt; gpaStack.<span class="fn">pop</span>() &lt;&lt; endl;  <span class="cm">// 3.5</span>
+}</pre>
+
+    <div class="highlight-box">
+      <strong>One class, three uses.</strong> We wrote <span class="inline-code">Stack&lt;T&gt;</span> once. The compiler generated <span class="inline-code">Stack&lt;int&gt;</span>, <span class="inline-code">Stack&lt;string&gt;</span>, and <span class="inline-code">Stack&lt;double&gt;</span> automatically. Each one replaces every <span class="inline-code">T</span> with the specific type. You wrote it once, the compiler did the rest.
+    </div>
+  </div>
+
+  <!-- TEMPLATE WITH OPERATOR<< -->
+  <div class="theory-section">
+    <h4>Class Template with operator&lt;&lt; (Exam Pattern)</h4>
+    <p>A simpler example &mdash; a <span class="inline-code">Pair&lt;T1, T2&gt;</span> template that stores two values of potentially different types:</p>
+
+<pre><span class="kw">template</span>&lt;<span class="kw">class</span> <span class="tp">T1</span>, <span class="kw">class</span> <span class="tp">T2</span>&gt;
+<span class="kw">class</span> <span class="tp">Pair</span> {
+<span class="kw">public</span>:
+    <span class="fn">Pair</span>(<span class="tp">T1</span> f, <span class="tp">T2</span> s) : first(f), second(s) {}
+    <span class="tp">T1</span> <span class="fn">getFirst</span>() <span class="kw">const</span> { <span class="kw">return</span> first; }
+    <span class="tp">T2</span> <span class="fn">getSecond</span>() <span class="kw">const</span> { <span class="kw">return</span> second; }
+
+    <span class="cm">// operator&lt;&lt; as a friend inside the template class</span>
+    <span class="kw">friend</span> <span class="tp">ostream</span>&amp; <span class="kw">operator</span>&lt;&lt;(<span class="tp">ostream</span>&amp; out, <span class="kw">const</span> <span class="tp">Pair</span>&lt;<span class="tp">T1</span>,<span class="tp">T2</span>&gt;&amp; p) {
+        out &lt;&lt; <span class="st">"("</span> &lt;&lt; p.first &lt;&lt; <span class="st">", "</span> &lt;&lt; p.second &lt;&lt; <span class="st">")"</span>;
+        <span class="kw">return</span> out;
+    }
+<span class="kw">private</span>:
+    <span class="tp">T1</span> first;
+    <span class="tp">T2</span> second;
+};
+
+<span class="kw">int</span> <span class="fn">main</span>() {
+    <span class="tp">Pair</span>&lt;<span class="tp">string</span>, <span class="kw">int</span>&gt; student(<span class="st">"Alice"</span>, <span class="nm">40123456</span>);
+    <span class="tp">Pair</span>&lt;<span class="kw">double</span>, <span class="kw">double</span>&gt; point(<span class="nm">3.5</span>, <span class="nm">7.2</span>);
+    <span class="tp">Pair</span>&lt;<span class="tp">string</span>, <span class="kw">double</span>&gt; grade(<span class="st">"COEN244"</span>, <span class="nm">3.8</span>);
+
+    cout &lt;&lt; student &lt;&lt; endl;  <span class="cm">// (Alice, 40123456)</span>
+    cout &lt;&lt; point &lt;&lt; endl;    <span class="cm">// (3.5, 7.2)</span>
+    cout &lt;&lt; grade &lt;&lt; endl;    <span class="cm">// (COEN244, 3.8)</span>
+}</pre>
+  </div>
+
+  <!-- STL VECTORS -->
+  <div class="theory-section">
+    <h4>STL: Standard Template Library &mdash; vector</h4>
+    <p>The STL is a collection of pre-built template classes and functions. The most important one for this course is <span class="inline-code">vector</span> &mdash; a <strong>dynamic array</strong> that automatically resizes when you add elements. Unlike regular arrays, you don't need to know the size at compile time.</p>
+    <p>Include <span class="inline-code">&lt;vector&gt;</span> and <span class="inline-code">&lt;algorithm&gt;</span> (for sort).</p>
+
+    <p><strong>Creating and adding elements:</strong></p>
+<pre><span class="tp">vector</span>&lt;<span class="kw">int</span>&gt; v;              <span class="cm">// creates an empty vector of ints</span>
+v.<span class="fn">push_back</span>(<span class="nm">30</span>);            <span class="cm">// adds 30 to the end → {30}</span>
+v.<span class="fn">push_back</span>(<span class="nm">10</span>);            <span class="cm">// adds 10 to the end → {30, 10}</span>
+v.<span class="fn">push_back</span>(<span class="nm">50</span>);            <span class="cm">// adds 50 to the end → {30, 10, 50}</span></pre>
+
+    <p><strong>All the functions you need to know:</strong></p>
+    <table>
+      <tr><th>Function</th><th>What It Does</th><th>Example</th></tr>
+      <tr><td><span class="inline-code">push_back(val)</span></td><td>Add element to the END</td><td><span class="inline-code">v.push_back(42);</span></td></tr>
+      <tr><td><span class="inline-code">pop_back()</span></td><td>Remove the LAST element</td><td><span class="inline-code">v.pop_back();</span></td></tr>
+      <tr><td><span class="inline-code">size()</span></td><td>Returns number of elements</td><td><span class="inline-code">cout &lt;&lt; v.size();</span></td></tr>
+      <tr><td><span class="inline-code">front()</span></td><td>Returns FIRST element</td><td><span class="inline-code">cout &lt;&lt; v.front();</span></td></tr>
+      <tr><td><span class="inline-code">back()</span></td><td>Returns LAST element</td><td><span class="inline-code">cout &lt;&lt; v.back();</span></td></tr>
+      <tr><td><span class="inline-code">erase(pos)</span></td><td>Remove at position</td><td><span class="inline-code">v.erase(v.begin()+1);</span> removes index 1</td></tr>
+      <tr><td><span class="inline-code">insert(pos, val)</span></td><td>Insert at position</td><td><span class="inline-code">v.insert(v.begin()+2, 99);</span></td></tr>
+      <tr><td><span class="inline-code">begin()</span></td><td>Iterator to first element</td><td>Used with sort, erase, insert</td></tr>
+      <tr><td><span class="inline-code">end()</span></td><td>Iterator to one-past-last</td><td>Used with sort, loops</td></tr>
+    </table>
+
+    <p><strong>Sorting:</strong></p>
+<pre><span class="fn">sort</span>(v.<span class="fn">begin</span>(), v.<span class="fn">end</span>());  <span class="cm">// sorts ascending (smallest first)</span>
+<span class="cm">// For strings, sorts alphabetically (lexicographic order)</span></pre>
+
+    <p><strong>Looping with iterators:</strong></p>
+<pre><span class="cm">// An iterator is like a pointer that walks through the vector</span>
+<span class="tp">vector</span>&lt;<span class="kw">int</span>&gt;::<span class="tp">iterator</span> it;                <span class="cm">// declare iterator</span>
+<span class="kw">for</span> (it = v.<span class="fn">begin</span>(); it != v.<span class="fn">end</span>(); it++)  <span class="cm">// loop from start to end</span>
+    cout &lt;&lt; *it &lt;&lt; <span class="st">" "</span>;                    <span class="cm">// dereference to get the value (like a pointer)</span>
+
+<span class="cm">// For const (read-only) access:</span>
+<span class="tp">vector</span>&lt;<span class="kw">int</span>&gt;::<span class="tp">const_iterator</span> cit;</pre>
+
+    <div class="highlight-box warn">
+      <strong>Exam tip for STL questions:</strong> They give you code and ask "what's the output?" Don't try to do it in your head. <strong>Write down the vector contents after EACH operation on paper.</strong> Step by step. push_back → write what's in the vector. sort → write the new order. erase → cross out and rewrite. This is how you get 100% on these questions.
+    </div>
+  </div>
+
+  <div class="theory-section">
+    <h4>STL Output Tracing &mdash; Worked Example</h4>
+    <p>Let's trace through a complete example step by step:</p>
 <pre><span class="tp">vector</span>&lt;<span class="kw">int</span>&gt; v;
-v.<span class="fn">push_back</span>(<span class="nm">30</span>);       <span class="cm">// add to end</span>
-v.<span class="fn">push_back</span>(<span class="nm">10</span>);
-v.<span class="fn">size</span>();              <span class="cm">// returns 2</span>
-v.<span class="fn">front</span>();             <span class="cm">// first element</span>
-v.<span class="fn">back</span>();              <span class="cm">// last element</span>
-v.<span class="fn">erase</span>(v.<span class="fn">begin</span>()+<span class="nm">1</span>); <span class="cm">// remove at index 1</span>
-v.<span class="fn">pop_back</span>();          <span class="cm">// remove last</span>
+v.<span class="fn">push_back</span>(<span class="nm">30</span>);   <span class="cm">// v = {30}</span>
+v.<span class="fn">push_back</span>(<span class="nm">10</span>);   <span class="cm">// v = {30, 10}</span>
+v.<span class="fn">push_back</span>(<span class="nm">50</span>);   <span class="cm">// v = {30, 10, 50}</span>
+v.<span class="fn">push_back</span>(<span class="nm">20</span>);   <span class="cm">// v = {30, 10, 50, 20}</span>
+v.<span class="fn">push_back</span>(<span class="nm">40</span>);   <span class="cm">// v = {30, 10, 50, 20, 40}</span>
 
-<span class="fn">sort</span>(v.<span class="fn">begin</span>(), v.<span class="fn">end</span>());  <span class="cm">// sort ascending</span>
+cout &lt;&lt; <span class="st">"Size: "</span> &lt;&lt; v.<span class="fn">size</span>() &lt;&lt; endl;
+<span class="cm">// Output: Size: 5</span>
 
-<span class="cm">// Iterator loop:</span>
-<span class="tp">vector</span>&lt;<span class="kw">int</span>&gt;::<span class="tp">iterator</span> it;
-<span class="kw">for</span> (it = v.<span class="fn">begin</span>(); it != v.<span class="fn">end</span>(); it++)
-    cout &lt;&lt; *it &lt;&lt; <span class="st">" "</span>;</pre>
+<span class="fn">sort</span>(v.<span class="fn">begin</span>(), v.<span class="fn">end</span>());
+<span class="cm">// v = {10, 20, 30, 40, 50}  ← sorted ascending</span>
+
+<span class="cm">// Print all:</span>
+<span class="cm">// Output: 10 20 30 40 50</span>
+
+v.<span class="fn">erase</span>(v.<span class="fn">begin</span>() + <span class="nm">1</span>);
+<span class="cm">// begin()+1 = index 1 = the 20</span>
+<span class="cm">// v = {10, 30, 40, 50}  ← 20 removed</span>
+
+<span class="cm">// Print all:</span>
+<span class="cm">// Output: 10 30 40 50</span>
+
+cout &lt;&lt; <span class="st">"Front: "</span> &lt;&lt; v.<span class="fn">front</span>() &lt;&lt; endl;
+<span class="cm">// Output: Front: 10</span>
+
+cout &lt;&lt; <span class="st">"Back: "</span> &lt;&lt; v.<span class="fn">back</span>() &lt;&lt; endl;
+<span class="cm">// Output: Back: 50</span></pre>
   </div>
 
   <details>
